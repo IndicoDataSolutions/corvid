@@ -1,0 +1,17 @@
+<div class="quote_text">{{highlight_display}}</div>
+<div class="well">
+    <div class="passage full_text" style="text-align: left;">{{paragraph}}</div>
+</div>
+<div class="row-fluid">
+    <div class="span6">
+        <hr />
+        <div class="well">
+            <b>Keywords:</b> {{keyword_list}}
+            <cml:checkboxes label="Select which of the highlighted words are relevant to the above keywords:" name="keywords_validated" validates="required">
+                {% for word in highlight %}
+                <cml:checkbox value="{{ highlight[forloop.index0] }}" label="{{word}}"/>
+                {% endfor %}
+            </cml:checkboxes>
+        </div>
+    </div>
+</div>
