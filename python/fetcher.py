@@ -7,32 +7,10 @@ Fetcher grabs JSON papers from some Server and returns it as a Paper object
 from typing import Dict, List
 
 import sys
-import os
-import requests
-
 import re
 
 from python.util import parse_arguments
-
-
-class Server(object):
-    def __init__(self, url, port):
-        self.url = url
-        self.port = port
-        self.endpoint = '{}:{}'.format(url, port)
-
-    def get_paper_by_id(self, paper_id: str):
-        raise NotImplementedError
-
-
-class ElasticSearchServer(Server):
-    def get_paper_by_id(self, paper_id: str) -> Dict:
-        return requests.get(os.path.join(self.endpoint, 'paper',
-                                         'paper', paper_id)).json()['_source']
-
-
-class S3Server(Server):
-    pass
+from python.server import Server, ElasticSearchServer
 
 
 class Mention(object):
@@ -53,6 +31,10 @@ class Paper(object):
     def __init__(self, paper: Dict):
         self._paper = paper
         self.mentions = self.find_mentions()
+
+    @property
+    def id(self):
+        return self._paper.get('id')
 
     @property
     def abstract(self):
@@ -92,4 +74,5 @@ if __name__ == '__main__':
     es_server = ElasticSearchServer(url=args.url, port=args.port)
     fetcher = Fetcher(server=es_server)
     papers = fetcher(paper_ids=[args.paper_id])
+
     
