@@ -8,6 +8,7 @@ from typing import Dict, List
 
 import sys
 import re
+import warnings
 
 from python.util import parse_arguments
 from python.server import Server, ElasticSearchServer
@@ -51,22 +52,29 @@ class Paper(object):
 
         is_duplicates = len(mentions) != len(set([m.as_num for m in mentions]))
         if is_duplicates:
-            raise Exception('Currently not supporting duplication in Mentions '
-                            'for same Paper')
+            warnings.warn('Duplicate mentions in paper_id {}'.format(self.id))
 
         return mentions
 
 
 # TODO: Only supporting 100 papers at once, just to keep ES server happy
 class Fetcher(object):
+    MAX_BATCH_SIZE = 100
     def __init__(self, server: Server):
         self.server = server
 
     def __call__(self, paper_ids: List[str]) -> List[Paper]:
-        if len(paper_ids) > 100:
+        if len(paper_ids) > Fetcher.MAX_BATCH_SIZE:
             raise Exception('Too many papers at once!')
-        return [Paper(paper=es_server.get_paper_by_id(paper_id))
-                for paper_id in paper_ids]
+        papers = []
+        for paper_id in paper_ids:
+            print('Fetching paper_id {}'.format(paper_id))
+            try:
+                papers.append(Paper(self.server.get_paper_by_id(paper_id)))
+            except Exception:
+                print('Skipping paper_id {}'.format(paper_id))
+
+        return papers
 
 
 if __name__ == '__main__':
@@ -74,5 +82,3 @@ if __name__ == '__main__':
     es_server = ElasticSearchServer(url=args.url, port=args.port)
     fetcher = Fetcher(server=es_server)
     papers = fetcher(paper_ids=[args.paper_id])
-
-    

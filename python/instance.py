@@ -38,14 +38,11 @@ class Result(object):
 
 
 class Instance(object):
-    def __init__(self, paper: Paper, query: Query, results: List[Result]=None):
+    def __init__(self, paper: Paper, query: Query,
+                 results: List[Result] = None):
         self.paper = paper
         self.query = query
         self.results = results
 
     def json(self):
         pass
-
-
-
-

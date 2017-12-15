@@ -1,0 +1,23 @@
+<div class="quote_text">{{highlight_display}}</div>
+
+<div class="well">
+  <b>Abstract:</b>
+  <div class="full_text" style="text-align: left">{{abstract}}</div>
+</div>
+
+<div class="well">
+  <b>Keywords:</b>
+  <div class="query" style="text-align: left">{{query}}</div>
+</div>
+
+<div class="well">
+  <cml:checkboxes label="Select which highlighted numbers are empirical results relevant to the above keywords:" name="results">
+            {% for n in number_list %}
+    <cml:checkbox value="{{ number_list[forloop.index0] }}" label="{{n}}"/>
+            {% endfor %}
+  </cml:checkboxes>
+</div>
+
+<div class="well">
+  <cml:text label="Unsure numbers (comma-separated)" validates="regex" data-validates-regex="^(\s*-?\d+(\.\d+)?)(\s*,\s*-?\d+(\.\d+)?)*$"/>
+</div>
