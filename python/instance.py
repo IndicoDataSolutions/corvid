@@ -4,7 +4,7 @@
 
 """
 
-from typing import List
+from typing import List, Dict
 
 from python.fetcher import Mention, Paper
 
@@ -42,7 +42,15 @@ class Instance(object):
                  results: List[Result] = None):
         self.paper = paper
         self.query = query
+        if results is None:
+            results = []
         self.results = results
 
-    def json(self):
-        pass
+    @property
+    def json(self) -> Dict:
+        return {
+            'paper_id': self.paper.id,
+            'query': self.query.keywords,
+            'results': [[result.value, result.label] for result in self.results]
+        }
+
