@@ -1,32 +1,95 @@
 """
 
-Fetcher grabs a JSON paper from AWS and returns it as a Paper object
+Fetcher grabs JSON papers from some Server and returns it as a Paper object
 
 """
 
-from typing import Dict
+from typing import Dict, List
 
 import sys
+import os
+import requests
 
-from python.util import ElasticSearchServer, parse_arguments
+import re
+
+from python.util import parse_arguments
 
 
+class Server(object):
+    def __init__(self, url, port):
+        self.url = url
+        self.port = port
+        self.endpoint = '{}:{}'.format(url, port)
+
+    def get_paper_by_id(self, paper_id: str):
+        raise NotImplementedError
+
+
+class ElasticSearchServer(Server):
+    def get_paper_by_id(self, paper_id: str) -> Dict:
+        return requests.get(os.path.join(self.endpoint, 'paper',
+                                         'paper', paper_id)).json()['_source']
+
+
+class S3Server(Server):
+    pass
+
+
+class Mention(object):
+    def __init__(self, as_str: str):
+        self.as_str = as_str
+        try:
+            self.as_num = int(as_str)
+        except:
+            self.as_num = float(as_str)
+        self.as_span = None
+
+    def __repr__(self):
+        return self.as_str
+
+
+# TODO: this regex catches 10,000,000 as 3 separate matches
 class Paper(object):
     def __init__(self, paper: Dict):
-        self.paper = paper
-        self.__dict__.update(paper)
+        self._paper = paper
+        self.mentions = self.find_mentions()
 
     @property
     def abstract(self):
-        return self.paperAbstract
+        return self._paper.get('paperAbstract')
 
     @property
     def venue(self):
-        return self.venue
+        return self._paper.get('venue')
+
+    def find_mentions(self) -> List[Mention]:
+        mentions = re.findall(pattern=r'[-+]?\d*\.\d+|\d+',
+                              string=self.abstract)
+        mentions = [Mention(as_str=m) for m in mentions]
+
+        is_duplicates = len(mentions) != len(set([m.as_num for m in mentions]))
+        if is_duplicates:
+            raise Exception('Currently not supporting duplication in Mentions '
+                            'for same Paper')
+
+        return mentions
+
+
+# TODO: Only supporting 100 papers at once, just to keep ES server happy
+class Fetcher(object):
+    def __init__(self, server: Server):
+        self.server = server
+
+    def __call__(self, paper_ids: List[str]) -> List[Paper]:
+        if len(paper_ids) > 100:
+            raise Exception('Too many papers at once!')
+        return [Paper(paper=es_server.get_paper_by_id(paper_id))
+                for paper_id in paper_ids]
 
 
 if __name__ == '__main__':
     args = parse_arguments(sys.argv[1:])
     es_server = ElasticSearchServer(url=args.url, port=args.port)
-    paper = Paper(paper=es_server.get_paper_by_id(paper_id=args.paper_id))
-    print(paper.abstract)
+    fetcher = Fetcher(server=es_server)
+    papers = fetcher(paper_ids=[args.paper_id])
+    
