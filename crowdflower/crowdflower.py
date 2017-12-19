@@ -28,3 +28,4 @@ class CrowdFlower(object):
                 i += 1
         print('Wrote {} rows to {}'.format(i, fout))
         return i
+

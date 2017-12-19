@@ -1,84 +1,64 @@
 """
 
-Fetcher grabs JSON papers from some Server and returns it as a Paper object
+
 
 """
 
 from typing import Dict, List
 
+import os
+import requests
+
 import sys
-import re
-import warnings
 
-from python.util import parse_arguments
-from python.server import Server, ElasticSearchServer
+import subprocess
 
-
-class Mention(object):
-    def __init__(self, as_str: str):
-        self.as_str = as_str
-        try:
-            self.as_num = int(as_str)
-        except:
-            self.as_num = float(as_str)
-        self.as_span = None
-
-    def __repr__(self):
-        return self.as_str
+from python.instance import Paper
 
 
-# TODO: this regex catches 10,000,000 as 3 separate matches
-class Paper(object):
-    def __init__(self, paper: Dict):
-        self._paper = paper
-        self.mentions = self.find_mentions()
-
-    @property
-    def id(self):
-        return self._paper.get('id')
-
-    @property
-    def abstract(self):
-        return self._paper.get('paperAbstract')
-
-    @property
-    def venue(self):
-        return self._paper.get('venue')
-
-    def find_mentions(self) -> List[Mention]:
-        mentions = re.findall(pattern=r'[-+]?\d*\.\d+|\d+',
-                              string=self.abstract)
-        mentions = [Mention(as_str=m) for m in mentions]
-
-        is_duplicates = len(mentions) != len(set([m.as_num for m in mentions]))
-        if is_duplicates:
-            warnings.warn('Duplicate mentions in paper_id {}'.format(self.id))
-
-        return mentions
+def fetch_one_paper_from_es(es_url: str, paper_id: str) -> Dict:
+    paper = requests.get(os.path.join(es_url, 'paper',
+                                      'paper', paper_id)).json()
+    if paper.get('found'):
+        return paper.get('_source')
+    else:
+        raise Exception('paper_id {} not found'.format(paper_id))
 
 
 # TODO: Only supporting 100 papers at once, just to keep ES server happy
-class Fetcher(object):
-    MAX_BATCH_SIZE = 100
-    def __init__(self, server: Server):
-        self.server = server
-
-    def __call__(self, paper_ids: List[str]) -> List[Paper]:
-        if len(paper_ids) > Fetcher.MAX_BATCH_SIZE:
-            raise Exception('Too many papers at once!')
-        papers = []
-        for paper_id in paper_ids:
+def fetch_papers_from_es(es_url: str, paper_ids: List[str]) -> List[Paper]:
+    if len(paper_ids) > 100:
+        raise Exception('Too many papers at once!')
+    papers = []
+    for paper_id in paper_ids:
+        try:
             print('Fetching paper_id {}'.format(paper_id))
-            try:
-                papers.append(Paper(self.server.get_paper_by_id(paper_id)))
-            except Exception:
-                print('Skipping paper_id {}'.format(paper_id))
+            papers.append(Paper(fetch_one_paper_from_es(es_url, paper_id)))
+        except Exception:
+            print('Skipping paper_id {}'.format(paper_id))
 
-        return papers
+    return papers
 
 
-if __name__ == '__main__':
-    args = parse_arguments(sys.argv[1:])
-    es_server = ElasticSearchServer(url=args.url, port=args.port)
-    fetcher = Fetcher(server=es_server)
-    papers = fetcher(paper_ids=[args.paper_id])
+def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str):
+    s3_filename = '{}/{}.pdf'.format(paper_id[:4], paper_id[4:])
+    out_filename = '{}.pdf'.format(os.path.join(out_dir, paper_id))
+    if os.path.exists(out_filename):
+        print('{} already exists'.format(out_filename))
+    else:
+        try:
+            subprocess.run('aws s3 cp {} {}'.format(os.path.join(s3_url,
+                                                                 s3_filename),
+                                                    out_filename),
+                           shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            sys.exit(e.returncode)
+
+
+def fetch_pdfs_from_s3(s3_url: str, paper_ids: List[str], out_dir: str):
+    for paper_id in paper_ids:
+        try:
+            print('Fetching paper_id {}'.format(paper_id))
+            fetch_one_pdf_from_s3(s3_url, paper_id, out_dir)
+        except Exception:
+            print('Skipping paper_id {}'.format(paper_id))
