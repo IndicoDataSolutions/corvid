@@ -4,11 +4,10 @@ Script to build TSV file for raw input into CrowdFlower
 
 """
 
+import csv
 from typing import List
 
-import csv
-
-from python.instance import Instance
+from data_generator.data_generator.instance import Instance
 
 
 class CrowdFlower(object):
@@ -28,4 +27,3 @@ class CrowdFlower(object):
                 i += 1
         print('Wrote {} rows to {}'.format(i, fout))
         return i
-

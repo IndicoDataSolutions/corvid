@@ -108,3 +108,5 @@ ENV/
 
 # data
 data/
+.pdf
+.tetml
