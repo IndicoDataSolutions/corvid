@@ -19,7 +19,7 @@ where:
 
 from typing import List, Dict, Tuple
 
-from bs4 import Tag
+from bs4 import Tag, BeautifulSoup
 
 import re
 import warnings
@@ -67,22 +67,23 @@ class Table(object):
 
 # TODO: this regex catches strings like "10,000,000" as 3 separate matches
 class Paper(object):
-    def __init__(self, paper: Dict):
-        self._paper = paper
+    def __init__(self, json: Dict, xml: BeautifulSoup):
+        self._json = json
+        self._xml = xml
         self.numbers = self._find_numbers()
         self.tables = self._find_tables()
 
     @property
     def id(self):
-        return self._paper.get('id')
+        return self._json.get('id')
 
     @property
     def abstract(self):
-        return self._paper.get('paperAbstract')
+        return self._json.get('paperAbstract')
 
     @property
     def venue(self):
-        return self._paper.get('venue')
+        return self._json.get('venue')
 
     def _find_numbers(self) -> List[Number]:
         numbers = re.findall(pattern=r'[-+]?\d*\.\d+|\d+',
@@ -96,7 +97,7 @@ class Paper(object):
         return numbers
 
     def _find_tables(self) -> List[Table]:
-        raise NotImplementedError
+        return [Table(table) for table in self._xml.find_all('table')]
 
 
 # TODO: keeping as another class in case want to augment queries w/ other data

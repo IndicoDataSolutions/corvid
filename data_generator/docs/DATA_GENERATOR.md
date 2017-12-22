@@ -8,9 +8,7 @@ Generate training and testing data!
 
 #### 1. Required inputs
 
-You should have a collection of papers
- 
- - represented as JSON objects
+You should have a paper represented in JSON format:
  
 ```json
 {
@@ -20,27 +18,35 @@ You should have a collection of papers
 }
 ```
 
- - TETML files generated from raw PDF files
+and also have its raw PDF processed into a TETML file using:
  
 ```python
-from data_generator.data_generator.parser import parse_pdfs
+from data_generator.data_generator.parser import parse_one_pdf, parse_pdfs
 
-PDFLIB_TET_BINARY = '/path/to/tet'
-PDF_DIR = '/path/to/pdfs'
-TETML_DIR = '/path/to/tetmls' 
-parse_pdfs(tet_path=PDFLIB_TET_BINARY, pdf_dir=PDF_DIR, out_dir=TETML_DIR) 
+# to process a single PDF
+parse_one_pdf(tet_path='/path/to/bin/tet',
+              pdf_path='/path/to/pdfs/12345.pdf',
+              out_dir='/path/to/tetmls/')
+
+# to process all PDFS in a directory
+parse_pdfs(tet_path='/path/to/bin/tet',
+           pdf_dir='/path/to/pdfs/', 
+           out_dir='/path/to/tetmls/') 
 ```
 
-#### 2. Get `Numbers` for each `Paper`
+#### 2. `Paper` objects contain `Numbers` and `Tables`
 
 ```python
+from bs4 import BeautifulSoup
 from data_generator.data_generator.data_types import Paper
 
-list_of_json = [{}, {}, ..., {}]
-list_of_papers = [Paper(json) for json in list_of_json]
+with open('/path/to/tetmls/12345.tetml', 'r') as f:
+    paper = Paper(json={'id': '12345', 'paperAbstract': '...'},
+                  xml=BeautifulSoup(f))
 ```
 
-Instantiation of `Paper` objects will automatically extract `Numbers` from the `Paper.abstract` and store them in `Paper.numbers`.
+`Numbers` are extracted from `Paper.abstract` and stored in `Paper.numbers`.
+`Tables` are extracted from the TETML file and stored in `Paper.tables`.
 
 #### 3. Generate `Queries` for each `Paper` 
 

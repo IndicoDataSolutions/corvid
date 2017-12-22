@@ -12,11 +12,10 @@ import subprocess
 from typing import Dict, List
 
 import requests
+import json
 
-from data_generator.data_generator.data_types import Paper
 
-
-def read_one_paper_from_es(es_url: str, paper_id: str) -> Dict:
+def read_one_paper_from_es(es_url: str, paper_id: str) -> Dict[str]:
     paper = requests.get(os.path.join(es_url, 'paper',
                                       'paper', paper_id)).json()
     if paper.get('found'):
@@ -26,19 +25,19 @@ def read_one_paper_from_es(es_url: str, paper_id: str) -> Dict:
 
 
 # TODO: Only supporting 100 papers at once, just to keep ES server happy
-def read_papers_from_es(es_url: str, paper_ids: List[str]) -> List[Paper]:
+def fetch_papers_from_es(es_url: str, paper_ids: List[str], out_file: str):
     if len(paper_ids) > 100:
         raise Exception('Too many papers at once!')
     papers = []
-    for paper_id in paper_ids:
-        try:
-            print('Fetching paper_id {}'.format(paper_id))
-            papers.append(Paper(read_one_paper_from_es(es_url, paper_id)))
-        except Exception as e:
-            print(e)
-            print('Skipping paper_id {}'.format(paper_id))
-
-    return papers
+    with open(out_file, 'w') as f:
+        for paper_id in paper_ids:
+            try:
+                print('Fetching paper_id {}'.format(paper_id))
+                papers.append(read_one_paper_from_es(es_url, paper_id))
+            except Exception as e:
+                print(e)
+                print('Skipping paper_id {}'.format(paper_id))
+        json.dump(papers, f)
 
 
 # TODO: use boto3

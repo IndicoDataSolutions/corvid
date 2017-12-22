@@ -8,7 +8,6 @@ import os
 import subprocess
 
 
-# TODO: if PDF over 10 pages, will still create TETML
 def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
                   is_overwrite: str = False):
     tetml_path = os.path.join(out_dir,
@@ -40,5 +39,3 @@ def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
         except Exception as e:
             print(e)
             print('Skipping PDF {}'.format(pdf))
-
-
