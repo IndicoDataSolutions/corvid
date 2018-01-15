@@ -15,7 +15,7 @@ import requests
 import json
 
 
-def read_one_paper_from_es(es_url: str, paper_id: str) -> Dict[str]:
+def read_one_paper_from_es(es_url: str, paper_id: str) -> Dict[str, str]:
     paper = requests.get(os.path.join(es_url, 'paper',
                                       'paper', paper_id)).json()
     if paper.get('found'):

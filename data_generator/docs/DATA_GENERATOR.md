@@ -43,18 +43,28 @@ from data_generator.data_generator.data_types import Paper
 with open('/path/to/tetmls/12345.tetml', 'r') as f:
     paper = Paper(json={'id': '12345', 'paperAbstract': '...'},
                   xml=BeautifulSoup(f))
+                  
+for number in paper.numbers:
+    print(number)
+    
+for table in paper.tables:
+    print('{} rows, {} cols'.format(*table.dim))
+    print(table)
 ```
 
 `Numbers` are extracted from `Paper.abstract` and stored in `Paper.numbers`.
 `Tables` are extracted from the TETML file and stored in `Paper.tables`.
 
-#### 3. Generate `Queries` for each `Paper` 
+*Note: `Table` is a wrapper around `List[List[str]]`, and currently doesn't support uneven number of cols per row.* 
+
+#### 3. Generate `Queries` given a `Paper`
+
+A `Query` is a list of keywords that restricts whether a `Number` extracted from `Paper.abstract` can be considered a `Result`.
 
 ```python
 from data_generator.data_generator.data_types import Query
 
-#EVERY PAPER NEEDS TO HAVE A CORRESPONDING PATH TO PDF FILE
-list_of_queries = [Query.from_paper(paper)]
+list_of_queries = Query.from_paper(paper)
 ```
 
 
