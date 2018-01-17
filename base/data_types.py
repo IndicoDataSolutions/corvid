@@ -213,11 +213,12 @@ class Query(object):
     def __init__(self, keywords: List[str]):
         self.keywords = keywords
 
-    @classmethod
-    def from_paper(self, paper: Paper) -> List['Query']:
-        keywords = ['a']
-        queries = []
-        return queries
+    # # TODO: unfinished; generates query from paper abstract
+    # @classmethod
+    # def from_paper(self, paper: Paper) -> List['Query']:
+    #     keywords = ['a']
+    #     queries = []
+    #     return queries
 
 
 class Result(object):
