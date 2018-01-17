@@ -4,7 +4,8 @@
 """
 
 import unittest
-from base.data_types import Cell, Table
+
+from extract_empirical_results.common.data_types import Cell
 
 
 class TestCell(unittest.TestCase):

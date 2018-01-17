@@ -26,7 +26,7 @@ from bs4 import Tag, BeautifulSoup
 
 Point = namedtuple('Point', ['x', 'y'])
 
-from base.util import format_list, format_matrix
+from extract_empirical_results.common.util import format_list, format_matrix
 
 
 class Number(object):

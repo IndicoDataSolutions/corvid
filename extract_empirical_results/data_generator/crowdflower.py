@@ -7,7 +7,7 @@ Script to build TSV file for raw input into CrowdFlower
 import csv
 from typing import List
 
-from base.data_types import Instance
+from extract_empirical_results.common.data_types import Instance
 
 
 def build_raw_data(fout: str, instances: List[Instance]) -> int:

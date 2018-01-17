@@ -19,6 +19,6 @@ nosetests tests
 
 ## Projects
 
-- [data_generator](#data_generator)
-- [extraction_model](#extraction_model)
+- [data_generator](docs/DATA_GENERATOR.md)
+- [extraction_model](docs/EXTRACTION_MODEL.md)
 
