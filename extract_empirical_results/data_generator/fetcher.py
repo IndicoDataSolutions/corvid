@@ -56,11 +56,16 @@ def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
 
 
 def fetch_pdfs_from_s3(s3_url: str, paper_ids: List[str], out_dir: str,
-                       is_overwrite: bool = False):
+                       is_overwrite: bool = False) -> List[str]:
+    """Fetches list of pdfs from s3 and returns list of successful ones"""
+    successful = []
     for paper_id in paper_ids:
         try:
             print('Fetching paper_id {}'.format(paper_id))
             fetch_one_pdf_from_s3(s3_url, paper_id, out_dir, is_overwrite)
+            successful.append(paper_id)
         except Exception as e:
             print(e)
             print('Skipping paper_id {}'.format(paper_id))
+    return successful
+
