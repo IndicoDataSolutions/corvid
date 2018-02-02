@@ -17,7 +17,7 @@ def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
         raise Exception('{} already exists'.format(tetml_path))
 
     try:
-        cmd = '{} --tetml word --targetdir {} --pageopt {} {}' \
+        cmd = '{} --tetml wordplus --targetdir {} --pageopt {} {}' \
             .format(tet_path,
                     out_dir,
                     '"vectoranalysis={structures=tables}"',

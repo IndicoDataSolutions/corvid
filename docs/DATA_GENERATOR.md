@@ -115,4 +115,9 @@ Each `Instance` object has a `.json` property that returns:
 - Refactor `fetch_one_pdf_from_s3` in `fetcher.py` to use `common utils` from `scholar-research/base`
 - `beautifulsoup` for XML parsing
 - `CrowdFlower` directory as subdirectory in `python`
-- Generate `query` given a `Paper` 
+- Generate `query` given a `Paper`
+
+
+# Alternatives to TETML for parsing pdfs
+
+See http://pdfx.cs.man.ac.uk/.   

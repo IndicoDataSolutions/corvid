@@ -7,9 +7,11 @@ if ! (which conda); then
 	if [[ $(uname) == "Darwin" ]]; then
 	  wget --continue https://repo.continuum.io/miniconda/Miniconda3-4.3.31-Linux-x86_64.sh
 	  bash Miniconda3-4.3.31-Linux-x86_64.sh -b
+	  rm Miniconda3-4.3.31-Linux-x86_64.sh
 	else
 	  wget --continue https://repo.continuum.io/miniconda/Miniconda3-4.3.31-MacOSX-x86_64.sh
 	  bash Miniconda3-4.3.1-MacOSX-x86_64.sh -b
+	  rm Miniconda3-4.3.1-MacOSX-x86_64.sh
 	fi
 fi
 

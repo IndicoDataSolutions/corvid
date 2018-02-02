@@ -108,5 +108,4 @@ ENV/
 
 # data
 data/
-.pdf
-.tetml
+scripts/
