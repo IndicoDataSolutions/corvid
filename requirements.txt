@@ -7,3 +7,6 @@ beautifulsoup4==4.6.0
 
 # misc
 pylint==1.8.1
+
+# tests
+pytest
