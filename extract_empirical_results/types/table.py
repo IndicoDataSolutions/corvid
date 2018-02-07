@@ -66,7 +66,6 @@ class TetmlCell(Cell):
 
 class Table(object):
     """Class to represent physical structure of tables"""
-
     def __init__(self, matrix: List[List[Cell]]):
         self.matrix_raw = matrix
 
