@@ -4,6 +4,7 @@ Parse raw PDFs using PDFlib's TET
 
 """
 
+import argparse
 import os
 import subprocess
 
@@ -39,3 +40,24 @@ def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
         except Exception as e:
             print(e)
             print('Skipping PDF {}'.format(pdf))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--mode', default='pdflib', type=str,
+                        help='currently only supports `pdflib`')
+    parser.add_argument('-p', '--parser', required=True, type=str,
+                        help='enter path to parser binary')
+    parser.add_argument('-i', '--input_dir', required=True, type=str,
+                        help='enter url containing remote files to fetch')
+    parser.add_argument('-o', '--output_dir', required=True, type=str,
+                        help='enter path to local output')
+    parser.add_argument('--is_overwrite', type=bool, default=False,
+                        help='enter True or False for overwrite existing files')
+    args = parser.parse_args()
+
+    if args.mode == 'pdflib':
+        parse_pdfs(tet_path=args.parser,
+                   pdf_dir=args.input_dir,
+                   out_dir=args.output_dir,
+                   is_overwrite=args.is_overwrite)

@@ -5,7 +5,7 @@
 
 import unittest
 
-from extract_empirical_results.common.data_types import Cell
+from extract_empirical_results.types.data_types import Cell
 
 
 class TestCell(unittest.TestCase):
