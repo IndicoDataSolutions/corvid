@@ -65,6 +65,8 @@ class TetmlCell(Cell):
 
 
 class Table(object):
+    """Class to represent physical structure of tables"""
+
     def __init__(self, matrix: List[List[Cell]]):
         self.matrix_raw = matrix
 
@@ -139,10 +141,17 @@ class TetmlTable(Table):
                     return True
         return False
 
+    # TODO: implement
+    def transpose(self) -> 'TetmlTable':
+        raise NotImplementedError
+
     @classmethod
     def _unwind_multicolumn_cells(cls,
                                   matrix: List[List[TetmlCell]]) -> List[
         List[TetmlCell]]:
+        """For each cell that spans multiple columns, unwinds by duplicating
+        reference to this Cell across that row
+        """
         new_matrix = []
         for row in matrix:
             new_row = []
@@ -150,6 +159,16 @@ class TetmlTable(Table):
                 new_row.extend([cell] * cell.colspan)
             new_matrix.append(new_row)
         return new_matrix
+
+    # TODO: implement
+    @classmethod
+    def _unwind_multirow_cells(cls,
+                               matrix: List[List[TetmlCell]]) -> List[
+        List[TetmlCell]]:
+        """For each cell that spans multiple rows, unwinds by duplicating
+        reference to this Cell through that column
+        """
+        raise NotImplementedError
 
     @classmethod
     def from_bs4_tag(cls, table_tag: Tag) -> 'TetmlTable':
@@ -173,5 +192,3 @@ class TetmlTable(Table):
         #                     y=table_tag.get('ury'))
         table._tag = table_tag
         return table
-
-

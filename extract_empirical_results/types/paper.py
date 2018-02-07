@@ -44,7 +44,6 @@ where:
 #         return self.as_str
 #
 #
-# # TODO: this regex catches strings like "10,000,000" as 3 separate matches
 # class Paper(object):
 #     """
 #
@@ -74,6 +73,7 @@ where:
 #     def venue(self):
 #         return self._json.get('venue')
 #
+#     # TODO: this regex catches strings like "10,000,000" as 3 separate matches
 #     def _find_numbers(self) -> List[Number]:
 #         numbers = re.findall(pattern=r'[-+]?\d*\.\d+|\d+',
 #                              string=self.abstract)
