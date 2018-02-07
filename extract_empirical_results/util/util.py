@@ -5,6 +5,7 @@ from typing import List
 import string
 
 
+
 def canonicalize_path(path: str):
     """Converts a path string to its canonical form (easier for comparisons)"""
     return os.path.abspath(os.path.realpath(os.path.expanduser(path)))
@@ -34,7 +35,7 @@ def format_matrix(matrix: List[List[str]]) -> str:
 
 def is_floatable(s: str) -> bool:
     try:
-        f = float(s)
+        float(s)
         return True
     except ValueError:
         return False

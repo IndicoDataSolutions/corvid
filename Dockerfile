@@ -16,10 +16,10 @@ RUN apt-get clean \
 
 WORKDIR /work
 
-COPY ./requirements.txt .
+COPY ./requirements.in .
 
 # install python packages
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.in
 
 # add the code as the final step so that when we modify the code
 # we don't bust the cached layers holding the dependencies and
@@ -27,6 +27,7 @@ RUN pip3 install -r requirements.txt
 COPY extract_empirical_results/ extract_empirical_results/
 COPY scripts/ scripts/
 COPY tests/ tests/
+# not obvious to me whether we need this, so currently commented out
 #RUN pip3 install --quiet -e .
 
 CMD [ "/bin/bash" ]

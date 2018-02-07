@@ -17,8 +17,5 @@ cd extract_empirical_results
 nosetests tests
 ```
 
-## Projects
-
-- [data_generator](docs/DATA_GENERATOR.md)
-- [extraction_model](docs/EXTRACTION_MODEL.md)
+## Usage
 
