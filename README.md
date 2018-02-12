@@ -6,7 +6,7 @@ Extract empirical results from abstracts of computer science papers!
 
 This project requires **Python 3.6**.
 
-The dependencies are listed in the `requirements.txt` file.
+The dependencies are listed in the `requirements.in` file.
 
 You'll also need **PDFLib's TET toolkit v5.1** for parsing PDFs.  You'll need to provide the path to the binary executable `bin/tet` after downloading/extracting.
 
@@ -14,7 +14,7 @@ After installing, you can run all the **tests** via:
 
 ```
 cd extract_empirical_results
-nosetests tests
+pytest tests/
 ```
 
 ## Usage

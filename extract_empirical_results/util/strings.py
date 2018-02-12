@@ -12,6 +12,12 @@ def canonicalize_path(path: str):
 
 
 def format_list(l: List[str]) -> str:
+    """
+    e.g.
+    input: ['This', 'is', 'a', 'sentence', '.', 'That', 'is', 'too', '.']
+    output: "This is a sentence. That is too."
+
+    """
     text = ''
     for s in l:
         if s in string.punctuation:
@@ -22,8 +28,16 @@ def format_list(l: List[str]) -> str:
 
 
 # TODO: clean up syntax/style
-def format_matrix(matrix: List[List[str]]) -> str:
-    """Source: https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list"""
+def format_grid(matrix: List[List[str]]) -> str:
+    """
+    e.g.
+    input: [['a', 'b', 'c'], ['d', 'e', 'f']]
+    output: 'a\tb\t\c\nd\te\tf'
+    printed:
+    >    a   b   c
+    >    d   e   f
+
+    Source: https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list"""
     if any([len(row) != len(matrix[0]) for row in matrix]):
         raise Exception('Matrix missing entries (i.e. different row lengths)')
     m = [[cell for cell in row] for row in matrix]

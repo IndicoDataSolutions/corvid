@@ -8,6 +8,8 @@ import argparse
 import os
 import subprocess
 
+from typing import Tuple
+
 
 def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
                   is_overwrite: str = False):
@@ -18,11 +20,11 @@ def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
         raise Exception('{} already exists'.format(tetml_path))
 
     try:
-        cmd = '{} --tetml wordplus --targetdir {} --pageopt {} {}' \
-            .format(tet_path,
-                    out_dir,
-                    '"vectoranalysis={structures=tables}"',
-                    pdf_path)
+        cmd = '{tet} --tetml wordplus --targetdir {out} --pageopt {option} {pdf}' \
+            .format(tet=tet_path,
+                    out=out_dir,
+                    option='"vectoranalysis={structures=tables}"',
+                    pdf=pdf_path)
         subprocess.run(cmd, shell=True, check=True)
     except subprocess.CalledProcessError as e:
         os.remove(tetml_path)
@@ -31,15 +33,18 @@ def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
 
 
 def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
-               is_overwrite: str = False):
+               is_overwrite: str = False) -> Tuple[int, int]:
     pdf_paths = [os.path.join(pdf_dir, path) for path in os.listdir(pdf_dir)]
+    num_success = 0
     for pdf in pdf_paths:
         try:
             print('Parsing PDF {}'.format(pdf))
             parse_one_pdf(tet_path, pdf, out_dir, is_overwrite)
+            num_success += 1
         except Exception as e:
             print(e)
             print('Skipping PDF {}'.format(pdf))
+    return num_success, len(pdf_paths)
 
 
 if __name__ == '__main__':
@@ -49,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--parser', required=True, type=str,
                         help='enter path to parser binary')
     parser.add_argument('-i', '--input_dir', required=True, type=str,
-                        help='enter url containing remote files to fetch')
+                        help='enter path to local input')
     parser.add_argument('-o', '--output_dir', required=True, type=str,
                         help='enter path to local output')
     parser.add_argument('--is_overwrite', type=bool, default=False,
@@ -57,7 +62,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.mode == 'pdflib':
-        parse_pdfs(tet_path=args.parser,
-                   pdf_dir=args.input_dir,
-                   out_dir=args.output_dir,
-                   is_overwrite=args.is_overwrite)
+        num_success, num_pdfs = parse_pdfs(tet_path=args.parser,
+                                           pdf_dir=args.input_dir,
+                                           out_dir=args.output_dir,
+                                           is_overwrite=args.is_overwrite)
+        print('Successfully parsed {}/{} pdfs.'.format(num_success,
+                                                       num_pdfs))
+    else:
+        raise NotImplementedError('Currently only supports `--mode pdflib`')
+
