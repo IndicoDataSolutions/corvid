@@ -12,16 +12,16 @@ Point = namedtuple('Point', ['x', 'y'])
 from extract_empirical_results.util.strings import format_grid
 
 
-class Box(object):
-    """A Box is a single unit of data on a Grid.
+class Cell(object):
+    """A Cell is a single unit of data in a Table"""
 
-    For a Table in which all Cells have rowspan/colspan of 1, the Table
-    is exactly equal to its Grid and each Cell is comprised of a single Box.
-    Thus, a multirow/column Cell would be comprised of multiple Boxes.
-    """
-
-    def __init__(self, text: str):
+    def __init__(self, text: str, rowspan: int, colspan: int,
+                 lower_left: Point = None, upper_right: Point = None):
         self.text = text
+        self.rowspan = rowspan
+        self.colspan = colspan
+        self.lower_left = lower_left
+        self.upper_right: upper_right
 
     def __repr__(self):
         return self.text
@@ -30,171 +30,115 @@ class Box(object):
         return self.text
 
 
-class Grid(object):
-    """A Grid is a matrix representation of Boxes.  Tables are a higher-order
-    understanding layered on top of a Grid.
+class Table(object):
+    """A Table is a matrix representation of a collection of Cells:
 
-    For example, Grids are always proper matrices (equal number of columns
-    per row).  Hence, it's unambiguous to index the ith row and jth column
-    in a Grid using the [i,j] operator.  And it's straightforward to perform
-    operations like transposes.
+    >        |          header          |
+    >        |  col1  |  col2  |  col3  |
+    >  row1  |    a   |    b   |    c   |
+    >  row2  |    d   |    e   |    f   |
 
-    In contrast, Tables are collections of Cells which can span multiple Boxes.
-    So for Tables, these basic operations are unintuitive to use.
+    These collections of Cells are stored in two formats within a Table:
+
+    (*) A grid-style format mimics the matrix-like representation when we look
+        at tables visually.  It provides the concept of rows and columns, which
+        induces a method of indexing using an [i,j] operator.
+
+        Multirow/column Cells are treated in the grid-style format as having
+        multiple indices that return the same Cell object.  For example:
+
+    >  [0,0]       |  [0,1] header  |  [0,2] header  |  [0,3] header  |
+    >  [1,0]       |  [1,1]  col1   |  [1,2]  col2   |  [1,3]  col3   |
+    >  [2,0] row1  |  [2,1]   a     |  [2,2]   b     |  [2,3]   c     |
+    >  [3,0] row2  |  [3,1]   d     |  [3,2]   e     |  [3,3]   f     |
+
+        where the same `header` Cell can be indexed from different columns
+
+
+    (*) A list-style format handles multirow/column Cells by treating
+        each Cell object (regardless of its size) as an individual item read
+        from the table in left-to-right, top-to-down fashion.
+
+    >  [0]              > [5]  col3        > [10]  row2
+    >  [1]  header      > [6]  row1        > [11]  d
+    >  [2]              > [7]  a           > [12]  e
+    >  [3]  col1        > [8]  b           > [13]  f
+    >  [4]  col2        > [9]  c
     """
 
-    def __init__(self, grid: List[List[Box]]):
-        is_full_rank_grid = all([len(row) == len(grid[0]) for row in grid])
-        if not is_full_rank_grid:
-            raise Exception('Grid has differing number of columns per row')
-        self.grid = grid
+    def __init__(self, cells: List[Cell], nrow: int, ncol: int,
+                 paper_id: str, page_num: int, caption: str,
+                 lower_left: Point = None, upper_right: Point = None,
+                 is_row_wise: bool = True):
+        self.cells = cells
+        self.nrow = nrow
+        self.ncol = ncol
 
-    @property
-    def nrow(self) -> int:
-        return len(self.grid)
+        self.grid = [[None for _ in range(ncol)] for _ in range(nrow)]
+        index_row, index_col = 0, 0
+        for cell in cells:
 
-    @property
-    def ncol(self) -> int:
-        return len(self.grid[0])
+            if is_row_wise:
+                # populate grid
+                for i in range(index_row, index_row + cell.rowspan):
+                    for j in range(index_col, index_col + cell.colspan):
+                        self.grid[i][j] = cell
+
+                # keep scanning right until empty cell; jump row if necessary
+                while index_row < nrow and self.grid[index_row][index_col]:
+                    index_col += 1
+                    if index_col == ncol:
+                        index_col = 0
+                        index_row += 1
+            else:
+                for j in range(index_col, index_col + cell.colspan):
+                    for i in range(index_row, index_row + cell.rowspan):
+                        self.grid[i][j] = cell
+
+                while index_col < ncol and self.grid[index_row][index_col]:
+                    index_row += 1
+                    if index_row == nrow:
+                        index_row = 0
+                        index_col += 1
+
+        # check for completeness
+        if (is_row_wise and index_col > 0) or \
+                (not is_row_wise and index_row > 0):
+            raise Exception('Not enough cells to fill out the table')
+
+        self.paper_id = paper_id
+        self.page_num = page_num
+        self.caption = caption
+        self.lower_left = lower_left
+        self.upper_right: upper_right
 
     @property
     def dim(self) -> Tuple[int, int]:
         return self.nrow, self.ncol
 
-    def __getitem__(self, index: Tuple):
-        if isinstance(index[0], slice):
-            return [row[index[1]] for row in self.grid[index[0]]]
-        return self.grid[index[0]][index[1]]
-
-    # TODO: think whether want to give user this much access
-    # def __setitem__(self, index: Tuple[int, int], box: Box):
-    #     self.grid[index[0]][index[1]] = box
-
-    def __repr__(self):
-        return format_grid([[box.text for box in row]
-                            for row in self.grid])
-
-    def __str__(self):
-        return format_grid([[box.text for box in row]
-                            for row in self.grid])
-
-    # TODO: think about whether want this to keep references to same Boxes
-    def transpose(self) -> 'Grid':
-        new_grid = Grid(**self.__dict__)
-        new_grid.grid = [list(new_row) for new_row in zip(*self.grid)]
-        return new_grid
-
-    def flatten(self, row_wise: bool = True) -> List[Box]:
-        if row_wise:
-            return [self[i, j] for i in range(self.nrow)
-                    for j in range(self.ncol)]
+    def __getitem__(self, index):
+        if isinstance(index, tuple):
+            if isinstance(index[0], slice):
+                return [row[index[1]] for row in self.grid[index[0]]]
+            return self.grid[index[0]][index[1]]
         else:
-            return [self[i, j] for j in range(self.ncol)
-                    for i in range(self.nrow)]
-
-
-class Cell(object):
-    """A Cell is a collection of Boxes within the same Grid that all carry
-    the same text data but have different Grid indices
-
-    `idx_*_start` and `idx_*_end` are (inclusive, exclusive) indices for
-    slicing the provided Grid
-
-    Once the source Grid is sliced, the Boxes corresponding to this Cell are
-    themselves stored as a (smaller) Grid.  The Cell still maintains reference
-    to the original source Grid.
-    """
-
-    def __init__(self, source_grid: Grid,
-                 idx_col_start: int, idx_col_end: int,
-                 idx_row_start: int, idx_row_end: int):
-        self.cell = Grid(
-            source_grid[idx_row_start:idx_row_end, idx_col_start:idx_col_end]
-        )
-        is_same_text_boxes = all([box.text == self.cell[0, 0].text
-                                  for box in self.cell.flatten()])
-        if not is_same_text_boxes:
-            raise Exception('Cell requires all member Boxes to have same text')
-
-        self.source_grid = source_grid
-        self.idx_col_start = idx_col_start
-        self.idx_col_end = idx_col_end
-        self.idx_row_start = idx_row_start
-        self.idx_row_end = idx_row_end
-
-    @property
-    def colspan(self) -> int:
-        return self.idx_col_end - self.idx_col_start
-
-    @property
-    def rowspan(self) -> int:
-        return self.idx_row_end - self.idx_row_start
-
-    @property
-    def boxes(self) -> List[Box]:
-        return self.cell.flatten()
+            return self.cells[index]
 
     def __repr__(self):
-        return self.boxes[0].text
+        return format_grid([[atomic_cell.text for atomic_cell in row]
+                            for row in self.grid])
 
     def __str__(self):
-        return self.boxes[0].text
+        return format_grid([[atomic_cell.text for atomic_cell in row]
+                            for row in self.grid])
 
-    def __getitem__(self, index: Tuple) -> Box:
-        return self.cell[index[0], index[1]]
+    def transpose(self) -> 'Table':
+        new_cells = [
+            Cell(text=cell.text,
+                 rowspan=cell.colspan,
+                 colspan=cell.rowspan) for cell in self.cells
+        ]
 
-
-class Table(object):
-    """A Table is a physical representation of data presented in tabular
-    format.  This class provides metadata about the table, and methods to
-    for a user to work with the data within the table
-
-    The core inputs are a Grid and a list of Cells defined over the Boxes in
-    that input Grid.
-
-    Two forms of indexing are supported:
-        Grid-level:
-            Use [i,j] on Table as you would on a Grid, and it returns a Box
-        Cell-level:
-            Use [i] on Table as you would on a List, and it returns a Cell
-    """
-
-    def __init__(self, grid: Grid, cells: List[Cell],
-                 table_id: int, paper_id: int,
-                 page_num: int, caption: str,
-                 lower_left: Point = None, upper_right: Point = None):
-        self.grid = grid
-        self.cells = cells
-        self.caption = caption
-        self.table_id = table_id
-        self.paper_id = paper_id
-        self.page_num = page_num
-        self.lower_left = lower_left
-        self.upper_right: upper_right
-
-    def __repr__(self):
-        return self.grid.__repr__()
-
-    def __str__(self):
-        return self.grid.__str__()
-
-        # TODO: maybe better to require user specify `.grid` or `.cells` to be more explicit
-        # def __getitem__(self, index):
-        #     if isinstance(index, tuple):
-        #         return self.grid[index[0], index[1]]
-        #     elif isinstance(index, int):
-        #         return self.cells[index]
-        #     else:
-        #         raise Exception('Index must be a tuple of ints or a single int')
-
-        # def __setitem__(self, index, value):
-        #     if isinstance(index, tuple):
-        #         if not isinstance(value, Box):
-        #             raise Exception('Setter via [i,j] indexing requires Box input')
-        #         self.grid[index[0]][index[1]] = value
-        #     elif isinstance(index, int):
-        #         if not isinstance(value, Cell):
-        #             raise Exception('Setter via [i,j] indexing requires Cell input')
-        #         self.cells[index] = value
-        #     else:
-        #         raise Exception('Index must be a tuple of ints or a single int')
+        return Table(cells=new_cells, nrow=self.ncol, ncol=self.nrow,
+                     paper_id=self.paper_id, page_num=self.page_num,
+                     caption=self.caption, is_row_wise=False)

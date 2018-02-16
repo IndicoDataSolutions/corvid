@@ -15,6 +15,9 @@ from typing import Dict, List
 import requests
 import json
 
+from config import convert_paper_id_to_s3_filename, PAPER_IDS_TXT, PAPERS_JSON, \
+    PDF_DIR, S3_PDFS_URL, ES_PROD_URL, ES_DEV_URL
+
 
 def read_one_json_from_es(es_url: str, paper_id: str) -> Dict[str, str]:
     paper = requests.get(os.path.join(es_url, 'paper',
@@ -49,7 +52,7 @@ def fetch_jsons_from_es(es_url: str, paper_ids: List[str], out_file: str,
 # TODO: use boto3
 def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
                           is_overwrite: bool = False):
-    s3_filename = '{}/{}.pdf'.format(paper_id[:4], paper_id[4:])
+    s3_filename = convert_paper_id_to_s3_filename(paper_id)
     out_filename = '{}.pdf'.format(os.path.join(out_dir, paper_id))
 
     if os.path.exists(out_filename) and not is_overwrite:
@@ -81,25 +84,29 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mode', required=True, type=str,
                         help='enter `json` or `pdf`')
-    parser.add_argument('-p', '--paper_ids', required=True, type=str,
-                        help='enter list of paper_ids')
-    parser.add_argument('-i', '--input_url', required=True, type=str,
+    parser.add_argument('-p', '--paper_ids', type=str,
+                        help='enter path to local file containing paper_ids')
+    parser.add_argument('-i', '--input_url', type=str,
                         help='enter url containing remote files to fetch')
-    parser.add_argument('-o', '--out_path', required=True, type=str,
-                        help='enter path to local output')
-    parser.add_argument('--is_overwrite', type=bool, default=False,
-                        help='enter True or False for overwrite existing files')
+    parser.add_argument('-o', '--out_path', type=str,
+                        help='enter path to local file/directory to save output file(s)')
+    parser.add_argument('--overwrite', action='store_true',
+                        help='overwrite existing files')
     args = parser.parse_args()
 
+    paper_ids_filename = args.paper_ids if args.paper_ids else PAPER_IDS_TXT
+    with open(paper_ids_filename, 'r') as f:
+        paper_ids = f.read().splitlines()
+
     if args.mode == 'json':
-        fetch_jsons_from_es(es_url=args.input_url,
-                            paper_ids=args.paper_ids,
-                            out_file=args.out_path,
-                            is_overwrite=args.is_overwrite)
+        fetch_jsons_from_es(es_url=args.input_url if args.input_url else ES_PROD_URL,
+                            paper_ids=paper_ids,
+                            out_file=args.out_path if args.out_path else PAPERS_JSON,
+                            is_overwrite=args.overwrite)
     elif args.mode == 'pdf':
-        fetch_pdfs_from_s3(s3_url=args.input_url,
-                           paper_ids=args.paper_ids,
-                           out_dir=args.out_path,
-                           is_overwrite=args.is_overwrite)
+        fetch_pdfs_from_s3(s3_url=args.input_url if args.input_url else S3_PDFS_URL,
+                           paper_ids=paper_ids,
+                           out_dir=args.out_path if args.out_path else PDF_DIR,
+                           is_overwrite=args.overwrite)
     else:
         raise Exception('Currently only supports `json` and `pdf` modes.')

@@ -10,9 +10,11 @@ import subprocess
 
 from typing import Tuple
 
+from config import TET_BIN_PATH, PDF_DIR, TETML_DIR
+
 
 def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
-                  is_overwrite: str = False):
+                  is_overwrite: bool = False):
     tetml_path = os.path.join(out_dir,
                               os.path.basename(pdf_path).replace('.pdf',
                                                                  '.tetml'))
@@ -33,7 +35,7 @@ def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
 
 
 def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
-               is_overwrite: str = False) -> Tuple[int, int]:
+               is_overwrite: bool = False) -> Tuple[int, int]:
     pdf_paths = [os.path.join(pdf_dir, path) for path in os.listdir(pdf_dir)]
     num_success = 0
     for pdf in pdf_paths:
@@ -51,23 +53,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mode', default='pdflib', type=str,
                         help='currently only supports `pdflib`')
-    parser.add_argument('-p', '--parser', required=True, type=str,
+    parser.add_argument('-p', '--parser', type=str,
                         help='enter path to parser binary')
-    parser.add_argument('-i', '--input_dir', required=True, type=str,
-                        help='enter path to local input')
-    parser.add_argument('-o', '--output_dir', required=True, type=str,
-                        help='enter path to local output')
-    parser.add_argument('--is_overwrite', type=bool, default=False,
-                        help='enter True or False for overwrite existing files')
+    parser.add_argument('-i', '--input_dir', type=str,
+                        help='enter path to local directory containing pdfs')
+    parser.add_argument('-o', '--output_dir', type=str,
+                        help='enter path to local directory to save output tetml')
+    parser.add_argument('--overwrite', action='store_true',
+                        help='overwrite existing files')
     args = parser.parse_args()
 
     if args.mode == 'pdflib':
-        num_success, num_pdfs = parse_pdfs(tet_path=args.parser,
-                                           pdf_dir=args.input_dir,
-                                           out_dir=args.output_dir,
-                                           is_overwrite=args.is_overwrite)
+        num_success, num_pdfs = \
+            parse_pdfs(tet_path=args.parser if args.parser else TET_BIN_PATH,
+                       pdf_dir=args.input_dir if args.input_dir else PDF_DIR,
+                       out_dir=args.output_dir if args.output_dir else TETML_DIR,
+                       is_overwrite=args.overwrite)
         print('Successfully parsed {}/{} pdfs.'.format(num_success,
                                                        num_pdfs))
     else:
         raise NotImplementedError('Currently only supports `--mode pdflib`')
-
