@@ -30,7 +30,6 @@ if __name__ == '__main__':
 
     with open(os.path.join(DATA_DIR, OUTPUT_FILENAME), 'w') as f:
         for paper_id, tables in papers.items():
-            print(paper_id)
             f.write(paper_id + '\n')
             for table in tables:
                 try:

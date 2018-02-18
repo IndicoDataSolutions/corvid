@@ -66,7 +66,7 @@ def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
 
 # TODO: dont like this function does 2 things; separate responsibility?
 def fetch_pdfs_from_s3(s3_url: str, paper_ids: List[str], out_dir: str,
-                       is_overwrite: bool = False) -> Dict[str: str]:
+                       is_overwrite: bool = False) -> Dict[str, str]:
     """Fetches pdfs from s3 and returns names of successful fetches"""
     fetch_statuses = {}
     for paper_id in paper_ids:
