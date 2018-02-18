@@ -9,8 +9,7 @@ import os
 from bs4 import BeautifulSoup
 
 from config import DATA_DIR, TETML_DIR
-from extract_empirical_results.preprocess.table_extractor import \
-    PdflibTableExtractor
+from corvid.preprocess.table_extractor import PdflibTableExtractor
 
 OUTPUT_FILENAME = 'tables.txt'
 
