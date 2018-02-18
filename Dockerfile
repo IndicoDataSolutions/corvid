@@ -22,7 +22,7 @@ RUN tar -xvzf TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
 RUN rm TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
 
 # install python packages
-COPY ./requirements.in .
+COPY requirements.in .
 RUN pip3 install -r requirements.in
 
 # add the code as the final step so that when we modify the code
@@ -31,6 +31,7 @@ RUN pip3 install -r requirements.in
 COPY corvid/ corvid/
 COPY scripts/ scripts/
 COPY tests/ tests/
+COPY .pylintrc .
 # not obvious to me whether we need this, so currently commented out
 #RUN pip3 install --quiet -e .
 
