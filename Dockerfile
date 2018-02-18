@@ -18,8 +18,8 @@ WORKDIR /work
 
 # install pdflib
 RUN wget http://www.pdflib.com/binaries/TET/510/TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
-tar -xvzf TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
-rm TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
+RUN tar -xvzf TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
+RUN rm TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
 
 # install python packages
 COPY ./requirements.in .
