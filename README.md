@@ -1,6 +1,6 @@
-# extract_empirical_results
+# Corvid: Extract, Aggregate Empirical Results
 
-Extract empirical results from abstracts of computer science papers!
+Extract and aggregates empirical results from tables of computer science papers.
 
 ## Installation
 
