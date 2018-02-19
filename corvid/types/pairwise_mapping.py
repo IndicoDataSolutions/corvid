@@ -1,0 +1,8 @@
+"""
+
+
+
+"""
+
+class PairwiseMapping(object):
+    pass

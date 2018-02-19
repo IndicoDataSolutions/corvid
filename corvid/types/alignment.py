@@ -1,8 +1,0 @@
-"""
-
-
-
-"""
-
-class PairwiseAlignment(object):
-    pass

@@ -9,7 +9,7 @@ from typing import List, Tuple
 
 Point = namedtuple('Point', ['x', 'y'])
 
-from corvid.util.strings import format_list, format_grid
+from corvid.util.strings import format_grid
 
 
 class Token(object):
@@ -43,10 +43,10 @@ class Cell(object):
         self.upper_right: upper_right
 
     def __repr__(self):
-        return format_list([str(token) for token in self.tokens])
+        return ' '.join([str(token) for token in self.tokens])
 
     def __str__(self):
-        return format_list([str(token) for token in self.tokens])
+        return ' '.join([str(token) for token in self.tokens])
 
 
 class Table(object):
@@ -83,6 +83,13 @@ class Table(object):
     >  [2]              > [7]  a           > [12]  e
     >  [3]  col1        > [8]  b           > [13]  f
     >  [4]  col2        > [9]  c
+
+
+    Note about List[Cell] order:
+        `is_row_wise = True`:
+            Cells are provided in order [0,0], [0,1], ... [0,ncol], [1,0], ...
+        `is_row_wise = False`
+            Cells are provided in order [0,0], [1,0], ..., [nrow,0], [0,1], ...
     """
 
     def __init__(self, cells: List[Cell], nrow: int, ncol: int,

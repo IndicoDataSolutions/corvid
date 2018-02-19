@@ -19,16 +19,15 @@ pytest tests/
 
 ## Usage
 
-0. Prepare `paper_ids.txt` that looks like:
+First, prepare `paper_ids.txt` that looks like:
 
 ```
-123456
-123457
-123458
+0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75
+eda636e3abae829cf7ad8e0519fbaec3f29d1e82
 ...
 ```
 
-1. Download PDFs from S3
+We can download PDFs from S3 for the papers in this file: 
 
 ```bash
 python scripts/fetch_papers.py 
@@ -38,7 +37,7 @@ python scripts/fetch_papers.py
     --out_path data/pdf/
 ```
 
-2. Parse PDFs to TETML format using PDFLib's TET
+After we download the PDFs, we can parse them into the TETML format using PDFLib's TET:
 
 ```bash
 python scripts/parse_pdfs.py
@@ -47,20 +46,21 @@ python scripts/parse_pdfs.py
     --output_dir data/tetml/    
 ``` 
 
-For the scripts in Steps 1 and 2, if options are left out, this script will attempt to read defaults from a `config.py` file.
+*If the options in scripts `fetch_papers.py` and `parse_pdfs.py` are left out, the scripts will attempt to use default values from a configuration file.  See our example in `example_config.py`.*
 
-3. Extract tables from a TETML file for a single paper
+Now that we've processed all these papers to TETML format, let's try extracting tables from one of them:
 
 ```python
 from bs4 import BeautifulSoup
 from corvid.preprocess.table_extractor import PdflibTableExtractor
 
+TETML_PATH = 'data/tetml/0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75.tetml'
 with open(TETML_PATH, 'r') as f_tetml:
     tetml = BeautifulSoup(f_tetml)
     tables = PdflibTableExtractor.extract_tables(tetml)
 ```
 
-4. Manipulate tables
+Let's try manipulating the first table in this list:
 
 ```python
 table = tables[0]

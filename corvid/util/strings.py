@@ -4,26 +4,9 @@ Miscellaneous functions for performing operations on strings
 
 """
 
-import os
 import re
 
 from typing import List
-import string
-
-
-def canonicalize_path(path: str):
-    """Converts a path string to its canonical form (easier for comparisons)"""
-    return os.path.abspath(os.path.realpath(os.path.expanduser(path)))
-
-
-def format_list(l: List[str]) -> str:
-    """
-    e.g.
-    input: ['This', 'is', 'a', 'sentence', '.', 'That', 'is', 'too', '.']
-    output: "This is a sentence . That is too ."
-
-    """
-    return ' '.join(l)
 
 
 # TODO: clean up syntax/style
@@ -55,3 +38,4 @@ def is_floatable(s: str) -> bool:
 
 def is_contains_alpha(s: str) -> bool:
     return len(re.findall(pattern=r'[a-z,A-Z]', string=s)) > 0
+

@@ -8,6 +8,7 @@ from typing import List
 from bs4 import BeautifulSoup
 
 from corvid.types.table import Token, Cell, Table, Point
+from corvid.util.files import scan_file_for_sections
 
 
 class TableExtractor(object):
@@ -34,8 +35,9 @@ class PdflibTableExtractor(TableExtractor):
                     for word_tag in cell_tag.find_all('word'):
                         word_box_tag = word_tag.find('box')
                         token = Token(text=word_box_tag.get_text(strip=True),
-                                      # `find_all` will get font per character
-                                      # but assume font is same within a word
+                                      # `find_all` gets font per character,
+                                      # but use `find` because assume font is
+                                      # constant within same word
                                       font=word_box_tag
                                       .find('glyph').get('font'),
                                       lower_left=Point(
