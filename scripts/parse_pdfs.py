@@ -63,11 +63,15 @@ if __name__ == '__main__':
                         help='overwrite existing files')
     args = parser.parse_args()
 
+    OUTPUT_DIR = args.output_dir if args.output_dir else TETML_DIR
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
     if args.mode == 'pdflib':
         num_success, num_pdfs = \
             parse_pdfs(tet_path=args.parser if args.parser else TET_BIN_PATH,
                        pdf_dir=args.input_dir if args.input_dir else PDF_DIR,
-                       out_dir=args.output_dir if args.output_dir else TETML_DIR,
+                       out_dir=OUTPUT_DIR,
                        is_overwrite=args.overwrite)
         print('Successfully parsed {}/{} pdfs.'.format(num_success,
                                                        num_pdfs))

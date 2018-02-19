@@ -9,8 +9,7 @@ import os
 from bs4 import BeautifulSoup
 
 from config import DATA_DIR, TETML_DIR
-from extract_empirical_results.preprocess.table_extractor import \
-    PdflibTableExtractor
+from corvid.preprocess.table_extractor import PdflibTableExtractor
 
 OUTPUT_FILENAME = 'tables.txt'
 
@@ -31,7 +30,6 @@ if __name__ == '__main__':
 
     with open(os.path.join(DATA_DIR, OUTPUT_FILENAME), 'w') as f:
         for paper_id, tables in papers.items():
-            print(paper_id)
             f.write(paper_id + '\n')
             for table in tables:
                 try:

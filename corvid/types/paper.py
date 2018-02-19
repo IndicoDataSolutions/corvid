@@ -4,7 +4,7 @@ Papers are representations of a paper and contain Tables
 
 """
 
-from extract_empirical_results.types.table import Table
+from corvid.types.table import Table
 
 
 class Paper(object):

@@ -7,8 +7,8 @@
 from typing import List
 from bs4 import BeautifulSoup
 
-from extract_empirical_results.types.table import Cell, Table, Point
-from extract_empirical_results.util.strings import format_list
+from corvid.types.table import Token, Cell, Table, Point
+from corvid.util.files import scan_file_for_sections
 
 
 class TableExtractor(object):
@@ -29,29 +29,48 @@ class PdflibTableExtractor(TableExtractor):
             for i, row_tag in enumerate(table_tag.find_all('row')):
                 ncols.append(0)
                 for cell_tag in row_tag.find_all('cell'):
+
+                    # BUILD LIST OF TOKENS
+                    tokens = []
+                    for word_tag in cell_tag.find_all('word'):
+                        word_box_tag = word_tag.find('box')
+                        token = Token(text=word_box_tag.get_text(strip=True),
+                                      # `find_all` gets font per character,
+                                      # but use `find` because assume font is
+                                      # constant within same word
+                                      font=word_box_tag
+                                      .find('glyph').get('font'),
+                                      lower_left=Point(
+                                          x=word_box_tag.get('llx'),
+                                          y=word_box_tag.get('lly')),
+                                      upper_right=Point(
+                                          x=word_box_tag.get('urx'),
+                                          y=word_box_tag.get('ury')))
+                        tokens.append(token)
+
+                    # BUILD CELL FROM LIST OF TOKENS
                     cell = Cell(
-                        text=format_list([
-                            word.find('text').get_text(strip=True)
-                            for word in cell_tag.find_all('word')
-                        ]),
+                        tokens=tokens,
                         rowspan=1,
                         colspan=int(cell_tag.get('colspan')) \
-                            if cell_tag.get('colspan') else 1,
-                        lower_left=Point(x=cell_tag.get('llx'),
-                                         y=cell_tag.get('lly')),
-                        upper_right=Point(x=cell_tag.get('urx'),
-                                          y=cell_tag.get('ury'))
+                            if cell_tag.get('colspan') else 1
+                        # TODO: derive xy-coordinates from Tokens
+                        # lower_left=Point(x=cell_tag.get('llx'),
+                        #                  y=cell_tag.get('lly')),
+                        # upper_right=Point(x=cell_tag.get('urx'),
+                        #                   y=cell_tag.get('ury'))
                     )
                     cells.append(cell)
                     ncols[i] += cell.colspan
 
+            # TODO: add more filters here if necessary
             is_equal_ncol_per_row = all([ncol == ncols[0] for ncol in ncols])
             if not is_equal_ncol_per_row:
                 print('Table {} has unequal columns per row. Skipping...'
                       .format(table_id))
                 num_failed += 1
 
-            # build table
+            # BUILD TABLE FROM LIST OF CELLS
             try:
                 table = Table(cells=cells,
                               nrow=len(ncols),

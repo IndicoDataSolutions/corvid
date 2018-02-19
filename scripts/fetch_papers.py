@@ -66,18 +66,19 @@ def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
 
 # TODO: dont like this function does 2 things; separate responsibility?
 def fetch_pdfs_from_s3(s3_url: str, paper_ids: List[str], out_dir: str,
-                       is_overwrite: bool = False) -> List[str]:
+                       is_overwrite: bool = False) -> Dict[str, str]:
     """Fetches pdfs from s3 and returns names of successful fetches"""
-    successful = []
+    fetch_statuses = {}
     for paper_id in paper_ids:
         try:
             print('Fetching paper_id {}'.format(paper_id))
             fetch_one_pdf_from_s3(s3_url, paper_id, out_dir, is_overwrite)
-            successful.append(paper_id)
+            fetch_statuses.update({paper_id: 'SUCCESS'})
         except Exception as e:
             print(e)
             print('Skipping paper_id {}'.format(paper_id))
-    return successful
+            fetch_statuses.update({paper_id: 'FAIL'})
+    return fetch_statuses
 
 
 if __name__ == '__main__':

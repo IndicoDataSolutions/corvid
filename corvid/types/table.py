@@ -9,17 +9,16 @@ from typing import List, Tuple
 
 Point = namedtuple('Point', ['x', 'y'])
 
-from extract_empirical_results.util.strings import format_grid
+from corvid.util.strings import format_grid
 
 
-class Cell(object):
-    """A Cell is a single unit of data in a Table"""
+class Token(object):
+    """A single unit of text and metadata about that text"""
 
-    def __init__(self, text: str, rowspan: int, colspan: int,
+    def __init__(self, text: str, font: str = None,
                  lower_left: Point = None, upper_right: Point = None):
         self.text = text
-        self.rowspan = rowspan
-        self.colspan = colspan
+        self.font = font
         self.lower_left = lower_left
         self.upper_right: upper_right
 
@@ -28,6 +27,26 @@ class Cell(object):
 
     def __str__(self):
         return self.text
+
+
+class Cell(object):
+    """A Cell is a single unit of data in a Table separated from other Cells
+    by whitespace and/or lines.  Typically corresponding to its own row and
+    column index (or indices) disjoint from those of other Cells."""
+
+    def __init__(self, tokens: List[Token], rowspan: int = 1, colspan: int = 1,
+                 lower_left: Point = None, upper_right: Point = None):
+        self.tokens = tokens
+        self.rowspan = rowspan
+        self.colspan = colspan
+        self.lower_left = lower_left
+        self.upper_right: upper_right
+
+    def __repr__(self):
+        return ' '.join([str(token) for token in self.tokens])
+
+    def __str__(self):
+        return ' '.join([str(token) for token in self.tokens])
 
 
 class Table(object):
@@ -64,10 +83,19 @@ class Table(object):
     >  [2]              > [7]  a           > [12]  e
     >  [3]  col1        > [8]  b           > [13]  f
     >  [4]  col2        > [9]  c
+
+
+    Note about List[Cell] order:
+        `is_row_wise = True`:
+            Cells are provided in order [0,0], [0,1], ... [0,ncol], [1,0], ...
+        `is_row_wise = False`
+            Cells are provided in order [0,0], [1,0], ..., [nrow,0], [0,1], ...
     """
 
     def __init__(self, cells: List[Cell], nrow: int, ncol: int,
-                 paper_id: str, page_num: int, caption: str,
+                 paper_id: str = None,
+                 page_num: int = None,
+                 caption: str = None,
                  lower_left: Point = None, upper_right: Point = None,
                  is_row_wise: bool = True):
         self.cells = cells
@@ -125,16 +153,16 @@ class Table(object):
             return self.cells[index]
 
     def __repr__(self):
-        return format_grid([[atomic_cell.text for atomic_cell in row]
+        return format_grid([[str(cell) for cell in row]
                             for row in self.grid])
 
     def __str__(self):
-        return format_grid([[atomic_cell.text for atomic_cell in row]
+        return format_grid([[str(cell) for cell in row]
                             for row in self.grid])
 
     def transpose(self) -> 'Table':
         new_cells = [
-            Cell(text=cell.text,
+            Cell(tokens=cell.tokens,
                  rowspan=cell.colspan,
                  colspan=cell.rowspan) for cell in self.cells
         ]
