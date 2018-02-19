@@ -1,4 +1,0 @@
-# extraction_model
-
-Placeholder!
-

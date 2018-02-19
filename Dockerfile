@@ -16,17 +16,23 @@ RUN apt-get clean \
 
 WORKDIR /work
 
-COPY ./requirements.txt .
+# install pdflib
+RUN wget http://www.pdflib.com/binaries/TET/510/TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
+RUN tar -xvzf TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
+RUN rm TET-5.1-Linux-x86_64-Perl-PHP-Python-Ruby.tar.gz
 
 # install python packages
-RUN pip3 install -r requirements.txt
+COPY requirements.in .
+RUN pip3 install -r requirements.in
 
 # add the code as the final step so that when we modify the code
 # we don't bust the cached layers holding the dependencies and
 # system packages.
-COPY extract_empirical_results/ extract_empirical_results/
+COPY corvid/ corvid/
 COPY scripts/ scripts/
 COPY tests/ tests/
+COPY .pylintrc .
+# not obvious to me whether we need this, so currently commented out
 #RUN pip3 install --quiet -e .
 
 CMD [ "/bin/bash" ]
