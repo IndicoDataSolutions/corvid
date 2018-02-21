@@ -8,7 +8,6 @@ schema
 
 from corvid.types.table import Table
 from corvid.types.semantic_table import SemanticTable
-from corvid.types.table import Table
 
 from typing import Dict, List
 
@@ -22,6 +21,7 @@ def _count_matched_cells(row1: List, row2: List) -> int:
         for cell2 in row2:
             if str(cell1) == str(cell2):
                 match_count += 1
+                break
     return match_count
 
 def _get_best_match_in_gold_table(row, gold_table: Table) -> float:
