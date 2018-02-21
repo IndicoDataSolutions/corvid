@@ -30,20 +30,20 @@ def _get_best_match_in_gold_table(row, gold_table: Table) -> float:
         and returns the highest match score
     """
     MAX_MATCH_SCORE = 1.0
-    max_match = 0.0 
+    max_match = 0.0
     #Skip header row by looping from row 1
     for gold_row in gold_table.grid[1:]:
         #Skip the subject column when checking for matches; Assumes subject column is column 0
         match_count = _count_matched_cells(row[1:], gold_row[1:])
         match_score = match_count / (gold_table.ncol - 1)
-        
+
         if match_score == MAX_MATCH_SCORE:
            return match_score
-        
+
         if match_count > max_match:
             max_match = match_count
 
-    match_score = max_match / gold_table.ncol  
+    match_score = max_match / gold_table.ncol
     return match_score
 
 
@@ -58,18 +58,18 @@ def compute_metrics(gold_table: Table,
     row_exact_match_score   = 0 #aggregates match_score for rows with exact matches
     overall_match_score     = 0 #aggregates match_score for rows with exact and partial matches
 
-    #Row 0 is assumed to be header row. It is evaluated only for schema match 
+    #Row 0 is assumed to be header row. It is evaluated only for schema match
     #It is omitted from row-level and cell-level table evaluations
     #Skip the subject column when checking for matches; Assumes subject column is column 0
     aggregate_table_schema  = aggregate_table.grid[0][1:]
     gold_table_schema       = gold_table.grid[0][1:]
-   
+
     schema_match_count      = _count_matched_cells(aggregate_table_schema,gold_table_schema)
     schema_match_accuracy   = (schema_match_count / (gold_table.ncol -1)) * 100
 
     for aggregate_table_row in aggregate_table.grid[1:]:
         match_score = _get_best_match_in_gold_table(aggregate_table_row, gold_table)
-        
+
         if match_score == 1:
             row_exact_match_score += match_score
 
@@ -83,7 +83,7 @@ def compute_metrics(gold_table: Table,
     print ('Table Match Accuracy (Cell level): ' + str(table_match_accuracy_cell_level))
 
     metric_scores['schema_match_accuracy']          =  schema_match_accuracy
-    metric_scores['table_match_ccuracy_exact']      =  table_match_accuracy_row_level 
-    metric_scores['table_match_ccuracy_inexact']    =  table_match_accuracy_cell_level
+    metric_scores['table_match_accuracy_exact']      =  table_match_accuracy_row_level
+    metric_scores['table_match_accuracy_inexact']    =  table_match_accuracy_cell_level
 
     return (metric_scores)
