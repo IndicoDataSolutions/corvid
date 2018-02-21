@@ -6,6 +6,7 @@ schema
 
 """
 
+from corvid.types.table import Table
 from corvid.types.semantic_table import SemanticTable
 from corvid.types.table import Table
 
@@ -82,3 +83,4 @@ def compute_metrics(gold_table: Table,
     metric_scores['table_match_ccuracy_inexact']    =  table_match_accuracy_cell_level
 
     return (metric_scores)
+    
