@@ -9,7 +9,7 @@ from corvid.types.table import Token, Cell, Table
 from corvid.evaluation.compute_metrics import compute_metrics
 
 
-class TestComputeMetrcis(unittest.TestCase):
+class TestComputeMetrics(unittest.TestCase):
     def setUp(self):
         self.gold_cells = [ Cell(tokens=[Token(text='Model')], rowspan=1, colspan=1), 
                       Cell( tokens=[Token(text='EM')], rowspan=1, colspan=1), 
