@@ -12,7 +12,6 @@ from corvid.types.table import Cell, Table
 from typing import Dict, List
 
 
-# TODO: This returns incorrect value if rows contain duplicate cell values
 def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
     """Returns the number of matching cells between two rows of equal length"""
     if len(row1) != len(row2):
