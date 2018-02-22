@@ -10,21 +10,21 @@ from corvid.types.semantic_table import SemanticTable
 from corvid.types.table import Cell, Table, Token
 
 from typing import Dict, List
+import copy 
 
 
 def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
     """Returns the number of matching cells between two rows of equal length"""
     if len(row1) != len(row2):
         raise Exception('Unequal number of cells in each row')
+
     match_count = 0
-    
-    for row1_idx in range(0,len(row1)):
-        for row2_idx in range(0,len(row2)):
-            if str(row1[row1_idx]) == str(row2[row2_idx]):
+    index_matched_row2 = set()
+    for cell1 in row1:
+        for cell2_idx, cell2 in enumerate(row2):
+            if cell2_idx not in index_matched_row2 and str(cell1) == str(cell2):                
                 match_count += 1
-                #Replace matched cell content with a special text to avoid duplicate counts
-                row1[row1_idx] = Cell(tokens=[Token(text='#ROW1_CELL_MATCHED#')])
-                row2[row2_idx] = Cell(tokens=[Token(text='#ROW2_CELL_MATCHED#')])
+                index_matched_row2.add(cell2_idx)
 
     return match_count
 
