@@ -70,13 +70,9 @@ def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
     for gold_row_idx, gold_table_row in enumerate(gold_table.grid[1:]):
         for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
             # Skip the subject column when checking for matches; Assumes subject column is column 0
-            print(aggregate_table_row[1:])
-            print(gold_table_row[1:])
             cell_match_counts[gold_row_idx][aggregate_row_idx] = _compute_number_matching_cells(aggregate_table_row[1:],
                                                                                                 gold_table_row[1:])
-            print(cell_match_counts)
 
-    print(cell_match_counts)
     for gold_row_idx in range(0, gold_table.nrow - 1):
         sorted_column_indexes = np.argsort(cell_match_counts[gold_row_idx, :][::-1])
         for sorted_column_index in sorted_column_indexes:
@@ -84,8 +80,7 @@ def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
             if cell_match_counts[gold_row_idx, sorted_column_index] >= col_max:
                 row_best_match_score += col_max
                 break
-
-    print (row_best_match_score)
+                
     return row_best_match_score
 
 
