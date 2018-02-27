@@ -7,10 +7,10 @@ schema
 """
 
 from corvid.types.semantic_table import SemanticTable
-from corvid.types.table import Cell, Table, Token
+from corvid.types.table import Cell, Table
 
 from typing import Dict, List
-import copy 
+import numpy as np
 
 
 def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
@@ -22,34 +22,58 @@ def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
     index_matched_row2 = set()
     for cell1 in row1:
         for cell2_idx, cell2 in enumerate(row2):
-            if cell2_idx not in index_matched_row2 and str(cell1) == str(cell2):                
+            if cell2_idx not in index_matched_row2 and str(cell1) == str(cell2):
                 match_count += 1
                 index_matched_row2.add(cell2_idx)
 
     return match_count
 
 
-def _get_best_match_in_gold_table(row, gold_table: Table) -> float:
+def _compute_cell_similarity(row1: List[Cell], row2: List[Cell]) -> float:
+    pass
+
+
+def _count_row_match_(gold_table: Table, aggregate_table: Table) -> int:
     """
-        Computes match scores between each row of the gold table and the row
-        and returns the highest match score
+        Computes exact match scores between each row of the gold table and the aggregate table
     """
-    MAX_MATCH_SCORE = 1.0
-    max_match = 0.0
+    row_match_count = 0
+    aggregate_rows_matched = set()
+
     # Skip header row by looping from row 1
-    for gold_row in gold_table.grid[1:]:
-        # Skip the subject column when checking for matches; Assumes subject column is column 0
-        match_count = _compute_number_matching_cells(row[1:], gold_row[1:])
-        match_score = match_count / (gold_table.ncol - 1)
+    for gold_table_row in gold_table.grid[1:]:
+        for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
+            # Skip the subject column when checking for matches; Assumes subject column is column 0
+            cell_match_count = _compute_number_matching_cells(aggregate_table_row[1:], gold_table_row[1:])
 
-        if match_score == MAX_MATCH_SCORE:
-            return match_score
+            if aggregate_row_idx not in aggregate_rows_matched and cell_match_count == (gold_table.ncol - 1):
+                row_match_count += 1
+                aggregate_rows_matched.add(aggregate_row_idx)
 
-        if match_count > max_match:
-            max_match = match_count
+    return row_match_count
 
-    match_score = max_match / gold_table.ncol
-    return match_score
+
+def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
+    """
+        Counts cell level match between each row of the gold table and the aggregate table
+    """
+    cell_match_counts = np.zeros(shape=(gold_table.nrow - 1, aggregate_table.nrow - 1))
+    row_best_match_score = 0.0
+
+    # Skip header row by looping from row 1
+    for gold_row_idx, gold_table_row in enumerate(gold_table.grid[1:]):
+        for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
+            # Skip the subject column when checking for matches; Assumes subject column is column 0
+            cell_match_counts[gold_row_idx][aggregate_row_idx] = _compute_number_matching_cells(aggregate_table_row[1:],
+                                                                                                gold_table_row[1:])
+    for gold_row_idx in range(0, gold_table.nrow - 2):
+        sorted_column_indexes = np.argsort(cell_match_counts[gold_row_idx, :])
+        for sorted_column_index in sorted_column_indexes:
+            col_max = np.amax(cell_match_counts[:, sorted_column_index])
+            if cell_match_counts[gold_row_idx, sorted_column_index] >= col_max:
+                row_best_match_score += col_max
+
+    return row_best_match_score
 
 
 def compute_metrics(gold_table: Table,
@@ -59,9 +83,7 @@ def compute_metrics(gold_table: Table,
     """
 
     metric_scores = {}
-    schema_match_count = 0
-    row_exact_match_score = 0  # aggregates match_score for rows with exact matches
-    overall_match_score = 0  # aggregates match_score for rows with exact and partial matches
+    cell_match_score = 0  # aggregates match_score for rows with exact and partial matches
 
     # Row 0 is assumed to be header row. It is evaluated only for schema match
     # It is omitted from row-level and cell-level table evaluations
@@ -69,26 +91,22 @@ def compute_metrics(gold_table: Table,
     aggregate_table_schema = aggregate_table.grid[0][1:]
     gold_table_schema = gold_table.grid[0][1:]
 
-    schema_match_count = _compute_number_matching_cells(aggregate_table_schema, gold_table_schema)
-    schema_match_accuracy = (schema_match_count / (gold_table.ncol - 1)) * 100
+    schema_match_count = _compute_number_matching_cells(aggregate_table_schema,
+                                                        gold_table_schema)
+    schema_match_accuracy = (schema_match_count / (gold_table.ncol - 1))
 
-    for aggregate_table_row in aggregate_table.grid[1:]:
-        match_score = _get_best_match_in_gold_table(aggregate_table_row,
-                                                    gold_table)
+    row_match_count = _count_row_match_(gold_table, aggregate_table)
 
-        if match_score == 1:
-            row_exact_match_score += match_score
+    cell_match_score = _compute_cell_match_(gold_table, aggregate_table)
 
-        overall_match_score += match_score
+    table_match_accuracy_row_level = (row_match_count / (gold_table.nrow - 1))
+    table_match_accuracy_cell_level = (cell_match_score / ((gold_table.nrow - 1) * (gold_table.ncol - 1)))
 
-    table_match_accuracy_row_level = (row_exact_match_score / (gold_table.nrow - 1)) * 100
-    table_match_accuracy_cell_level = round((overall_match_score / (gold_table.nrow - 1)) * 100, 2)
-
-    print('Schema Match Accuracy: ' + str(schema_match_accuracy))
+    print('Schema Match Accuracy: ' + str(schema_match_accuracy * 100))
     print('Table Match Accuracy (Row level): ' + str(
-        table_match_accuracy_row_level))
+        table_match_accuracy_row_level * 100))
     print('Table Match Accuracy (Cell level): ' + str(
-        table_match_accuracy_cell_level))
+        table_match_accuracy_cell_level * 100))
 
     metric_scores['schema_match_accuracy'] = schema_match_accuracy
     metric_scores['table_match_accuracy_exact'] = table_match_accuracy_row_level
