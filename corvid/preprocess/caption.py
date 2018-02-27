@@ -88,5 +88,9 @@ class Caption(object):
 
                 non_caption_texts.append(non_caption_candidates)
 
+<<<<<<< HEAD
         return (tables, caption_texts, non_caption_texts)
 
+=======
+        return (tables, caption_texts, non_caption_texts)
+>>>>>>> 30a45199e0dde028521685af88cfedb3702037db
