@@ -16,15 +16,21 @@ import numpy as np
 def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
     """Returns the number of matching cells between two rows of equal length"""
     if len(row1) != len(row2):
+        print(row1)
+        print(row2)
         raise Exception('Unequal number of cells in each row')
 
     match_count = 0
-    index_matched_row2 = set()
-    for cell1 in row1:
+    index_matched_row1 = []
+    index_matched_row2 = []
+    for cell1_idx, cell1 in enumerate(row1):
         for cell2_idx, cell2 in enumerate(row2):
-            if cell2_idx not in index_matched_row2 and str(cell1) == str(cell2):
+            if cell1_idx not in index_matched_row1 \
+                    and cell2_idx not in index_matched_row2 \
+                    and str(cell1) == str(cell2):
                 match_count += 1
-                index_matched_row2.add(cell2_idx)
+                index_matched_row1.append((cell1_idx))
+                index_matched_row2.append((cell2_idx))
 
     return match_count
 
@@ -64,15 +70,22 @@ def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
     for gold_row_idx, gold_table_row in enumerate(gold_table.grid[1:]):
         for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
             # Skip the subject column when checking for matches; Assumes subject column is column 0
+            print(aggregate_table_row[1:])
+            print(gold_table_row[1:])
             cell_match_counts[gold_row_idx][aggregate_row_idx] = _compute_number_matching_cells(aggregate_table_row[1:],
                                                                                                 gold_table_row[1:])
-    for gold_row_idx in range(0, gold_table.nrow - 2):
-        sorted_column_indexes = np.argsort(cell_match_counts[gold_row_idx, :])
+            print(cell_match_counts)
+
+    print(cell_match_counts)
+    for gold_row_idx in range(0, gold_table.nrow - 1):
+        sorted_column_indexes = np.argsort(cell_match_counts[gold_row_idx, :][::-1])
         for sorted_column_index in sorted_column_indexes:
             col_max = np.amax(cell_match_counts[:, sorted_column_index])
             if cell_match_counts[gold_row_idx, sorted_column_index] >= col_max:
                 row_best_match_score += col_max
+                break
 
+    print (row_best_match_score)
     return row_best_match_score
 
 
