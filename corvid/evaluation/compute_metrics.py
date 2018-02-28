@@ -46,13 +46,14 @@ def _count_row_match_(gold_table: Table, aggregate_table: Table) -> int:
     row_match_count = 0
     aggregate_rows_matched = set()
 
-    # Skip header row by looping from row 1
+    # Row 0 is assumed to be header row.
+    # Skip header row by iterating from row 1
     for gold_table_row in gold_table.grid[1:]:
         for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
             # Skip the subject column when checking for matches; Assumes subject column is column 0
             cell_match_count = _compute_number_matching_cells(aggregate_table_row[1:], gold_table_row[1:])
 
-            if aggregate_row_idx not in aggregate_rows_matched and cell_match_count == (gold_table.ncol - 1):
+            if aggregate_row_idx not in aggregate_rows_matched and cell_match_count == gold_table.ncol - 1:
                 row_match_count += 1
                 aggregate_rows_matched.add(aggregate_row_idx)
 
@@ -66,7 +67,8 @@ def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
     cell_match_counts = np.zeros(shape=(gold_table.nrow - 1, aggregate_table.nrow - 1))
     row_best_match_score = 0.0
 
-    # Skip header row by looping from row 1
+    # Row 0 is assumed to be header row.
+    # Skip header row by iterating from row 1
     for gold_row_idx, gold_table_row in enumerate(gold_table.grid[1:]):
         for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
             # Skip the subject column when checking for matches; Assumes subject column is column 0
@@ -91,17 +93,6 @@ def compute_metrics(gold_table: Table,
     """
 
     metric_scores = {}
-    cell_match_score = 0  # aggregates match_score for rows with exact and partial matches
-
-    # Row 0 is assumed to be header row. It is evaluated only for schema match
-    # It is omitted from row-level and cell-level table evaluations
-    # Skip the subject column when checking for matches; Assumes subject column is column 0
-    aggregate_table_schema = aggregate_table.grid[0][1:]
-    gold_table_schema = gold_table.grid[0][1:]
-
-    schema_match_count = _compute_number_matching_cells(aggregate_table_schema,
-                                                        gold_table_schema)
-    schema_match_accuracy = (schema_match_count / (gold_table.ncol - 1))
 
     row_match_count = _count_row_match_(gold_table, aggregate_table)
 
@@ -110,13 +101,11 @@ def compute_metrics(gold_table: Table,
     table_match_accuracy_row_level = (row_match_count / (gold_table.nrow - 1))
     table_match_accuracy_cell_level = (cell_match_score / ((gold_table.nrow - 1) * (gold_table.ncol - 1)))
 
-    print('Schema Match Accuracy: ' + str(schema_match_accuracy * 100))
     print('Table Match Accuracy (Row level): ' + str(
         table_match_accuracy_row_level * 100))
     print('Table Match Accuracy (Cell level): ' + str(
         table_match_accuracy_cell_level * 100))
 
-    metric_scores['schema_match_accuracy'] = schema_match_accuracy
     metric_scores['table_match_accuracy_exact'] = table_match_accuracy_row_level
     metric_scores['table_match_accuracy_inexact'] = table_match_accuracy_cell_level
 
