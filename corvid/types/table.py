@@ -12,6 +12,8 @@ Point = namedtuple('Point', ['x', 'y'])
 from corvid.util.strings import format_grid
 
 
+EMPTY_CAPTION = ''
+
 class Token(object):
     """A single unit of text and metadata about that text"""
 
@@ -154,11 +156,11 @@ class Table(object):
 
     def __repr__(self):
         return format_grid([[str(cell) for cell in row]
-                            for row in self.grid])
+                            for row in self.grid]) + '\n' + self.caption
 
     def __str__(self):
         return format_grid([[str(cell) for cell in row]
-                            for row in self.grid])
+                            for row in self.grid]) + '\n' + self.caption
 
     def transpose(self) -> 'Table':
         new_cells = [
