@@ -1,112 +1,111 @@
 """
 
-Methods to compute metrics to evaluate schema matching 
-and table aggregation against gold tables and gold  
-schema
+Compute evaluation metrics between `pred` and `gold` Tables
 
 """
 
+from typing import Dict, List, Callable
+
+import numpy as np
+from scipy.optimize import linear_sum_assignment
+
 from corvid.types.semantic_table import SemanticTable
 from corvid.types.table import Cell, Table
-
-from typing import Dict, List
-import numpy as np
+from corvid.util.lists import compute_similarity
 
 
-def _compute_number_matching_cells(row1: List[Cell], row2: List[Cell]) -> int:
-    """Returns the number of matching cells between two rows of equal length"""
+def _count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
+    """Count the number of matching cells between two rows of Cells,
+    assuming their columns are aligned.
+    """
     if len(row1) != len(row2):
-        print(row1)
-        print(row2)
+        print('Row 1: ' + str(row1))
+        print('Row 2: ' + str(row2))
         raise Exception('Unequal number of cells in each row')
 
-    match_count = 0
-    index_matched_row1 = []
-    index_matched_row2 = []
-    for cell1_idx, cell1 in enumerate(row1):
-        for cell2_idx, cell2 in enumerate(row2):
-            if cell1_idx not in index_matched_row1 \
-                    and cell2_idx not in index_matched_row2 \
-                    and str(cell1) == str(cell2):
-                match_count += 1
-                index_matched_row1.append((cell1_idx))
-                index_matched_row2.append((cell2_idx))
-
-    return match_count
+    return compute_similarity(
+        x=row1,
+        y=row2,
+        sim=lambda cell1, cell2: int(str(cell1) == str(cell2)),
+        agg=sum)
 
 
-def _compute_cell_similarity(row1: List[Cell], row2: List[Cell]) -> float:
-    pass
+def _row_level_recall(gold_table: Table, pred_table: Table) -> int:
+    """Computes normalized count of rows in `gold` reproduced in `pred`
 
+    For example:
 
-def _count_row_match_(gold_table: Table, aggregate_table: Table) -> int:
+    gold =  1, 2, 3         pred =  1, 2, 4
+            4, 5, 6                 4, 5, 6
+                                    7, 8, 9
+
+    returns 1/2 = 0.5
+
+    * Assumes `gold` and `pred` Tables have the same (ordered) schema
+    * Dont evaluate on the `header` or (`0`th) row for each Table
+    * Dont evaluate on the `subject` (or `0`th) column for each Table
     """
-        Computes exact match scores between each row of the gold table and the aggregate table
-    """
+
+    max_match_count = gold_table.ncol - 1
+
     row_match_count = 0
-    aggregate_rows_matched = set()
+    row_match_indices = set()
 
-    # Row 0 is assumed to be header row.
-    # Skip header row by iterating from row 1
-    for gold_table_row in gold_table.grid[1:]:
-        for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
-            # Skip the subject column when checking for matches; Assumes subject column is column 0
-            cell_match_count = _compute_number_matching_cells(aggregate_table_row[1:], gold_table_row[1:])
+    for gold_row in gold_table[1:, :]:
+        for index_pred_row, pred_row in enumerate(pred_table[1:, :]):
 
-            if aggregate_row_idx not in aggregate_rows_matched and cell_match_count == gold_table.ncol - 1:
+            is_row_match = _count_matching_cells(
+                row1=gold_row[1:], row2=pred_row[1:]) == max_match_count
+            is_available = index_pred_row not in row_match_indices
+
+            if is_available and is_row_match:
                 row_match_count += 1
-                aggregate_rows_matched.add(aggregate_row_idx)
+                row_match_indices.add(index_pred_row)
 
-    return row_match_count
-
-
-def _compute_cell_match_(gold_table: Table, aggregate_table: Table) -> float:
-    """
-        Counts cell level match between each row of the gold table and the aggregate table
-    """
-    cell_match_counts = np.zeros(shape=(gold_table.nrow - 1, aggregate_table.nrow - 1))
-    row_best_match_score = 0.0
-
-    # Row 0 is assumed to be header row.
-    # Skip header row by iterating from row 1
-    for gold_row_idx, gold_table_row in enumerate(gold_table.grid[1:]):
-        for aggregate_row_idx, aggregate_table_row in enumerate(aggregate_table.grid[1:]):
-            # Skip the subject column when checking for matches; Assumes subject column is column 0
-            cell_match_counts[gold_row_idx][aggregate_row_idx] = _compute_number_matching_cells(aggregate_table_row[1:],
-                                                                                                gold_table_row[1:])
-
-    for gold_row_idx in range(0, gold_table.nrow - 1):
-        sorted_column_indexes = np.argsort(cell_match_counts[gold_row_idx, :][::-1])
-        for sorted_column_index in sorted_column_indexes:
-            col_max = np.amax(cell_match_counts[:, sorted_column_index])
-            if cell_match_counts[gold_row_idx, sorted_column_index] >= col_max:
-                row_best_match_score += col_max
-                break
-                
-    return row_best_match_score
+    return row_match_count / (gold_table.nrow - 1)
 
 
-def compute_metrics(gold_table: Table,
-                    aggregate_table: Table) -> Dict[str, float]:
-    """
-        Compute accuracy for: reproducing the target schema, reproducing the gold table
+def _cell_level_recall(gold_table: Table, pred_table: Table) -> float:
+    """Computes normalized count of cells in `gold` reproduced in `pred`
+
+    For example:
+
+    gold =  1, 2, 3         pred =  1, 2, 4
+            4, 5, 6                 4, 5, 6
+                                    7, 8, 9
+
+    returns 5/6 = 0.67
+
+    * Assumes `gold` and `pred` Tables have the same (ordered) schema
+    * Dont evaluate on the `header` or (`0`th) row for each Table
+    * Dont evaluate on the `subject` (or `0`th) column for each Table
+
+    * The search to match rows in `gold` to rows in `pred` such that
+    their sum total of matching cells is maximized can be solved via
+    the Hungarian algorithm (aka Kuhn-Munkres).  See
+    https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.optimize.linear_sum_assignment.html
     """
 
-    metric_scores = {}
+    cell_match_counts = np.array([
+        [
+            _count_matching_cells(row1=gold_row[1:], row2=pred_row[1:])
+            for pred_row in pred_table[1:, :]
+        ]
+        for gold_row in gold_table[1:, :]
+    ])
 
-    row_match_count = _count_row_match_(gold_table, aggregate_table)
+    # negative sign here because scipy implementation minimizes sum of weights
+    index_gold, index_pred = linear_sum_assignment(-cell_match_counts)
 
-    cell_match_score = _compute_cell_match_(gold_table, aggregate_table)
+    return cell_match_counts[index_gold, index_pred].sum() / \
+           ((gold_table.nrow - 1) * (gold_table.ncol - 1))
 
-    table_match_accuracy_row_level = (row_match_count / (gold_table.nrow - 1))
-    table_match_accuracy_cell_level = (cell_match_score / ((gold_table.nrow - 1) * (gold_table.ncol - 1)))
 
-    print('Table Match Accuracy (Row level): ' + str(
-        table_match_accuracy_row_level * 100))
-    print('Table Match Accuracy (Cell level): ' + str(
-        table_match_accuracy_cell_level * 100))
+# TODO: link to documentation that describes formulas for each of these
+def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
+    """Computes all evaluation metrics between a `pred` and `gold` Table pair"""
 
-    metric_scores['table_match_accuracy_exact'] = table_match_accuracy_row_level
-    metric_scores['table_match_accuracy_inexact'] = table_match_accuracy_cell_level
-
-    return metric_scores
+    return {
+        'row_level_recall': _row_level_recall(gold_table, pred_table),
+        'cell_level_recall': _cell_level_recall(gold_table, pred_table)
+    }

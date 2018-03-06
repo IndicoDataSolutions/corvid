@@ -39,7 +39,7 @@ class TestComputeMetrics(unittest.TestCase):
         self.assertDictEqual(
             compute_metrics(self.gold_table, self.pred_table),
             {
-                'table_match_accuracy_exact': 1.0,
-                'table_match_accuracy_inexact': 1.0
+                'row_level_recall': 1.0,
+                'cell_level_recall': 1.0
             }
         )

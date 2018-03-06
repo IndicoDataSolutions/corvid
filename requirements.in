@@ -6,6 +6,7 @@ requests==2.18.4
 beautifulsoup4==4.6.0
 
 numpy==1.14.1
+scipy==1.0.0
 
 # misc
 pylint==1.8.1
