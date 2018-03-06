@@ -95,7 +95,7 @@ def _cell_level_recall(gold_table: Table, pred_table: Table) -> float:
     ])
 
     # negative sign here because scipy implementation minimizes sum of weights
-    index_gold, index_pred = linear_sum_assignment(-cell_match_counts)
+    index_gold, index_pred = linear_sum_assignment(-1.0 * cell_match_counts)
 
     return cell_match_counts[index_gold, index_pred].sum() / \
            ((gold_table.nrow - 1) * (gold_table.ncol - 1))
