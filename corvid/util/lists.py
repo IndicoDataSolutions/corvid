@@ -19,7 +19,7 @@ def compute_similarity(x: List, y: List,
                        sim: Callable, agg: Callable) -> float:
     """Computes similarity between two lists `x` and `y`:
 
-        - `sim(x_i, y_i) -> float` is applied elementwise
+        - `sim(x_i, y_i) -> Union[bool, int, float]` is applied elementwise
 
         - `agg([float1, float2, ... ]) -> float` is an aggregation function, i.e. mean, max
 
@@ -34,7 +34,7 @@ def compute_similarity(x: List, y: List,
     if len(x) != len(y):
         raise Exception('Unequal number of elements in each list')
 
-    return agg([float(sim(x_i, y_i)) for x_i, y_i in zip(x, y)])
+    return agg([sim(x_i, y_i) for x_i, y_i in zip(x, y)])
 
 
 def compute_best_permutation(x: List,

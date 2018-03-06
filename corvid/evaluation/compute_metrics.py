@@ -1,6 +1,6 @@
 """
 
-Compute evaluation metrics between `pred` and `gold` Tables
+Compute evaluation metrics between `gold` and `pred` Tables
 
 """
 
@@ -14,7 +14,7 @@ from corvid.types.table import Cell, Table
 from corvid.util.lists import compute_similarity
 
 
-def _count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
+def count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
     """Count the number of matching cells between two rows of Cells,
     assuming their columns are aligned.
     """
@@ -26,11 +26,11 @@ def _count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
     return compute_similarity(
         x=row1,
         y=row2,
-        sim=lambda cell1, cell2: int(str(cell1) == str(cell2)),
+        sim=lambda cell1, cell2: str(cell1) == str(cell2),
         agg=sum)
 
 
-def _row_level_recall(gold_table: Table, pred_table: Table) -> int:
+def row_level_recall(gold_table: Table, pred_table: Table) -> int:
     """Computes normalized count of rows in `gold` reproduced in `pred`
 
     For example:
@@ -54,7 +54,7 @@ def _row_level_recall(gold_table: Table, pred_table: Table) -> int:
     for gold_row in gold_table[1:, :]:
         for index_pred_row, pred_row in enumerate(pred_table[1:, :]):
 
-            is_row_match = _count_matching_cells(
+            is_row_match = count_matching_cells(
                 row1=gold_row[1:], row2=pred_row[1:]) == max_match_count
             is_available = index_pred_row not in row_match_indices
 
@@ -65,7 +65,7 @@ def _row_level_recall(gold_table: Table, pred_table: Table) -> int:
     return row_match_count / (gold_table.nrow - 1)
 
 
-def _cell_level_recall(gold_table: Table, pred_table: Table) -> float:
+def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
     """Computes normalized count of cells in `gold` reproduced in `pred`
 
     For example:
@@ -88,7 +88,7 @@ def _cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 
     cell_match_counts = np.array([
         [
-            _count_matching_cells(row1=gold_row[1:], row2=pred_row[1:])
+            count_matching_cells(row1=gold_row[1:], row2=pred_row[1:])
             for pred_row in pred_table[1:, :]
         ]
         for gold_row in gold_table[1:, :]
@@ -103,9 +103,14 @@ def _cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 
 # TODO: link to documentation that describes formulas for each of these
 def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
-    """Computes all evaluation metrics between a `pred` and `gold` Table pair"""
+    """Computes all evaluation metrics between a `gold` and `pred` Table pair"""
+
+    for gold_cell in gold_table[0, :]:
+        for pred_cell in pred_table[0, :]:
+            if str(gold_cell) != str(pred_cell):
+                raise Exception('`gold` and `pred` requires identical schema')
 
     return {
-        'row_level_recall': _row_level_recall(gold_table, pred_table),
-        'cell_level_recall': _cell_level_recall(gold_table, pred_table)
+        'row_level_recall': row_level_recall(gold_table, pred_table),
+        'cell_level_recall': cell_level_recall(gold_table, pred_table)
     }
