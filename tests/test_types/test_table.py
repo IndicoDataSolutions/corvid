@@ -10,7 +10,6 @@ from corvid.types.table import Token, Cell, Table
 
 class TestBox(unittest.TestCase):
     def setUp(self):
-
         self.box = Cell(tokens=[Token(text='hi')], rowspan=1, colspan=1)
 
     def test_str(self):
@@ -128,9 +127,11 @@ class TestTable(unittest.TestCase):
                                                   self.d, self.e, self.f])
 
     def test_str(self):
-        self.assertEqual(str(self.easy_table), 'a\tb\tc\nd\te\tf')
-        s = '\t\tC\tC\n\t\tC:1\tC:2\nR\tR:1\ta\tb\nR\tR:2\tc\td\nR\tR:3\te\tf'
-        self.assertEqual(str(self.hard_table).replace(' ', ''), s)
+        self.assertEqual(str(self.easy_table),
+                         'a\tb\tc\nd\te\tf' + '\n' + 'hi this is caption')
+        t = '\t\tC\tC\n\t\tC:1\tC:2\nR\tR:1\ta\tb\nR\tR:2\tc\td\nR\tR:3\te\tf'
+        c = 'hithisiscaption'
+        self.assertEqual(str(self.hard_table).replace(' ', ''), t + '\n' + c)
 
     def test_transpose(self):
         transposed_grid = self.easy_table.transpose()
@@ -144,5 +145,6 @@ class TestTable(unittest.TestCase):
         transposed_grid = self.hard_table.transpose()
         self.assertEqual(transposed_grid.cells[4].rowspan, 1)
         self.assertEqual(transposed_grid.cells[4].colspan, 3)
-        s = '\t\tR\tR\tR\n\t\tR:1\tR:2\tR:3\nC\tC:1\ta\tc\te\nC\tC:2\tb\td\tf'
-        self.assertEqual(str(transposed_grid).replace(' ', ''), s)
+        t = '\t\tR\tR\tR\n\t\tR:1\tR:2\tR:3\nC\tC:1\ta\tc\te\nC\tC:2\tb\td\tf'
+        c = 'hithisiscaption'
+        self.assertEqual(str(transposed_grid).replace(' ', ''), t + '\n' + c)
