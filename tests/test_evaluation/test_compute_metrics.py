@@ -18,12 +18,6 @@ class TestComputeMetrics(unittest.TestCase):
             x, 1, 2
             y, 3, 4
             z, 5, 6
-
-        pred:
-            subject, header1, header2
-            a, 1, 2
-            b, 5, 6
-            c, 3, 4
         """
         self.gold_table = Table(cells=[
             Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
