@@ -9,7 +9,7 @@ import os
 from bs4 import BeautifulSoup
 
 from config import DATA_DIR, TETML_DIR
-from corvid.preprocess.table_extractor import extract_tables_from_tetml
+from corvid.preprocess.table_extractor import TetmlTableExtractor
 
 OUTPUT_FILENAME = 'tables.txt'
 
@@ -21,8 +21,9 @@ if __name__ == '__main__':
         try:
             with open(tetml_path, 'r') as f_tetml:
                 print('Extracting tables from {}...'.format(paper_id))
-                tables = extract_tables_from_tetml(tetml=BeautifulSoup(f_tetml),
-                                                   caption_search_window=3)
+                tables = TetmlTableExtractor.extract_tables(
+                    tetml=BeautifulSoup(f_tetml),
+                    caption_search_window=3)
                 papers.update({paper_id: tables})
         except FileNotFoundError as e:
             print(e)
