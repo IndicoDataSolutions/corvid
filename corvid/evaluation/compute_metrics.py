@@ -46,6 +46,8 @@ def row_level_recall(gold_table: Table, pred_table: Table) -> int:
     * Dont evaluate on the `subject` (or `0`th) column for each Table
     """
 
+    assert gold_table.nrow > 1
+
     max_match_count = gold_table.ncol - 1
 
     row_match_count = 0
@@ -85,6 +87,8 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
     the Hungarian algorithm (aka Kuhn-Munkres).  See
     https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.optimize.linear_sum_assignment.html
     """
+
+    assert gold_table.nrow > 1
 
     cell_match_counts = np.array([
         [

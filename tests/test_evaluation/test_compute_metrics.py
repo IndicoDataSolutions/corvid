@@ -40,7 +40,19 @@ class TestComputeMetrics(unittest.TestCase):
             Cell(tokens=[Token(text='6')], rowspan=1, colspan=1)
         ], nrow=4, ncol=3)
 
+        self.gold_table_empty = Table(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=3)
+
         self.pred_table_perfect = self.gold_table
+
+        self.pred_table_empty = Table(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=3)
 
         self.pred_table_permute_rows = Table(cells=[
             Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
@@ -128,10 +140,58 @@ class TestComputeMetrics(unittest.TestCase):
             ]), 1.0)
 
     def test_row_level_recall(self):
-        pass
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_perfect), 1.0)
+
+        with self.assertRaises(Exception):
+            row_level_recall(gold_table=self.gold_table_empty,
+                             pred_table=self.pred_table_perfect)
+
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_empty), 0.0)
+
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_permute_rows), 1.0)
+
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_extra_rows), 1.0)
+
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_missing_rows), 2 / 3)
+
+        self.assertEqual(
+            row_level_recall(gold_table=self.gold_table,
+                             pred_table=self.pred_table_partial_credit), 0.0)
 
     def test_cell_level_recall(self):
-        pass
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_perfect), 1.0)
+
+        with self.assertRaises(Exception):
+            cell_level_recall(gold_table=self.gold_table_empty,
+                              pred_table=self.pred_table_perfect)
+
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_permute_rows), 1.0)
+
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_extra_rows), 1.0)
+
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_missing_rows), 2 / 3)
+
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_partial_credit), 1 / 3)
 
     def test_compute_metrics(self):
         pred_table_missing_header = Table(cells=[
@@ -149,6 +209,10 @@ class TestComputeMetrics(unittest.TestCase):
         with self.assertRaises(Exception):
             compute_metrics(gold_table=self.gold_table,
                             pred_table=pred_table_missing_header)
+
+        self.assertEqual(
+            cell_level_recall(gold_table=self.gold_table,
+                              pred_table=self.pred_table_empty), 0.0)
 
         pred_table_permuted_header = Table(cells=[
             Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
