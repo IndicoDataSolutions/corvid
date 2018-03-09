@@ -10,13 +10,19 @@ Functions that fetch remote files:
 import os
 import subprocess
 import argparse
+
 from typing import Dict, List
 
 import requests
 import json
 
 from config import convert_paper_id_to_s3_filename, PAPER_IDS_TXT, PAPERS_JSON, \
-    PDF_DIR, S3_PDFS_URL, ES_PROD_URL, ES_DEV_URL
+    PDF_DIR, S3_PDFS_URL
+
+try:
+    from config import ES_PROD_URL as ES_URL
+except:
+    from config import ES_DEV_URL as ES_URL
 
 
 def read_one_json_from_es(es_url: str, paper_id: str) -> Dict[str, str]:
@@ -38,14 +44,15 @@ def fetch_jsons_from_es(es_url: str, paper_ids: List[str], out_file: str,
         raise Exception('{} already exists'.format(out_file))
 
     papers = []
+    for paper_id in paper_ids:
+        try:
+            print('Fetching paper_id {}'.format(paper_id))
+            papers.append(read_one_json_from_es(es_url, paper_id))
+        except Exception as e:
+            print(e)
+            print('Skipping paper_id {}'.format(paper_id))
+
     with open(out_file, 'w') as f:
-        for paper_id in paper_ids:
-            try:
-                print('Fetching paper_id {}'.format(paper_id))
-                papers.append(read_one_json_from_es(es_url, paper_id))
-            except Exception as e:
-                print(e)
-                print('Skipping paper_id {}'.format(paper_id))
         json.dump(papers, f)
 
 
@@ -100,14 +107,26 @@ if __name__ == '__main__':
         paper_ids = f.read().splitlines()
 
     if args.mode == 'json':
-        fetch_jsons_from_es(es_url=args.input_url if args.input_url else ES_PROD_URL,
-                            paper_ids=paper_ids,
-                            out_file=args.out_path if args.out_path else PAPERS_JSON,
-                            is_overwrite=args.overwrite)
+        response = requests.get(ES_URL)
+        if response.status_code < 400:
+            raise Exception('{} not working'.format(ES_URL))
+
+        fetch_jsons_from_es(
+            es_url=args.input_url if args.input_url else ES_URL,
+            paper_ids=paper_ids,
+            out_file=args.out_path if args.out_path else PAPERS_JSON,
+            is_overwrite=args.overwrite)
+
     elif args.mode == 'pdf':
-        fetch_pdfs_from_s3(s3_url=args.input_url if args.input_url else S3_PDFS_URL,
-                           paper_ids=paper_ids,
-                           out_dir=args.out_path if args.out_path else PDF_DIR,
-                           is_overwrite=args.overwrite)
+        response = requests.get(S3_PDFS_URL)
+        if response.status_code < 400:
+            raise Exception('{} not working'.format(S3_PDFS_URL))
+
+        fetch_pdfs_from_s3(
+            s3_url=args.input_url if args.input_url else S3_PDFS_URL,
+            paper_ids=paper_ids,
+            out_dir=args.out_path if args.out_path else PDF_DIR,
+            is_overwrite=args.overwrite)
+
     else:
         raise Exception('Currently only supports `json` and `pdf` modes.')
