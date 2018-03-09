@@ -107,7 +107,8 @@ ENV/
 .DS_Store
 
 # data
-data/
+data/*
+!data/datasets.json
 crowdflower/
 docs/
 config.py
