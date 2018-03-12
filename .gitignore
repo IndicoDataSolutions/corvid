@@ -109,7 +109,4 @@ ENV/
 # data
 data/*
 !data/datasets.json
-crowdflower/
-docs/
 config.py
-misc/

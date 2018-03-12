@@ -26,3 +26,7 @@ for dataset in datasets:
         save(dataset, pred_table, metrics)
 """
 
+
+
+if __name__ == '__main__':
+    with open('')
