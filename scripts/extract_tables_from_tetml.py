@@ -18,6 +18,8 @@ from config import TETML_DIR, PICKLE_DIR
 
 IS_OVERWRITE = True
 
+DIVIDER = '\n\n-----------------------------------------------\n\n'
+
 if __name__ == '__main__':
     papers = {}
     for tetml_path in os.listdir(TETML_DIR):
@@ -36,8 +38,7 @@ if __name__ == '__main__':
                     tetml=BeautifulSoup(f_tetml),
                     caption_search_window=3)
 
-                divider = '\n\n-----------------------------------------------\n\n'
-                print(divider.join([str(table) for table in tables]))
+                print(DIVIDER.join([str(table) for table in tables]))
 
                 print('Pickling extracted tables for {}...'.format(paper_id))
                 with open(pickle_path, 'wb') as f_pickle:
@@ -47,3 +48,5 @@ if __name__ == '__main__':
         except FileNotFoundError as e:
             print(e)
             print('{} missing TETML file. Skipping...'.format(paper_id))
+
+        print(DIVIDER)
