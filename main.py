@@ -28,13 +28,27 @@ for dataset in datasets:
 
 import json
 
-from config import DATASETS_JSON
+from corvid.util.files import is_url_working, read_one_json_from_es, \
+    fetch_one_pdf_from_s3
+from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR
 
 if __name__ == '__main__':
     with open(DATASETS_JSON, 'r') as f:
         datasets = json.load(f)
 
+    assert is_url_working(ES_PROD_URL)
     for dataset in datasets:
-        tables = []
+        # find relevant papers using citations
+        dataset_paper_json = read_one_json_from_es(
+            es_url=ES_PROD_URL,
+            paper_id=dataset.get('paper_id'))
+        relevant_paper_ids = dataset_paper_json.get('citedBy')
 
-        papers = find_relevant_papers(dataset)
+        # fetch pdfs of relevant papers & extract tables
+        tables = []
+        for paper_id in relevant_paper_ids:
+            fetch_one_pdf_from_s3(s3_url=S3_PDFS_URL,
+                                  paper_id=relevant_paper_ids,
+                                  out_dir=PDF_DIR,
+                                  is_overwrite=False)
+            

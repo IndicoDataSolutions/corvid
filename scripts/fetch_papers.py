@@ -32,6 +32,7 @@ if __name__ == '__main__':
                         help='overwrite existing files')
     args = parser.parse_args()
 
+    # TODO: allow a list of paper_ids or a file as input
     paper_ids_filename = args.paper_ids if args.paper_ids else PAPER_IDS_TXT
     with open(paper_ids_filename, 'r') as f:
         paper_ids = f.read().splitlines()
