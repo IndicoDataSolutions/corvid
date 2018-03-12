@@ -53,8 +53,8 @@ def row_level_recall(gold_table: Table, pred_table: Table) -> int:
     row_match_count = 0
     row_match_indices = set()
 
-    for gold_row in gold_table[1:, :]:
-        for index_pred_row, pred_row in enumerate(pred_table[1:, :]):
+    for gold_row in gold_table.grid[1:, :]:
+        for index_pred_row, pred_row in enumerate(pred_table.grid[1:, :]):
 
             is_row_match = count_matching_cells(
                 row1=gold_row[1:], row2=pred_row[1:]) == max_match_count
@@ -93,9 +93,9 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
     cell_match_counts = np.array([
         [
             count_matching_cells(row1=gold_row[1:], row2=pred_row[1:])
-            for pred_row in pred_table[1:, :]
+            for pred_row in pred_table.grid[1:, :]
         ]
-        for gold_row in gold_table[1:, :]
+        for gold_row in gold_table.grid[1:, :]
     ])
 
     # negative sign here because scipy implementation minimizes sum of weights
@@ -109,8 +109,8 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
     """Computes all evaluation metrics between a `gold` and `pred` Table pair"""
 
-    for gold_cell in gold_table[0, :]:
-        for pred_cell in pred_table[0, :]:
+    for gold_cell in gold_table.grid[0, :]:
+        for pred_cell in pred_table.grid[0, :]:
             if str(gold_cell) != str(pred_cell):
                 raise Exception('`gold` and `pred` requires identical schema')
 

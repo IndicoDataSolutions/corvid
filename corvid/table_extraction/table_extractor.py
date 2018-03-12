@@ -161,10 +161,11 @@ class TetmlTableExtractor(TableExtractor):
 
         # TODO: `page_num` and `paper_id` fields
         # BUILD TABLE FROM LIST OF CELLS
-        table = Table(cells=cells,
-                      nrow=len(ncol_per_row),
-                      ncol=ncol_per_row[0],
-                      paper_id='PAPER_ID',
-                      page_num=0,
-                      caption=caption)
+        table = Table.create_from_cells(
+            cells=cells,
+            nrow=len(ncol_per_row),
+            ncol=ncol_per_row[0],
+            paper_id='PAPER_ID',
+            page_num=0,
+            caption=caption)
         return table
