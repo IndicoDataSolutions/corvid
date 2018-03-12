@@ -26,7 +26,15 @@ for dataset in datasets:
         save(dataset, pred_table, metrics)
 """
 
+import json
 
+from config import DATASETS_JSON
 
 if __name__ == '__main__':
-    with open('')
+    with open(DATASETS_JSON, 'r') as f:
+        datasets = json.load(f)
+
+    for dataset in datasets:
+        tables = []
+
+        papers = find_relevant_papers(dataset)

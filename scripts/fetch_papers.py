@@ -7,86 +7,16 @@ Functions that fetch remote files:
 
 """
 
-import os
-import subprocess
 import argparse
 
-from typing import Dict, List
-
-import requests
-import json
-
-from config import convert_paper_id_to_s3_filename, PAPER_IDS_TXT, PAPERS_JSON, \
-    PDF_DIR, S3_PDFS_URL
+from corvid.util.files import is_url_working, fetch_jsons_from_es, \
+    fetch_pdfs_from_s3
+from config import PAPER_IDS_TXT, PAPERS_JSON, PDF_DIR, S3_PDFS_URL
 
 try:
     from config import ES_PROD_URL as ES_URL
 except:
     from config import ES_DEV_URL as ES_URL
-
-
-def read_one_json_from_es(es_url: str, paper_id: str) -> Dict[str, str]:
-    paper = requests.get(os.path.join(es_url, 'paper',
-                                      'paper', paper_id)).json()
-    if paper.get('found'):
-        return paper.get('_source')
-    else:
-        raise Exception('paper_id {} not found'.format(paper_id))
-
-
-# TODO: Only supporting 100 papers at once, just to keep ES server happy
-def fetch_jsons_from_es(es_url: str, paper_ids: List[str], out_file: str,
-                        is_overwrite: bool = False):
-    if len(paper_ids) > 100:
-        raise Exception('Too many papers at once!')
-
-    if os.path.exists(out_file) and not is_overwrite:
-        raise Exception('{} already exists'.format(out_file))
-
-    papers = []
-    for paper_id in paper_ids:
-        try:
-            print('Fetching paper_id {}'.format(paper_id))
-            papers.append(read_one_json_from_es(es_url, paper_id))
-        except Exception as e:
-            print(e)
-            print('Skipping paper_id {}'.format(paper_id))
-
-    with open(out_file, 'w') as f:
-        json.dump(papers, f)
-
-
-# TODO: use boto3
-def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
-                          is_overwrite: bool = False):
-    s3_filename = convert_paper_id_to_s3_filename(paper_id)
-    out_filename = '{}.pdf'.format(os.path.join(out_dir, paper_id))
-
-    if os.path.exists(out_filename) and not is_overwrite:
-        raise Exception('{} already exists'.format(out_filename))
-
-    subprocess.run('aws s3 cp {} {}'.format(os.path.join(s3_url,
-                                                         s3_filename),
-                                            out_filename),
-                   shell=True, check=True)
-
-
-# TODO: dont like this function does 2 things; separate responsibility?
-def fetch_pdfs_from_s3(s3_url: str, paper_ids: List[str], out_dir: str,
-                       is_overwrite: bool = False) -> Dict[str, str]:
-    """Fetches pdfs from s3 and returns names of successful fetches"""
-    fetch_statuses = {}
-    for paper_id in paper_ids:
-        try:
-            print('Fetching paper_id {}'.format(paper_id))
-            fetch_one_pdf_from_s3(s3_url, paper_id, out_dir, is_overwrite)
-            fetch_statuses.update({paper_id: 'SUCCESS'})
-        except Exception as e:
-            print(e)
-            print('Skipping paper_id {}'.format(paper_id))
-            fetch_statuses.update({paper_id: 'FAIL'})
-    return fetch_statuses
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -107,8 +37,7 @@ if __name__ == '__main__':
         paper_ids = f.read().splitlines()
 
     if args.mode == 'json':
-        response = requests.get(ES_URL)
-        if response.status_code < 400:
+        if not is_url_working(url=ES_URL):
             raise Exception('{} not working'.format(ES_URL))
 
         fetch_jsons_from_es(
@@ -118,8 +47,7 @@ if __name__ == '__main__':
             is_overwrite=args.overwrite)
 
     elif args.mode == 'pdf':
-        response = requests.get(S3_PDFS_URL)
-        if response.status_code < 400:
+        if not is_url_working(url=S3_PDFS_URL):
             raise Exception('{} not working'.format(S3_PDFS_URL))
 
         fetch_pdfs_from_s3(
