@@ -39,3 +39,6 @@ def is_floatable(s: str) -> bool:
 def is_contains_alpha(s: str) -> bool:
     return len(re.findall(pattern=r'[a-z,A-Z]', string=s)) > 0
 
+
+def remove_non_alphanumeric(s: str) -> str:
+    return re.sub('[^A-Za-z0-9]+', '', s)
