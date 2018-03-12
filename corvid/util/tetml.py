@@ -7,9 +7,7 @@ Miscellaneous functions for working with PDFLib's TETML PDF-parsing tool
 import os
 import subprocess
 
-from typing import Tuple
-
-
+# TODO: add verification that output file exists afterwards
 def parse_one_pdf(tet_path: str,
                   pdf_path: str,
                   out_dir: str,
@@ -38,18 +36,3 @@ def parse_one_pdf(tet_path: str,
         raise Exception('TETML failed to parse {}'.format(pdf_path))
 
     return tetml_path
-
-
-def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
-               is_overwrite: bool = False) -> Tuple[int, int]:
-    pdf_paths = [os.path.join(pdf_dir, path) for path in os.listdir(pdf_dir)]
-    num_success = 0
-    for pdf in pdf_paths:
-        try:
-            print('Parsing PDF {}'.format(pdf))
-            parse_one_pdf(tet_path, pdf, out_dir, is_overwrite)
-            num_success += 1
-        except Exception as e:
-            print(e)
-            print('Skipping PDF {}'.format(pdf))
-    return num_success, len(pdf_paths)

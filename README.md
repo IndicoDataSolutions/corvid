@@ -81,12 +81,14 @@ first_cell = table[0]
 
 ## TODO
 
+0. font information in cells
 1. finish evaluation module for table extraction; write example script for API
 2. table normalizing function
 3. reorganize `data/` file structure 
 4. handling `box` after table transformations (maybe store externally from class)
 5. maybe store all metadata non-specific to table externally from class  
-6. tests for file/tetml utils 
+6. tests for file/tetml utils
+7. `[[cell for cell in row] for row in x]` make possible on Table `x` 
 
 ## Future
 - latex source to table (for training/evaluation)

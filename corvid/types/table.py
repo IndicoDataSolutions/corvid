@@ -195,6 +195,7 @@ class Table(object):
         return np.array_equal(self.grid, other.grid)
 
     # TODO: decide what data (i.e. caption, box) to keep after transposing
+    # TODO: swap row-colspan for each cell
     # def transpose(self) -> 'Table':
     #     table = Table()
     #     table.grid = self.grid.transpose()
