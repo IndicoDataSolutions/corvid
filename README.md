@@ -81,11 +81,16 @@ first_cell = table[0]
 
 ## TODO
 
-1. evaluation for table extraction
-2. latex source to table
-3. parsing heuristics
-4. semantic table class
-5. loading serialized tables
+1. finish evaluation module for table extraction; write example script for API
+2. table normalizing function
+3. reorganize `data/` file structure 
+4. handling `box` after table transformations (maybe store externally from class)
+5. maybe store all metadata non-specific to table externally from class  
+6. tests for file/tetml utils 
+
+## Future
+- latex source to table (for training/evaluation)
+- parsing heuristics
 
 
 ## Miscellaneous

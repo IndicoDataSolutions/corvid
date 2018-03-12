@@ -56,5 +56,6 @@ class SemanticTable(object):
     def _should_transpose(self, table: Table) -> bool:
         raise NotImplementedError
 
+    # TODO: (1) pad if missing headers; (2) collapse
     def _normalize(self, table: Table) -> Table:
         raise NotImplementedError

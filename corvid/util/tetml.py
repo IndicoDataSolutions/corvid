@@ -9,8 +9,16 @@ import subprocess
 
 from typing import Tuple
 
-def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
-                  is_overwrite: bool = False):
+
+def parse_one_pdf(tet_path: str,
+                  pdf_path: str,
+                  out_dir: str,
+                  is_overwrite: bool = False) -> str:
+    """Wrapper around TETML command line call to parse PDF into TETML format
+    with optimal settings for table extraction application.
+
+    Returns path of newly-created TETML file.
+    """
     tetml_path = os.path.join(out_dir,
                               os.path.basename(pdf_path).replace('.pdf',
                                                                  '.tetml'))
@@ -28,6 +36,8 @@ def parse_one_pdf(tet_path: str, pdf_path: str, out_dir: str,
         os.remove(tetml_path)
         print(e)
         raise Exception('TETML failed to parse {}'.format(pdf_path))
+
+    return tetml_path
 
 
 def parse_pdfs(tet_path: str, pdf_dir: str, out_dir: str,
