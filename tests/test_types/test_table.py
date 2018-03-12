@@ -5,15 +5,29 @@
 
 import unittest
 
-from corvid.types.table import Token, Cell, Table
+import numpy as np
+
+from corvid.types.table import Box, Token, Cell, Table, EMPTY_CAPTION
 
 
-class TestBox(unittest.TestCase):
+class TestCell(unittest.TestCase):
     def setUp(self):
-        self.box = Cell(tokens=[Token(text='hi')], rowspan=1, colspan=1)
+        self.cell = Cell(tokens=[
+            Token(text='hi',
+                  bounding_box=Box(llx=-1.0, lly=-0.5, urx=1.0, ury=1.0)),
+            Token(text='bye',
+                  bounding_box=Box(llx=1.5, lly=-0.5, urx=2.5, ury=1.5))
+        ], rowspan=1, colspan=1)
 
     def test_str(self):
-        self.assertEqual(str(self.box), 'hi')
+        self.assertEqual(str(self.cell), 'hi bye')
+
+    def test_compute_bounding_box(self):
+        box = self.cell.compute_bounding_box()
+        self.assertEqual(box.ll.x, -1.0)
+        self.assertEqual(box.ll.y, -0.5)
+        self.assertEqual(box.ur.x, 2.5)
+        self.assertEqual(box.ur.y, 1.5)
 
 
 class TestTable(unittest.TestCase):
@@ -24,55 +38,78 @@ class TestTable(unittest.TestCase):
         self.d = Cell(tokens=[Token(text='d')], rowspan=1, colspan=1)
         self.e = Cell(tokens=[Token(text='e')], rowspan=1, colspan=1)
         self.f = Cell(tokens=[Token(text='f')], rowspan=1, colspan=1)
-        self.easy_table = Table(cells=[self.a, self.b, self.c,
-                                       self.d, self.e, self.f],
-                                nrow=2, ncol=3, paper_id='abc', page_num=0,
-                                caption='hi this is caption')
+        self.easy_table = Table(caption='hi this is caption')
+        self.easy_table.grid = np.array([
+            [self.a, self.b, self.c],
+            [self.d, self.e, self.f]
+        ])
 
-        self.hard_table = Table(cells=[
-            Cell(tokens=[Token(text='')], rowspan=2, colspan=2),
-            Cell(tokens=[Token(text='C')], rowspan=1, colspan=2),
-            Cell(tokens=[Token(text='C:1')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='C:2')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='R')], rowspan=3, colspan=1),
-            Cell(tokens=[Token(text='R:1')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='R:2')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='d')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='R:3')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='e')], rowspan=1, colspan=1),
-            Cell(tokens=[Token(text='f')], rowspan=1, colspan=1)
-        ], nrow=5, ncol=4, paper_id='abc', page_num=0,
+        self.hard_table = Table.create_from_cells(
+            cells=[
+                Cell(tokens=[Token(text='')], rowspan=2, colspan=2),
+                Cell(tokens=[Token(text='C')], rowspan=1, colspan=2),
+                Cell(tokens=[Token(text='C:1')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='C:2')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='R')], rowspan=3, colspan=1),
+                Cell(tokens=[Token(text='R:1')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='R:2')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='d')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='R:3')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='e')], rowspan=1, colspan=1),
+                Cell(tokens=[Token(text='f')], rowspan=1, colspan=1)
+            ], nrow=5, ncol=4, paper_id='abc', page_num=0,
             caption='hi this is caption')
 
+    def test_create_from_grid(self):
+        self.assertEqual(Table.create_from_grid(grid=[
+            [self.a, self.b, self.c],
+            [self.d, self.e, self.f]
+        ]), self.easy_table)
+
+    # TODO
+    def test_create_from_cells(self):
+        pass
+
     def test_improper_table(self):
+        # misspecified nrow or ncol
         with self.assertRaises(Exception):
-            # misspecified nrow or ncol
-            Table(cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='d')], rowspan=1, colspan=1)],
-                  nrow=2, ncol=1, paper_id='', page_num=0, caption='')
-            Table(cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='d')], rowspan=1, colspan=1)],
-                  nrow=1, ncol=2, paper_id='', page_num=0, caption='')
+            Table.create_from_cells(
+                cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='d')], rowspan=1, colspan=1)],
+                nrow=2, ncol=1, paper_id='', page_num=0, caption='')
 
-            # not enough cells to fill out table
-            Table(cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='c')], rowspan=1, colspan=1)],
-                  nrow=2, ncol=2, paper_id='', page_num=0, caption='')
-            Table(cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
-                         Cell(tokens=[Token(text='b')], rowspan=1, colspan=1)],
-                  nrow=2, ncol=2, paper_id='', page_num=0, caption='')
+        with self.assertRaises(Exception):
+            Table.create_from_cells(
+                cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='c')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='d')], rowspan=1, colspan=1)],
+                nrow=1, ncol=2, paper_id='', page_num=0, caption='')
 
-            # cell juts out of table boundaries
-            Table(cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=2)],
-                  nrow=1, ncol=1, paper_id='', page_num=0, caption='')
+        # not enough cells to fill out table
+        with self.assertRaises(Exception):
+            Table.create_from_cells(
+                cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='b')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='c')], rowspan=1, colspan=1)],
+                nrow=2, ncol=2, paper_id='', page_num=0, caption='')
+
+        with self.assertRaises(Exception):
+            Table.create_from_cells(
+                cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=1),
+                       Cell(tokens=[Token(text='b')], rowspan=1, colspan=1)],
+                nrow=2, ncol=2, paper_id='', page_num=0, caption='')
+
+        # cell juts out of table boundaries
+        with self.assertRaises(Exception):
+            Table.create_from_cells(
+                cells=[Cell(tokens=[Token(text='a')], rowspan=1, colspan=2)],
+                nrow=1, ncol=1, paper_id='', page_num=0, caption='')
 
     def test_shape_properties(self):
         self.assertEqual(self.easy_table.nrow, 2)
@@ -100,31 +137,15 @@ class TestTable(unittest.TestCase):
         self.assertListEqual(self.easy_table[:1, 0], [self.a])
         self.assertListEqual(self.easy_table[1:2, 0], [self.d])
         # full subgrid
-        subgrid = self.easy_table[:, :]
-        self.assertListEqual(subgrid[0], [self.a, self.b, self.c])
-        self.assertListEqual(subgrid[1], [self.d, self.e, self.f])
+        self.assertEqual(self.easy_table, self.easy_table[:, :])
         # partial subgrid
-        subgrid = self.easy_table[1:2, 1:2]
-        self.assertListEqual(subgrid[0], [self.e])
-        subgrid = self.easy_table[1:, 1:]
-        self.assertListEqual(subgrid[0], [self.e, self.f])
-        subgrid = self.easy_table[:2, :2]
-        self.assertListEqual(subgrid[0], [self.a, self.b])
-        self.assertListEqual(subgrid[1], [self.d, self.e])
-
-        # repetition for multicol/row cells
-        self.assertEqual([str(cell) for cell in self.hard_table[0, :]],
-                         ['', '', 'C', 'C'])
-        self.assertEqual([str(cell) for cell in self.hard_table[:, 0]],
-                         ['', '', 'R', 'R', 'R'])
-
-    def test_list_indexing(self):
-        self.assertEqual(self.easy_table[0], self.a)
-        self.assertEqual(self.easy_table[-1], self.f)
-        self.assertListEqual(self.easy_table[:2], [self.a, self.b])
-        self.assertListEqual(self.easy_table[4:], [self.e, self.f])
-        self.assertListEqual(self.easy_table[:], [self.a, self.b, self.c,
-                                                  self.d, self.e, self.f])
+        self.assertEqual(self.easy_table[1:2, 1:2],
+                         Table.create_from_grid(grid=[[self.e]]))
+        self.assertEqual(self.easy_table[1:, 1:],
+                         Table.create_from_grid(grid=[[self.e, self.f]]))
+        self.assertEqual(self.easy_table[:2, :2],
+                         Table.create_from_grid(grid=[[self.a, self.b],
+                                                      [self.d, self.e]]))
 
     def test_str(self):
         self.assertEqual(str(self.easy_table),
@@ -133,18 +154,18 @@ class TestTable(unittest.TestCase):
         c = 'hithisiscaption'
         self.assertEqual(str(self.hard_table).replace(' ', ''), t + '\n' + c)
 
-    def test_transpose(self):
-        transposed_grid = self.easy_table.transpose()
-        self.assertListEqual([str(cell) for cell in transposed_grid[0, :]],
-                             [str(self.a), str(self.d)])
-        self.assertListEqual([str(cell) for cell in transposed_grid[1, :]],
-                             [str(self.b), str(self.e)])
-        self.assertListEqual([str(cell) for cell in transposed_grid[2, :]],
-                             [str(self.c), str(self.f)])
-
-        transposed_grid = self.hard_table.transpose()
-        self.assertEqual(transposed_grid.cells[4].rowspan, 1)
-        self.assertEqual(transposed_grid.cells[4].colspan, 3)
-        t = '\t\tR\tR\tR\n\t\tR:1\tR:2\tR:3\nC\tC:1\ta\tc\te\nC\tC:2\tb\td\tf'
-        c = 'hithisiscaption'
-        self.assertEqual(str(transposed_grid).replace(' ', ''), t + '\n' + c)
+    def test_compute_bounding_box(self):
+        table = Table.create_from_cells(
+            cells=[
+                Cell(tokens=[Token(text='e')], rowspan=1, colspan=1,
+                     bounding_box=Box(llx=-1.0, lly=-0.5, urx=1.0, ury=1.0)),
+                Cell(tokens=[Token(text='e')], rowspan=1, colspan=1,
+                     bounding_box=Box(llx=1.5, lly=-0.5, urx=2.5, ury=1.5))
+            ],
+            nrow=1, ncol=2, paper_id='abc', page_num=0,
+            caption='hi this is caption')
+        box = table.compute_bounding_box()
+        self.assertEqual(box.ll.x, -1.0)
+        self.assertEqual(box.ll.y, -0.5)
+        self.assertEqual(box.ur.x, 2.5)
+        self.assertEqual(box.ur.y, 1.5)

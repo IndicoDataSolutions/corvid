@@ -8,6 +8,7 @@ from typing import List, Tuple, Callable, Union
 
 import numpy as np
 
+from corvid.util.geom import Box
 from corvid.util.strings import format_grid
 
 EMPTY_CAPTION = ''
