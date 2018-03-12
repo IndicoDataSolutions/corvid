@@ -154,6 +154,30 @@ class TestTable(unittest.TestCase):
         c = 'hithisiscaption'
         self.assertEqual(str(self.hard_table).replace(' ', ''), t + '\n' + c)
 
+    def test_insert_row(self):
+        x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
+        y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
+        z = Cell(tokens=[Token(text='z')], rowspan=1, colspan=1)
+        self.assertEqual(self.easy_table.insert_row(index=1, row=[x, y, z]),
+                         Table.create_from_grid(grid=[
+                             [self.a, self.b, self.c],
+                             [x, y, z],
+                             [self.d, self.e, self.f]
+                         ]))
+        with self.assertRaises(Exception):
+            self.easy_table.insert_row(index=1, row=[x, y])
+
+    def test_insert_col(self):
+        x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
+        y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
+        self.assertEqual(self.easy_table.insert_column(index=1, column=[x, y]),
+                         Table.create_from_grid(grid=[
+                             [self.a, x, self.b, self.c],
+                             [self.d, y, self.e, self.f]
+                         ]))
+        with self.assertRaises(Exception):
+            self.easy_table.insert_column(index=1, column=[x, y, y])
+
     def test_compute_bounding_box(self):
         table = Table.create_from_cells(
             cells=[

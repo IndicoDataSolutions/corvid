@@ -64,8 +64,10 @@ class Cell(object):
         `tokenizer`, which takes a string input and outputs a List[Token].
         Each Cell will have the default row/colspan.
         """
-        return [Cell(tokens=tokenizer(token_string))
-                for token_string in token_strings]
+        return [
+            Cell(tokens=tokenizer(token_string))
+            for token_string in token_strings
+        ]
 
 
 class Table(object):
@@ -193,6 +195,16 @@ class Table(object):
 
     def __eq__(self, other: 'Table') -> bool:
         return np.array_equal(self.grid, other.grid)
+
+    def insert_row(self, index: int, row: List[Cell]) -> 'Table':
+        assert len(row) == self.ncol
+        new_grid = np.insert(self.grid, obj=index, values=row, axis=0)
+        return Table.create_from_grid(new_grid)
+
+    def insert_column(self, index: int, column: List[Cell]) -> 'Table':
+        assert len(column) == self.nrow
+        new_grid = np.insert(arr=self.grid, obj=index, values=column, axis=1)
+        return Table.create_from_grid(new_grid)
 
     # TODO: decide what data (i.e. caption, box) to keep after transposing
     # TODO: swap row-colspan for each cell
