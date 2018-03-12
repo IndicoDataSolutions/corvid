@@ -4,25 +4,22 @@ The Table class is a physical representation of tables extracted from documents
 
 """
 
-from collections import namedtuple
-from typing import List, Tuple
+from typing import List, Tuple, Callable, Union
 
-Point = namedtuple('Point', ['x', 'y'])
+import numpy as np
 
 from corvid.util.strings import format_grid
 
-
 EMPTY_CAPTION = ''
+
 
 class Token(object):
     """A single unit of text and metadata about that text"""
 
-    def __init__(self, text: str, font: str = None,
-                 lower_left: Point = None, upper_right: Point = None):
+    def __init__(self, text: str, font: str = None, bounding_box: Box = None):
         self.text = text
         self.font = font
-        self.lower_left = lower_left
-        self.upper_right: upper_right
+        self.bounding_box = bounding_box
 
     def __repr__(self):
         return self.text
@@ -36,19 +33,38 @@ class Cell(object):
     by whitespace and/or lines.  Typically corresponding to its own row and
     column index (or indices) disjoint from those of other Cells."""
 
-    def __init__(self, tokens: List[Token], rowspan: int = 1, colspan: int = 1,
-                 lower_left: Point = None, upper_right: Point = None):
+    def __init__(self, tokens: List[Token],
+                 rowspan: int = 1, colspan: int = 1,
+                 bounding_box: Box = None):
         self.tokens = tokens
         self.rowspan = rowspan
         self.colspan = colspan
-        self.lower_left = lower_left
-        self.upper_right: upper_right
+        self.bounding_box = bounding_box
 
     def __repr__(self):
         return ' '.join([str(token) for token in self.tokens])
 
     def __str__(self):
         return ' '.join([str(token) for token in self.tokens])
+
+    def compute_bounding_box(self) -> Box:
+        """Finds bounding boxes that tightly bound all Tokens in the Cell"""
+        bounding_boxes = [token.bounding_box for token in self.tokens]
+
+        if len(bounding_boxes) == 0 and not all(bounding_boxes):
+            raise Exception('Tokens missing bounding boxes')
+
+        return Box.compute_bounding_box(bounding_boxes)
+
+    @classmethod
+    def create_simple_cells(cls, token_strings: List[str],
+                            tokenizer: Callable) -> 'List[Cell]':
+        """Quickly instantiate a List[Cell] given a List[str] and a
+        `tokenizer`, which takes a string input and outputs a List[Token].
+        Each Cell will have the default row/colspan.
+        """
+        return [Cell(tokens=tokenizer(token_string))
+                for token_string in token_strings]
 
 
 class Table(object):
@@ -86,73 +102,85 @@ class Table(object):
     >  [3]  col1        > [8]  b           > [13]  f
     >  [4]  col2        > [9]  c
 
-
-    Note about List[Cell] order:
-        `is_row_wise = True`:
-            Cells are provided in order [0,0], [0,1], ... [0,ncol], [1,0], ...
-        `is_row_wise = False`
-            Cells are provided in order [0,0], [1,0], ..., [nrow,0], [0,1], ...
     """
 
-    def __init__(self, cells: List[Cell], nrow: int, ncol: int,
-                 paper_id: str = None,
+    def __init__(self, paper_id: str = None,
                  page_num: int = None,
-                 caption: str = None,
-                 lower_left: Point = None, upper_right: Point = None,
-                 is_row_wise: bool = True):
-        self.cells = cells
-        self.nrow = nrow
-        self.ncol = ncol
+                 caption: str = EMPTY_CAPTION,
+                 bounding_box: Box = None):
 
-        self.grid = [[None for _ in range(ncol)] for _ in range(nrow)]
-        index_row, index_col = 0, 0
-        for cell in cells:
-
-            if is_row_wise:
-                # populate grid
-                for i in range(index_row, index_row + cell.rowspan):
-                    for j in range(index_col, index_col + cell.colspan):
-                        self.grid[i][j] = cell
-
-                # keep scanning right until empty cell; jump row if necessary
-                while index_row < nrow and self.grid[index_row][index_col]:
-                    index_col += 1
-                    if index_col == ncol:
-                        index_col = 0
-                        index_row += 1
-            else:
-                for j in range(index_col, index_col + cell.colspan):
-                    for i in range(index_row, index_row + cell.rowspan):
-                        self.grid[i][j] = cell
-
-                while index_col < ncol and self.grid[index_row][index_col]:
-                    index_row += 1
-                    if index_row == nrow:
-                        index_row = 0
-                        index_col += 1
-
-        # check for completeness
-        if (is_row_wise and index_col > 0) or \
-                (not is_row_wise and index_row > 0):
-            raise Exception('Not enough cells to fill out the table')
-
+        self.grid = None
         self.paper_id = paper_id
         self.page_num = page_num
         self.caption = caption
-        self.lower_left = lower_left
-        self.upper_right: upper_right
+        self.bounding_box = bounding_box
+
+    @classmethod
+    def create_from_grid(cls, grid: List[List[Cell]],
+                         *args, **kwargs) -> 'Table':
+        """Create a Table using List-of-List representation of Cell matrix"""
+        table = Table(*args, **kwargs)
+        table.grid = np.array(grid)
+        return table
+
+    @classmethod
+    def create_from_cells(cls, cells: List[Cell], nrow: int, ncol: int,
+                          *args, **kwargs) -> 'Table':
+        """Create a Table using List of Cells & desired matrix dimensions"""
+        table = Table(*args, **kwargs)
+        table.grid = np.array([[None for _ in range(ncol)]
+                               for _ in range(nrow)])
+
+        index_insert_row, index_insert_col = 0, 0
+        for cell in cells:
+            # insert copies of cell into grid based on its row/colspan
+            for i in range(index_insert_row, index_insert_row + cell.rowspan):
+                for j in range(index_insert_col,
+                               index_insert_col + cell.colspan):
+                    table.grid[i, j] = cell
+
+            # update `index_insert_*` by scanning along row for an empty cell
+            # jump to next row if reach the end
+            while index_insert_row < nrow and table.grid[
+                index_insert_row, index_insert_col]:
+                index_insert_col += 1
+                if index_insert_col == ncol:
+                    index_insert_col = 0
+                    index_insert_row += 1
+
+        # check for completeness
+        if not table.grid[-1, -1]:
+            raise Exception('Not enough cells to fill out the table')
+
+        return table
+
+    @property
+    def nrow(self) -> int:
+        return self.grid.shape[0]
+
+    @property
+    def ncol(self) -> int:
+        return self.grid.shape[1]
 
     @property
     def dim(self) -> Tuple[int, int]:
-        return self.nrow, self.ncol
+        return self.grid.shape
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: Tuple) -> Union[Cell, List[Cell], 'Table']:
+        """Indexes in similar manner as a 2D `np.ndarray`:
+            * [int, int] returns a single Cell
+            * [slice, int] or [int, slice] returns a List[Cell]
+            * [slice, slice] returns a Table
+        """
         if isinstance(index, tuple):
-            if isinstance(index[0], slice):
-                return [row[index[1]] for row in self.grid[index[0]]]
-            return self.grid[index[0]][index[1]]
+            grid = self.grid[index]
+            if isinstance(grid, Cell):
+                return grid
+            elif len(grid.shape) == 1:
+                return grid.tolist()
+            return Table.create_from_grid(grid)
         else:
-            return self.cells[index]
+            raise Exception('Currently not supporting List-style indexing')
 
     def __repr__(self):
         return format_grid([[str(cell) for cell in row]
@@ -162,13 +190,63 @@ class Table(object):
         return format_grid([[str(cell) for cell in row]
                             for row in self.grid]) + '\n' + self.caption
 
-    def transpose(self) -> 'Table':
-        new_cells = [
-            Cell(tokens=cell.tokens,
-                 rowspan=cell.colspan,
-                 colspan=cell.rowspan) for cell in self.cells
-        ]
+    def __eq__(self, other: 'Table') -> bool:
+        return np.array_equal(self.grid, other.grid)
 
-        return Table(cells=new_cells, nrow=self.ncol, ncol=self.nrow,
-                     paper_id=self.paper_id, page_num=self.page_num,
-                     caption=self.caption, is_row_wise=False)
+    # TODO: decide what data (i.e. caption, box) to keep after transposing
+    # def transpose(self) -> 'Table':
+    #     table = Table()
+    #     table.grid = self.grid.transpose()
+    #     return table
+
+    # TODO: what happens to Box after collapsing?
+    # def _collapse(self):
+    #     """A Table is collapsible if:
+    #
+    #         - All cells in a row have the same rowspan > 1
+    #         - All cells in a column have the same colspan > 1
+    #
+    #     e.g. the Table w/ the entire first row having rowspan 2 has grid:
+    #             row1 | row1 | row1
+    #             row1 | row1 | row1
+    #             row2 | row2 | row2
+    #
+    #          can be collapsed to:
+    #             row1 | row1 | row1
+    #             row2 | row2 | row2
+    #     """
+    #     # collapse any collapsible rows
+    #     for i in range(self.nrow):
+    #         rowspan = self[i, 0].rowspan
+    #         if rowspan > 1:
+    #             j = 1
+    #             while self[i, j].rowspan == rowspan and j < self.ncol:
+    #                 j += 1
+    #
+    #             is_row_collapsible = j == self.ncol
+    #             if is_row_collapsible:
+    #                 for j in range(self.ncol):
+    #                     self[i, j].rowspan = 1
+    #
+    #     # collapse any collapsible columns
+    #     for j in range(self.ncol):
+    #         colspan = self[0, j].colspan
+    #         if colspan > 1:
+    #             i = 1
+    #             while self[i, j].colspan == colspan and i < self.nrow:
+    #                 i += 1
+    #
+    #             is_col_collapsible = i == self.nrow
+    #             if is_col_collapsible:
+    #                 for i in range(self.nrow):
+    #                     self[i, j].colspan = 1
+
+    def compute_bounding_box(self) -> Box:
+        """Finds bounding boxes that tightly bound all Cells in the Table"""
+        bounding_boxes = [cell.bounding_box
+                          for cell in set(self.grid.flatten())]
+
+        if len(bounding_boxes) == 0 and not all(bounding_boxes):
+            raise Exception('Cells missing bounding boxes')
+
+        return Box.compute_bounding_box(bounding_boxes)
