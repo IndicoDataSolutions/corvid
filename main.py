@@ -57,18 +57,16 @@ if __name__ == '__main__':
         # fetch pdfs of relevant papers & parse each to tetml & extract tables
         tables = []
         for paper_id in relevant_paper_ids:
-            fetch_one_pdf_from_s3(s3_url=S3_PDFS_URL,
-                                  paper_id=relevant_paper_ids,
-                                  out_dir=PDF_DIR,
-                                  convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
-                                  is_overwrite=False)
-            # TODO: use `out_filename` instead of path construction
-            pdf_path = '{}.pdf'.format(os.path.join(PDF_DIR, paper_id))
-            parse_one_pdf(tet_path=TET_BIN_PATH,
-                          pdf_path=pdf_path,
-                          out_dir=TETML_DIR,
-                          is_overwrite=False)
-            tetml_path = '{}.tetml'.format(os.path.join(TETML_DIR, paper_id))
+            pdf_path = fetch_one_pdf_from_s3(
+                s3_url=S3_PDFS_URL,
+                paper_id=relevant_paper_ids,
+                out_dir=PDF_DIR,
+                convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
+                is_overwrite=False)
+            tetml_path = parse_one_pdf(tet_path=TET_BIN_PATH,
+                                       pdf_path=pdf_path,
+                                       out_dir=TETML_DIR,
+                                       is_overwrite=False)
             try:
                 with open(tetml_path, 'r') as f_tetml:
                     print('Extracting tables from {}...'.format(paper_id))
@@ -82,5 +80,3 @@ if __name__ == '__main__':
             except FileNotFoundError as e:
                 print(e)
                 print('{} missing TETML file. Skipping...'.format(paper_id))
-
-

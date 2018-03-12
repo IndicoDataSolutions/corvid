@@ -22,6 +22,7 @@ def is_url_working(url: str) -> bool:
     return requests.get(url).status_code >= 400
 
 
+# TODO: make agnostic to specific ES API
 def read_one_json_from_es(es_url: str, paper_id: str,
                           convert_paper_id_to_es_endpoint: Callable) -> \
         Dict[str, str]:
@@ -36,15 +37,16 @@ def read_one_json_from_es(es_url: str, paper_id: str,
 # TODO: use boto3
 def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
                           convert_paper_id_to_s3_filename: Callable,
-                          is_overwrite: bool = False):
+                          is_overwrite: bool = False) -> str:
     s3_filename = convert_paper_id_to_s3_filename(paper_id)
-    out_filename = '{}.pdf'.format(os.path.join(out_dir, paper_id))
+    pdf_path = '{}.pdf'.format(os.path.join(out_dir, paper_id))
 
-    if os.path.exists(out_filename) and not is_overwrite:
-        raise Exception('{} already exists'.format(out_filename))
+    if os.path.exists(pdf_path) and not is_overwrite:
+        raise Exception('{} already exists'.format(pdf_path))
 
     subprocess.run('aws s3 cp {} {}'.format(os.path.join(s3_url,
                                                          s3_filename),
-                                            out_filename),
+                                            pdf_path),
                    shell=True, check=True)
 
+    return pdf_path

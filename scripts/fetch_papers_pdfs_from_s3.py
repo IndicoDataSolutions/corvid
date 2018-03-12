@@ -43,12 +43,12 @@ if __name__ == '__main__':
     num_success = 0
     for paper_id in paper_ids:
         try:
-            fetch_one_pdf_from_s3(s3_url,
-                                  paper_id,
-                                  output_dir,
-                                  convert_paper_id_to_s3_filename,
-                                  args.overwrite)
-            print('Fetched paper_id {}'.format(paper_id))
+            pdf_path = fetch_one_pdf_from_s3(s3_url,
+                                             paper_id,
+                                             output_dir,
+                                             convert_paper_id_to_s3_filename,
+                                             args.overwrite)
+            print('Fetched PDF {}'.format(pdf_path))
             num_success += 1
         except Exception as e:
             print(e)
