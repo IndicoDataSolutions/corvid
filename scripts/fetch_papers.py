@@ -11,7 +11,8 @@ import argparse
 
 from corvid.util.files import is_url_working, fetch_jsons_from_es, \
     fetch_pdfs_from_s3
-from config import PAPER_IDS_TXT, PAPERS_JSON, PDF_DIR, S3_PDFS_URL
+from config import PAPER_IDS_TXT, PAPERS_JSON, PDF_DIR, S3_PDFS_URL, \
+    convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
 
 try:
     from config import ES_PROD_URL as ES_URL
@@ -45,6 +46,7 @@ if __name__ == '__main__':
             es_url=args.input_url if args.input_url else ES_URL,
             paper_ids=paper_ids,
             out_file=args.out_path if args.out_path else PAPERS_JSON,
+            convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint,
             is_overwrite=args.overwrite)
 
     elif args.mode == 'pdf':
@@ -55,6 +57,7 @@ if __name__ == '__main__':
             s3_url=args.input_url if args.input_url else S3_PDFS_URL,
             paper_ids=paper_ids,
             out_dir=args.out_path if args.out_path else PDF_DIR,
+            convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
             is_overwrite=args.overwrite)
 
     else:
