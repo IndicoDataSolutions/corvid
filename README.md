@@ -88,7 +88,6 @@ first_cell = table[0]
 5. loading serialized tables
 
 
-
 ## Miscellaneous
 
 #### Installing PDFLib's TET toolkit on OSX
