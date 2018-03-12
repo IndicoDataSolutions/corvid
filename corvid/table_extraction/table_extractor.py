@@ -7,7 +7,7 @@
 from typing import Tuple, List
 from bs4 import Tag, BeautifulSoup
 
-from corvid.types.table import Token, Cell, Table, EMPTY_CAPTION
+from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
 
 
 class TableExtractor(object):
@@ -138,10 +138,15 @@ class TetmlTableExtractor(TableExtractor):
                     word_box_tag = word_tag.find('box')
                     token = Token(text=word_box_tag.get_text(strip=True),
                                   # `find_all` gets font per character,
-                                  # but use `find` instead because assume font
+                                  # but use `find` because assume font
                                   # is constant within same word
                                   font=word_box_tag
-                                  .find('glyph').get('font'))
+                                  .find('glyph').get('font'),
+                                  bounding_box=Box(
+                                      llx=float(word_box_tag.get('llx')),
+                                      lly=float(word_box_tag.get('lly')),
+                                      urx=float(word_box_tag.get('urx')),
+                                      ury=float(word_box_tag.get('ury'))))
                     tokens.append(token)
 
                 # BUILD CELL FROM LIST OF TOKENS
@@ -151,6 +156,7 @@ class TetmlTableExtractor(TableExtractor):
                     colspan=int(cell_tag.get('colspan')) \
                         if cell_tag.get('colspan') else 1
                 )
+                cell.bounding_box = cell.compute_bounding_box()
                 cells.append(cell)
                 ncol_per_row[i] += cell.colspan
 
@@ -168,4 +174,5 @@ class TetmlTableExtractor(TableExtractor):
             paper_id='PAPER_ID',
             page_num=0,
             caption=caption)
+        table.bounding_box = table.compute_bounding_box()
         return table
