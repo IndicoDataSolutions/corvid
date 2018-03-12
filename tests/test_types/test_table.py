@@ -167,7 +167,7 @@ class TestTable(unittest.TestCase):
         with self.assertRaises(Exception):
             self.easy_table.insert_row(index=1, row=[x, y])
 
-    def test_insert_col(self):
+    def test_insert_column(self):
         x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
         y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
         self.assertEqual(self.easy_table.insert_column(index=1, column=[x, y]),
@@ -177,6 +177,19 @@ class TestTable(unittest.TestCase):
                          ]))
         with self.assertRaises(Exception):
             self.easy_table.insert_column(index=1, column=[x, y, y])
+
+    def test_delete_row(self):
+        self.assertEqual(self.easy_table.delete_row(index=1),
+                         Table.create_from_grid(grid=[
+                             [self.a, self.b, self.c]
+                         ]))
+
+    def test_delete_column(self):
+        self.assertEqual(self.easy_table.delete_column(index=1),
+                         Table.create_from_grid(grid=[
+                             [self.a, self.c],
+                             [self.d, self.f]
+                         ]))
 
     def test_compute_bounding_box(self):
         table = Table.create_from_cells(

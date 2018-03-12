@@ -198,12 +198,20 @@ class Table(object):
 
     def insert_row(self, index: int, row: List[Cell]) -> 'Table':
         assert len(row) == self.ncol
-        new_grid = np.insert(self.grid, obj=index, values=row, axis=0)
+        new_grid = np.insert(arr=self.grid, obj=index, values=row, axis=0)
         return Table.create_from_grid(new_grid)
 
     def insert_column(self, index: int, column: List[Cell]) -> 'Table':
         assert len(column) == self.nrow
         new_grid = np.insert(arr=self.grid, obj=index, values=column, axis=1)
+        return Table.create_from_grid(new_grid)
+
+    def delete_row(self, index: int) -> 'Table':
+        new_grid = np.delete(arr=self.grid, obj=index, axis=0)
+        return Table.create_from_grid(new_grid)
+
+    def delete_column(self, index: int) -> 'Table':
+        new_grid = np.delete(arr=self.grid, obj=index, axis=1)
         return Table.create_from_grid(new_grid)
 
     # TODO: decide what data (i.e. caption, box) to keep after transposing
