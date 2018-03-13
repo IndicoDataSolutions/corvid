@@ -26,7 +26,6 @@ for dataset in datasets:
         save(dataset, pred_table, metrics)
 """
 
-import os
 import json
 
 from bs4 import BeautifulSoup
@@ -46,46 +45,82 @@ if __name__ == '__main__':
         datasets = json.load(f_datasets)
 
     assert is_url_working(ES_PROD_URL)
+
+    log_summary = {}
+
     for dataset in datasets:
-        paper_id = dataset.get('paper_id')
+        name, paper_id = dataset.get('name'), dataset.get('paper_id')
+
+        # logging
+        log_summary[name] = {
+            'dataset_paper_id': None,
+            'fetch_dataset_paper_json_from_es': None,
+            'fetch_pdf_from_s3': {
+                'success': 0,
+                'fail': 0
+            },
+            'parse_pdf_to_tetml': {
+                'success': 0,
+                'fail': 0
+            },
+            'extract_tables_from_tetml': {
+                'success': 0,
+                'fail': 0
+            }
+        }
+
         if not paper_id:
+            log_summary[name]['dataset_paper_id'] = 'FAIL'
             continue
 
-        # find relevant papers using citations
-        dataset_paper_json = read_one_json_from_es(
-            es_url=ES_PROD_URL,
-            paper_id=paper_id,
-            convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
-        relevant_paper_ids = dataset_paper_json.get('citedBy')
+        # fetch dataset paper JSON & find paper_ids that cite this dataset
+        try:
+            dataset_paper_json = read_one_json_from_es(
+                es_url=ES_PROD_URL,
+                paper_id=paper_id,
+                convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
+            relevant_paper_ids = dataset_paper_json.get('citedBy')
+        except Exception as e:
+            print(e)
+            log_summary[name]['fetch_dataset_paper_json_from_es'] = 'FAIL'
+            continue
 
-        # TODO: temp
-        relevant_paper_ids = ['0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75']
-        pdf_path = 'data/pdf/0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75.pdf'
-        tetml_path = 'data/tetml/0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75.tetml'
-
-        # fetch pdfs of relevant papers & parse each to tetml & extract tables
         tables = []
         for paper_id in relevant_paper_ids:
-            pdf_path = fetch_one_pdf_from_s3(
-                s3_url=S3_PDFS_URL,
-                paper_id=paper_id,
-                out_dir=PDF_DIR,
-                convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
-                is_overwrite=False)
-            tetml_path = parse_one_pdf(tet_path=TET_BIN_PATH,
-                                       pdf_path=pdf_path,
-                                       out_dir=TETML_DIR,
-                                       is_overwrite=False)
+            # fetch PDFs of relevant papers
+            try:
+                pdf_path = fetch_one_pdf_from_s3(
+                    s3_url=S3_PDFS_URL,
+                    paper_id=paper_id,
+                    out_dir=PDF_DIR,
+                    convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
+                    is_overwrite=False)
+                log_summary[name]['fetch_pdf_from_s3']['success'] += 1
+            except Exception as e:
+                print(e)
+                log_summary[name]['fetch_pdf_from_s3']['fail'] += 1
+                continue
+
+            # parse each PDF to TETML
+            try:
+                tetml_path = parse_one_pdf(tet_path=TET_BIN_PATH,
+                                           pdf_path=pdf_path,
+                                           out_dir=TETML_DIR,
+                                           is_overwrite=False)
+                log_summary[name]['parse_pdf_to_tetml']['success'] += 1
+            except Exception as e:
+                print(e)
+                log_summary[name]['parse_pdf_to_tetml']['fail'] += 1
+                continue
+
+            # extract tables from TETML
             try:
                 with open(tetml_path, 'r') as f_tetml:
-                    print('Extracting tables from {}...'.format(paper_id))
                     tables = TetmlTableExtractor.extract_tables(
                         tetml=BeautifulSoup(f_tetml),
                         caption_search_window=CAPTION_SEARCH_WINDOW)
-
-                    divider = '\n\n-----------------------------------------------\n\n'
-                    print(divider.join([str(table) for table in tables]))
-
-            except FileNotFoundError as e:
+                log_summary[name]['extract_tables_from_tetml']['success'] += 1
+            except Exception as e:
                 print(e)
-                print('{} missing TETML file. Skipping...'.format(paper_id))
+                log_summary[name]['extract_tables_from_tetml']['fail'] += 1
+                continue
