@@ -26,6 +26,7 @@ for dataset in datasets:
         save(dataset, pred_table, metrics)
 """
 
+import os
 import json
 
 from bs4 import BeautifulSoup
@@ -44,7 +45,10 @@ if __name__ == '__main__':
     with open(DATASETS_JSON, 'r') as f_datasets:
         datasets = json.load(f_datasets)
 
+    # verify external dependencies
     assert is_url_working(ES_PROD_URL)
+    assert is_url_working(S3_PDFS_URL)
+    assert os.path.exists(TET_BIN_PATH)
 
     log_summary = {}
 
