@@ -47,19 +47,28 @@ if __name__ == '__main__':
 
     assert is_url_working(ES_PROD_URL)
     for dataset in datasets:
+        paper_id = dataset.get('paper_id')
+        if not paper_id:
+            continue
+
         # find relevant papers using citations
         dataset_paper_json = read_one_json_from_es(
             es_url=ES_PROD_URL,
-            paper_id=dataset.get('paper_id'),
+            paper_id=paper_id,
             convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
         relevant_paper_ids = dataset_paper_json.get('citedBy')
+
+        # TODO: temp
+        relevant_paper_ids = ['0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75']
+        pdf_path = 'data/pdf/0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75.pdf'
+        tetml_path = 'data/tetml/0ad9e1f04af6a9727ea7a21d0e9e3cf062ca6d75.tetml'
 
         # fetch pdfs of relevant papers & parse each to tetml & extract tables
         tables = []
         for paper_id in relevant_paper_ids:
             pdf_path = fetch_one_pdf_from_s3(
                 s3_url=S3_PDFS_URL,
-                paper_id=relevant_paper_ids,
+                paper_id=paper_id,
                 out_dir=PDF_DIR,
                 convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
                 is_overwrite=False)

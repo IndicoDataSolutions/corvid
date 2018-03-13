@@ -5,6 +5,7 @@ Example that extracts Tables from TETML files and saves them via Pickle
 """
 
 import os
+import argparse
 
 from bs4 import BeautifulSoup
 
@@ -16,18 +17,31 @@ except:
 
 from config import TETML_DIR, PICKLE_DIR
 
-IS_OVERWRITE = True
-
 DIVIDER = '\n\n-----------------------------------------------\n\n'
 
 if __name__ == '__main__':
-    papers = {}
-    for tetml_path in os.listdir(TETML_DIR):
-        paper_id = tetml_path.replace('.tetml', '')
-        tetml_path = os.path.join(TETML_DIR, tetml_path)
-        pickle_path = os.path.join(PICKLE_DIR, paper_id + '.pickle')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input_dir', type=str,
+                        help='enter path to local directory containing TETML files')
+    parser.add_argument('-o', '--output_dir', type=str,
+                        help='enter path to local directory to save pickled Tables')
+    parser.add_argument('--overwrite', action='store_true',
+                        help='overwrite existing files')
+    args = parser.parse_args()
 
-        if os.path.exists(pickle_path) and not IS_OVERWRITE:
+    # define input files
+    tetml_dir = args.input_dir if args.input_dir else TETML_DIR
+
+    # define output files
+    pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR
+
+    papers = {}
+    for tetml_path in os.listdir(tetml_dir):
+        paper_id = tetml_path.replace('.tetml', '')
+        tetml_path = os.path.join(tetml_dir, tetml_path)
+        pickle_path = os.path.join(pickle_dir, paper_id + '.pickle')
+
+        if os.path.exists(pickle_path) and not args.overwrite:
             print('{} already exists. Skipping...'.format(pickle_path))
             continue
 

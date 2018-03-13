@@ -4,7 +4,7 @@ The Table class is a physical representation of tables extracted from documents
 
 """
 
-from typing import List, Tuple, Callable, Union
+from typing import List, Tuple, Callable, Union, Iterable
 
 import numpy as np
 
@@ -119,7 +119,7 @@ class Table(object):
         self.bounding_box = bounding_box
 
     @classmethod
-    def create_from_grid(cls, grid: List[List[Cell]],
+    def create_from_grid(cls, grid: Iterable[Iterable[Cell]],
                          *args, **kwargs) -> 'Table':
         """Create a Table using List-of-List representation of Cell matrix"""
         table = Table(*args, **kwargs)
@@ -127,7 +127,7 @@ class Table(object):
         return table
 
     @classmethod
-    def create_from_cells(cls, cells: List[Cell], nrow: int, ncol: int,
+    def create_from_cells(cls, cells: Iterable[Cell], nrow: int, ncol: int,
                           *args, **kwargs) -> 'Table':
         """Create a Table using List of Cells & desired matrix dimensions"""
         table = Table(*args, **kwargs)

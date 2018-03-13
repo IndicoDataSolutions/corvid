@@ -81,6 +81,7 @@ first_cell = table[0]
 
 ## TODO
 
+- read `aliases` from madeleine's annotation and add to `datasets.json`
 0. font information in cells
 1. finish evaluation module for table extraction; write example script for API
 2. table normalizing function
