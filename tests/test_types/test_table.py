@@ -23,7 +23,7 @@ class TestCell(unittest.TestCase):
         self.assertEqual(str(self.cell), 'hi bye')
 
     def test_compute_bounding_box(self):
-        box = self.cell.compute_bounding_box()
+        box = self.cell.bounding_box
         self.assertEqual(box.ll.x, -1.0)
         self.assertEqual(box.ll.y, -0.5)
         self.assertEqual(box.ur.x, 2.5)
@@ -201,7 +201,7 @@ class TestTable(unittest.TestCase):
             ],
             nrow=1, ncol=2, paper_id='abc', page_num=0,
             caption='hi this is caption')
-        box = table.compute_bounding_box()
+        box = table.bounding_box
         self.assertEqual(box.ll.x, -1.0)
         self.assertEqual(box.ll.y, -0.5)
         self.assertEqual(box.ur.x, 2.5)

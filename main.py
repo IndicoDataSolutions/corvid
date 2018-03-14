@@ -53,10 +53,12 @@ if __name__ == '__main__':
     log_summary = {}
 
     for dataset in datasets:
-        name, paper_id = dataset.get('name'), dataset.get('paper_id')
+        dataset_name = dataset.get('name')
+        dataset_aliases = dataset.get('aliases')
+        dataset_paper_id = dataset.get('paper_id')
 
         # logging
-        log_summary[name] = {
+        log_summary[dataset_name] = {
             'dataset_paper_id': None,
             'fetch_dataset_paper_json_from_es': None,
             'fetch_pdf_from_s3': {
@@ -73,23 +75,23 @@ if __name__ == '__main__':
             }
         }
 
-        if not paper_id:
-            log_summary[name]['dataset_paper_id'] = 'FAIL'
+        if not dataset_paper_id:
+            log_summary[dataset_name]['dataset_paper_id'] = 'FAIL'
             continue
 
         # fetch dataset paper JSON & find paper_ids that cite this dataset
         try:
             dataset_paper_json = read_one_json_from_es(
                 es_url=ES_PROD_URL,
-                paper_id=paper_id,
+                paper_id=dataset_paper_id,
                 convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
             relevant_paper_ids = dataset_paper_json.get('citedBy')
         except Exception as e:
             print(e)
-            log_summary[name]['fetch_dataset_paper_json_from_es'] = 'FAIL'
+            log_summary[dataset_name]['fetch_dataset_paper_json_from_es'] = 'FAIL'
             continue
 
-        tables = []
+        dataset_tables = []
         for paper_id in relevant_paper_ids:
             # fetch PDFs of relevant papers
             try:
@@ -99,10 +101,10 @@ if __name__ == '__main__':
                     out_dir=PDF_DIR,
                     convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
                     is_overwrite=False)
-                log_summary[name]['fetch_pdf_from_s3']['success'] += 1
+                log_summary[dataset_name]['fetch_pdf_from_s3']['success'] += 1
             except Exception as e:
                 print(e)
-                log_summary[name]['fetch_pdf_from_s3']['fail'] += 1
+                log_summary[dataset_name]['fetch_pdf_from_s3']['fail'] += 1
                 continue
 
             # parse each PDF to TETML
@@ -111,10 +113,10 @@ if __name__ == '__main__':
                                            pdf_path=pdf_path,
                                            out_dir=TETML_DIR,
                                            is_overwrite=False)
-                log_summary[name]['parse_pdf_to_tetml']['success'] += 1
+                log_summary[dataset_name]['parse_pdf_to_tetml']['success'] += 1
             except Exception as e:
                 print(e)
-                log_summary[name]['parse_pdf_to_tetml']['fail'] += 1
+                log_summary[dataset_name]['parse_pdf_to_tetml']['fail'] += 1
                 continue
 
             # extract tables from TETML
@@ -123,8 +125,9 @@ if __name__ == '__main__':
                     tables = TetmlTableExtractor.extract_tables(
                         tetml=BeautifulSoup(f_tetml),
                         caption_search_window=CAPTION_SEARCH_WINDOW)
-                log_summary[name]['extract_tables_from_tetml']['success'] += 1
+                    dataset_tables.extend(tables)
+                log_summary[dataset_name]['extract_tables_from_tetml']['success'] += 1
             except Exception as e:
                 print(e)
-                log_summary[name]['extract_tables_from_tetml']['fail'] += 1
+                log_summary[dataset_name]['extract_tables_from_tetml']['fail'] += 1
                 continue

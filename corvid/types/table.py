@@ -40,7 +40,7 @@ class Cell(object):
         self.tokens = tokens
         self.rowspan = rowspan
         self.colspan = colspan
-        self.bounding_box = bounding_box
+        self._bounding_box = bounding_box
 
     def __repr__(self):
         return ' '.join([str(token) for token in self.tokens])
@@ -48,8 +48,12 @@ class Cell(object):
     def __str__(self):
         return ' '.join([str(token) for token in self.tokens])
 
-    def compute_bounding_box(self) -> Box:
+    @property
+    def bounding_box(self) -> Box:
         """Finds bounding boxes that tightly bound all Tokens in the Cell"""
+        if self._bounding_box:
+            return self._bounding_box
+
         bounding_boxes = [token.bounding_box for token in self.tokens]
 
         if len(bounding_boxes) == 0 and not all(bounding_boxes):
@@ -116,7 +120,7 @@ class Table(object):
         self.paper_id = paper_id
         self.page_num = page_num
         self.caption = caption
-        self.bounding_box = bounding_box
+        self._bounding_box = bounding_box
 
     @classmethod
     def create_from_grid(cls, grid: Iterable[Iterable[Cell]],
@@ -194,6 +198,8 @@ class Table(object):
                             for row in self.grid]) + '\n' + self.caption
 
     def __eq__(self, other: 'Table') -> bool:
+        """Only compares Tables on whether they contain the same Cells.
+        Doesnt compare other fields like `caption`, etc."""
         return np.array_equal(self.grid, other.grid)
 
     def insert_row(self, index: int, row: List[Cell]) -> 'Table':
@@ -263,8 +269,12 @@ class Table(object):
     #                 for i in range(self.nrow):
     #                     self[i, j].colspan = 1
 
-    def compute_bounding_box(self) -> Box:
+    @property
+    def bounding_box(self) -> Box:
         """Finds bounding boxes that tightly bound all Cells in the Table"""
+        if self._bounding_box:
+            return self._bounding_box
+
         bounding_boxes = [cell.bounding_box
                           for cell in set(self.grid.flatten())]
 

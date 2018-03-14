@@ -28,6 +28,14 @@ class SemanticTable(object):
             table = table.transpose()
         self.table = self._normalize(table)
 
+    @property
+    def schema(self) -> List[Cell]:
+        return self.table[0, :]
+
+    @property
+    def subjects(self) -> List[Cell]:
+        return self.table[:, 0]
+
     def _classify_cells(self, table: Table) -> List[List[str]]:
         cell_classes = [['' for _ in range(table.ncol)]
                         for _ in range(table.nrow)]
