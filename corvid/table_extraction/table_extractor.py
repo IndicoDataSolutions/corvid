@@ -7,7 +7,7 @@
 from typing import Tuple, List
 from bs4 import Tag, BeautifulSoup
 
-from corvid.types.table import Token, Cell, Table, EMPTY_CAPTION
+from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
 
 
 class TableExtractor(object):
@@ -138,10 +138,15 @@ class TetmlTableExtractor(TableExtractor):
                     word_box_tag = word_tag.find('box')
                     token = Token(text=word_box_tag.get_text(strip=True),
                                   # `find_all` gets font per character,
-                                  # but use `find` instead because assume font
+                                  # but use `find` because assume font
                                   # is constant within same word
                                   font=word_box_tag
-                                  .find('glyph').get('font'))
+                                  .find('glyph').get('font'),
+                                  bounding_box=Box(
+                                      llx=float(word_box_tag.get('llx')),
+                                      lly=float(word_box_tag.get('lly')),
+                                      urx=float(word_box_tag.get('urx')),
+                                      ury=float(word_box_tag.get('ury'))))
                     tokens.append(token)
 
                 # BUILD CELL FROM LIST OF TOKENS
@@ -161,10 +166,11 @@ class TetmlTableExtractor(TableExtractor):
 
         # TODO: `page_num` and `paper_id` fields
         # BUILD TABLE FROM LIST OF CELLS
-        table = Table(cells=cells,
-                      nrow=len(ncol_per_row),
-                      ncol=ncol_per_row[0],
-                      paper_id='PAPER_ID',
-                      page_num=0,
-                      caption=caption)
+        table = Table.create_from_cells(
+            cells=cells,
+            nrow=len(ncol_per_row),
+            ncol=ncol_per_row[0],
+            paper_id='PAPER_ID',
+            page_num=0,
+            caption=caption)
         return table
