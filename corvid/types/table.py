@@ -198,9 +198,14 @@ class Table(object):
                             for row in self.grid]) + '\n' + self.caption
 
     def __eq__(self, other: 'Table') -> bool:
-        """Only compares Tables on whether they contain the same Cells.
+        """Only compares Tables on whether they contain the same str(Cells).
         Doesnt compare other fields like `caption`, etc."""
-        return np.array_equal(self.grid, other.grid)
+
+        for i in range(self.nrow):
+            for j in range(self.ncol):
+                if str(self[i,j]) != str(other[i,j]):
+                    return False
+        return True
 
     def insert_row(self, index: int, row: List[Cell]) -> 'Table':
         assert len(row) == self.ncol

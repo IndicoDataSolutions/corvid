@@ -158,6 +158,12 @@ class TestTable(unittest.TestCase):
         x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
         y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
         z = Cell(tokens=[Token(text='z')], rowspan=1, colspan=1)
+        self.assertEqual(self.easy_table.insert_row(index=0, row=[x, y, z]),
+                         Table.create_from_grid(grid=[
+                             [x, y, z],
+                             [self.a, self.b, self.c],
+                             [self.d, self.e, self.f]
+                         ]))
         self.assertEqual(self.easy_table.insert_row(index=1, row=[x, y, z]),
                          Table.create_from_grid(grid=[
                              [self.a, self.b, self.c],
@@ -206,3 +212,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(box.ll.y, -0.5)
         self.assertEqual(box.ur.x, 2.5)
         self.assertEqual(box.ur.y, 1.5)
+
+    #TODO: implement this later
+    def test_eq(self):
+        pass
