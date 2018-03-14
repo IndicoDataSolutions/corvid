@@ -156,7 +156,6 @@ class TetmlTableExtractor(TableExtractor):
                     colspan=int(cell_tag.get('colspan')) \
                         if cell_tag.get('colspan') else 1
                 )
-                cell.bounding_box = cell.compute_bounding_box()
                 cells.append(cell)
                 ncol_per_row[i] += cell.colspan
 
@@ -174,5 +173,4 @@ class TetmlTableExtractor(TableExtractor):
             paper_id='PAPER_ID',
             page_num=0,
             caption=caption)
-        table.bounding_box = table.compute_bounding_box()
         return table
