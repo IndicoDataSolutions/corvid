@@ -1,9 +1,13 @@
 """
 
-Script that takes TSV format of Madeleine's annotations and extracts
-corresponding Gold Tables.
+Script that takes TSV format of manual annotations and:
+    * extracts corresponding Gold Tables + pickles
+    * creates `datasets.json`
 
-MAKES ASSUMPTION THAT EVERY DATASET HAS AT LEAST A paper_id ASSOCIATED W/ IT
+MAKES ASSUMPTION THAT EVERY DATASET IN TSV HAS AT LEAST A paper_id ASSOCIATED W/ IT
+
+See original TSV format is:
+https://docs.google.com/spreadsheets/d/1HrKk3WeRv7zBbZ-lytXte-zfOYzHA78YUuyjg_dfyM4/edit?usp=sharing
 
 """
 
@@ -16,7 +20,7 @@ def normalize(s: str) -> str:
     return re.sub('[^A-Za-z0-9\s]+', '', s).lower()
 
 
-with open('misc/gold_raw_annotations.tsv', 'r') as f:
+with open('data/gold_raw_annotations.tsv', 'r') as f:
     tsv = csv.reader(f, delimiter='\t')
     tsv = np.array([row for row in tsv])
 
