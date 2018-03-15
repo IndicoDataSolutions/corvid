@@ -197,6 +197,50 @@ class TestTable(unittest.TestCase):
                              [self.d, self.f]
                          ]))
 
+    def test_append_left(self):
+        self.assertEqual(
+            self.easy_table.append_left(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.f, self.b, self.d, self.a, self.b, self.c],
+                      [self.c, self.e, self.a, self.d, self.e, self.f]])
+        )
+
+    def test_append_right(self):
+        self.assertEqual(
+            self.easy_table.append_right(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.a, self.b, self.c, self.f, self.b, self.d],
+                      [self.d, self.e, self.f, self.c, self.e, self.a]])
+        )
+
+    def test_append_top(self):
+        self.assertEqual(
+            self.easy_table.append_top(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a],
+                      [self.a, self.b, self.c],
+                      [self.d, self.e, self.f]])
+        )
+
+    def test_append_bottom(self):
+        self.assertEqual(
+            self.easy_table.append_bottom(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.a, self.b, self.c],
+                      [self.d, self.e, self.f],
+                      [self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])
+        )
+
     def test_compute_bounding_box(self):
         table = Table.create_from_cells(
             cells=[
@@ -213,6 +257,6 @@ class TestTable(unittest.TestCase):
         self.assertEqual(box.ur.x, 2.5)
         self.assertEqual(box.ur.y, 1.5)
 
-    #TODO: implement this later
+    # TODO: implement this later
     def test_eq(self):
         pass

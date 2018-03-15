@@ -20,6 +20,8 @@ class SchemaMatcher(object):
                          pairwise_mappings: List[PairwiseMapping],
                          target_schema: Table) -> Table:
 
+
+
         # initialize empty aggregate table
         num_rows_agg_table = sum([pairwise_mapping.table1.nrow - 1
                                   for pairwise_mapping in pairwise_mappings])
