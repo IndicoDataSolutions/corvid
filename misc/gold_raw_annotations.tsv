@@ -1,0 +1,520 @@
+Dataset name	Dataset Paper ID	Gold Reference Paper (Paper Id)	Gold Reference Table (Caption Id e.g., Table 1)	Table URL	Dataset name Aliases (seperated by comma)	Type of result (separated by commas)	Additiional datasets?	Notes
+labeled faces in the wild	370b5757a5379b15e30d619e4d3fb9e8e13f3256	5bef099cfd2e2534fdf5c2f2531b1002598ff533	Table 7		LFW	Accuracy		the instructions example is from paper 12
+		5bef099cfd2e2534fdf5c2f2531b1002598ff533	Table 8			Accuracy		
+		20e504782951e0c2979d9aec88c76334f7505393	Table I			Error rates		
+inria holidays	6fc9abc88ae86550f02e06cd9e07712887f52b21	3aa5052f1b35833f8ee054936847bb9f9e612a85	Table 2		Holidays, Hol.	mAP		
+		3aa5052f1b35833f8ee054936847bb9f9e612a85	Table 4			mAP	Oxford5k	
+		3aa5052f1b35833f8ee054936847bb9f9e612a85	Table 6			mAP	Oxford5k; Oxford105k; Holidaya+F11M	
+actions as space-time shapes	183a697bdea9cdc9cec21267ddbf6ab2eb118258	-						Went through 10 papers, no good tables
+		-						
+		-						
+bionlp shared task	15182c6e680c7543f445bbe8de449afa912eacd4	a718eb7da205fd86c80e5a04d86b558695497b23	Table 1		BioNLP-ST 2011 Genia Event 			Statistics of BioNLP?
+		ce402833c37ece3493ad6bd23df8cd19a2816c0f	Table 2			F1 Score, Precision, Recall		
+		034152e831aec8c75e5f48704c0e84a84885b7b2	Table 2			F1 Score, Precision, Recall		
+ppdb	9ae62a9f18d2e29d2ad9b08e3418d6fd083d27d5	-						
+		-						
+		-						
+msrc-12 kinect gesture	dbc7c45f86f11125fc4689e3f019485354f8e505	54c280cb98c6676cf1f79353ed417e01a2364440	Table 6	https://www.semanticscholar.org/paper/Laban-movement-analysis-and-hidden-Markov-models-f-Truong-Zaharia/54c280cb98c6676cf1f79353ed417e01a2364440/figure/11	MSRC-Kinect 12	recognition rates		
+		144b1f28c635a719ea9b1d3f6f832164453fabc9	Table III	https://www.semanticscholar.org/paper/Revisiting-Human-Action-Recognition%3A-Personalizati-Zunino-Cavazza/144b1f28c635a719ea9b1d3f6f832164453fabc9/figure/2				
+		c1cb3daa2c7d96fc876d6b96265e443773e697aa	Table 7	https://www.semanticscholar.org/paper/Three-Dimensional%2C-Kinematic%2C-Human-Behavioral-Pat-Patwardhan/c1cb3daa2c7d96fc876d6b96265e443773e697aa/figure/12				
+multi-view stereo (vision middlebury)	96f1985b0fe11bab8c80465b78a4e32d9da24803	3ed3065b7087012f6341a9769a3b56adb3fb0102	Table I	https://www.semanticscholar.org/paper/Adaptive-edge-based-stereo-block-matching-algorith-Janeczek-Skulimowski/3ed3065b7087012f6341a9769a3b56adb3fb0102/figure/6	Middlebury benchmark, Middlebury dataset, Middlebury stereo dataset	Time/MPix, MSE, Occlusion, Density		
+		9bc1abc2abfb21616a5c4b1d979f2b1b73d876e2	Table 3	https://www.semanticscholar.org/paper/Efficient-Stereo-Matching-Leveraging-Deep-Local-an-Ye-Li/9bc1abc2abfb21616a5c4b1d979f2b1b73d876e2/figure/5		average error		
+		9bc1abc2abfb21616a5c4b1d979f2b1b73d876e2	Table 2	https://www.semanticscholar.org/paper/Efficient-Stereo-Matching-Leveraging-Deep-Local-an-Ye-Li/9bc1abc2abfb21616a5c4b1d979f2b1b73d876e2/figure/3		average error percentage		
+ford campus vision and lidar	4085121ebed061fd53e332cc4371395b6b72510e	920486d96ce8aec835368fe71bfd5acdc944ff0c	Table 1	https://www.semanticscholar.org/paper/Multi-Channel-Generalized-ICP%3A-A-robust-framework-Servos-Waslander/920486d96ce8aec835368fe71bfd5acdc944ff0c/figure/1	ford dataset, LiDAR models, ford campus	translation errors; rotation errors		
+		ce36c55c667d0cd750591a6a0824e27c19c7110d	Table 2	https://www.semanticscholar.org/paper/Robust-Shape-Registration-using-Fuzzy-Corresponden-Kolagunda-Sorensen/ce36c55c667d0cd750591a6a0824e27c19c7110d/figure/3		mean dist, max dist		
+		09d08e543a9b2fc350cb37e47eb087935c12be16	Table I	https://www.semanticscholar.org/paper/A-Multimodal%2C-Full-Surround-Vehicular-Testbed-for-Rangesh-Yuen/09d08e543a9b2fc350cb37e47eb087935c12be16/figure/7				
+segmentation evaluation	ada48e5f8b0b702d95e61f253f26009230e84f91	-	-	-	-		only 7 results	
+		-	-	-	-			
+		-	-	-	-			
+caltech 101 silhouettes	832553365fbaf2ebd35f15b206bfa4b2b2f2422f	778bd275291971680de836e4b638ad1662fcc95e	Table 1	https://www.semanticscholar.org/paper/VAE-with-a-VampPrior-Tomczak-Welling/778bd275291971680de836e4b638ad1662fcc95e/figure/0		test log likelihood		
+		f588417edee4b5c214d7c571cf364158251d4cd7	Table IV	https://www.semanticscholar.org/paper/Learning-Deep-Generative-Models-With-Doubly-Stocha-Du-Zhu/f588417edee4b5c214d7c571cf364158251d4cd7/figure/7		est. test LL. 		
+		f588417edee4b5c214d7c571cf364158251d4cd7	Table VII	https://www.semanticscholar.org/paper/Learning-Deep-Generative-Models-With-Doubly-Stocha-Du-Zhu/f588417edee4b5c214d7c571cf364158251d4cd7/figure/10		average running time		
+oxford reconstruction	ebe4e33e4a05b629579214c42046bb05edbbed6f	-	-	-	-		404 not found	
+		-	-	-	-			
+		-	-	-	-			
+cora citation matching	55d8972aaf8dd16055b7afd0ba16a9601cbf97eb	cec1a35d91a9ddef8dd47c2c62b4c380c23857ae	Table 2	https://www.semanticscholar.org/paper/Holistic-Query-Evaluation-over-Information-Extract-Ioannou-Garofalakis/cec1a35d91a9ddef8dd47c2c62b4c380c23857ae/figure/2	cora	statistics?		
+		-	-	-	-			
+		-	-	-	-			
+framenet project	547f23597f9ec8a93f66cedaa6fbfb73960426b1	15969dd8da470161ced6c6e65383feb8ecf2837d	Table 3.3	https://www.semanticscholar.org/paper/Automatic-Population-of-Structured-Knowledge-Bases-Fossati/15969dd8da470161ced6c6e65383feb8ecf2837d/figure/7		FE instances		
+		-	-	-	-	-		
+		-	-	-	-	-		
+nombank	a48affd9a3bf680e810a0c0b9aa37d419a4cb09c	01a5f4cd979da8b7583d6667722810ee2b122063	Table 5	https://www.semanticscholar.org/paper/A-Dataset-for-Joint-Noun-Noun-Compound-Bracketing-Fares/01a5f4cd979da8b7583d6667722810ee2b122063/figure/4		correlation		
+		3b0c9c9bd73ef4e7ef3c91572950ab5265d73f24	Table 1	https://www.semanticscholar.org/paper/Domain-adaptation-for-semantic-role-labeling-of-cl-Zhang-Tang/3b0c9c9bd73ef4e7ef3c91572950ab5265d73f24/figure/1		statistics?		
+		3b0c9c9bd73ef4e7ef3c91572950ab5265d73f24	Table 2	https://www.semanticscholar.org/paper/Domain-adaptation-for-semantic-role-labeling-of-cl-Zhang-Tang/3b0c9c9bd73ef4e7ef3c91572950ab5265d73f24/figure/3		performance		
+ollie	8ad0e78a9619c50bcb3cae4a589ec9a5d38c437c	c847b2c974d0bcd4a3d5a15b6e85473aa144b0cb	Table 1	https://www.semanticscholar.org/paper/J-REED%3A-Joint-Relation-Extraction-and-Entity-Disam-Nguyen-Theobald/c847b2c974d0bcd4a3d5a15b6e85473aa144b0cb/figure/0		precision		
+		c847b2c974d0bcd4a3d5a15b6e85473aa144b0cb	Table 4	https://www.semanticscholar.org/paper/J-REED%3A-Joint-Relation-Extraction-and-Entity-Disam-Nguyen-Theobald/c847b2c974d0bcd4a3d5a15b6e85473aa144b0cb/figure/3	OLLIE-spotlight, OLLIE-babelfy	precision		
+		-	-	-	-			
+bmp image sequences for elliptical head tracking	4f3d1c12aeb188cf74e323f16404035d336fa658	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+test images for wallflower paper	f69c6ccf6246f95d33eca1d02a2c9519d1d79f0e	c7284c31adab9696b089862ca9eecd28c04a00bf	table 3	https://www.semanticscholar.org/paper/A-Background-Modeling-and-Foreground-Detection-Alg-Romero-Lado/c7284c31adab9696b089862ca9eecd28c04a00bf/figure/6	wallflower dataset, wallflower data-set	F measure		
+		fdbca6bc9c4a1c76b4442571b4c0a53b465d9f7c	table 4	https://www.semanticscholar.org/paper/A-Deep-Convolutional-Neural-Network-for-Background-Babaee-Dinh/fdbca6bc9c4a1c76b4442571b4c0a53b465d9f7c/figure/5		number of frames, groundtruth frame number		
+		fdbca6bc9c4a1c76b4442571b4c0a53b465d9f7c	table 7	https://www.semanticscholar.org/paper/A-Deep-Convolutional-Neural-Network-for-Background-Babaee-Dinh/fdbca6bc9c4a1c76b4442571b4c0a53b465d9f7c/figure/12		F measures		
+umass pomdp problems	a8a38a801b92e136fc63eeb3e9c770927239d52c	cecaba807e7d6cac1909046f95bb06decb7da957	table 2	https://www.semanticscholar.org/paper/Can-bounded-and-self-interested-agents-be-teammate-Chandrasekaran-Doshi/cecaba807e7d6cac1909046f95bb06decb7da957/figure/3		traditional I-DID, augmented I-DID, GMAA*-ICE		
+		22f8ccac763d1b0ef33ccfd424894786c3112bcf	table 1	https://www.semanticscholar.org/paper/Incremental-Policy-Iteration-with-Guaranteed-Escap-Grzes-Poupart/22f8ccac763d1b0ef33ccfd424894786c3112bcf/figure/0		nodes, time, V		
+		22f8ccac763d1b0ef33ccfd424894786c3112bcf	table 2	https://www.semanticscholar.org/paper/Incremental-Policy-Iteration-with-Guaranteed-Escap-Grzes-Poupart/22f8ccac763d1b0ef33ccfd424894786c3112bcf/figure/2		nodes, time, V		
+open question answering	8e95526a02d6ddbadd11612baed19c78f504915b	0e068fcb42399385a3307c8de2a5c40bab967d79	table 3	https://www.semanticscholar.org/paper/Reading-Wikipedia-to-Answer-Open-Domain-Questions-Chen-Fisch/0e068fcb42399385a3307c8de2a5c40bab967d79/figure/3	open-domain QA	% of questions		
+		0e068fcb42399385a3307c8de2a5c40bab967d79	table 4	https://www.semanticscholar.org/paper/Reading-Wikipedia-to-Answer-Open-Domain-Questions-Chen-Fisch/0e068fcb42399385a3307c8de2a5c40bab967d79/figure/4		EM, F1	SQuAD open question answering	
+		-	-	-	-	-		
+pascal3d+	1c2c978faad6f27e05cf9e3fca509132ace8fae4	2c7e4d38cdb3357a2fc4d4b2e183074c6a679478	table 5	https://www.semanticscholar.org/paper/Deep-Supervision-with-Intermediate-Concepts-Li-Zia/2c7e4d38cdb3357a2fc4d4b2e183074c6a679478/figure/9		accuracy		
+		2e3cc63d71b136409c934a19404f8d8b54c0267f	table 1	https://www.semanticscholar.org/paper/Joint-Object-Category-and-3D-Pose-Estimation-from-Mahendran-Ali/2e3cc63d71b136409c934a19404f8d8b54c0267f/figure/1		number of images		
+		13f567e574609e49df257c45f134a992a3eb57a0	table 1	https://www.semanticscholar.org/paper/Click-Here%3A-Human-Localized-Keypoints-as-Guidance-Szeto-Corso/13f567e574609e49df257c45f134a992a3eb57a0/figure/1		performance 		
+semantic boundaries	dffb466c1f44ad1850d2bdaa2c2a960ca6f11ec9	002e15c1db22202cc46bc2f19908f5b2dd453513	table 2	https://www.semanticscholar.org/paper/Convolutional-Random-Walk-Networks-for-Semantic-Im-Bertasius-Torresani/002e15c1db22202cc46bc2f19908f5b2dd453513/figure/3	SBD, SE-BSDS, HED-BSDS, DSBD, M-DSBD, BSDS500	performance 		
+		91bb3680cee8cd37b80e07644f66f9cccf1b1aff	table 1	https://www.semanticscholar.org/paper/PASCAL-Boundaries%3A-A-Semantic-Boundary-Dataset-wit-Premachandran-Bonev/91bb3680cee8cd37b80e07644f66f9cccf1b1aff/figure/1		performance? 		
+		91bb3680cee8cd37b80e07644f66f9cccf1b1aff	table 2	https://www.semanticscholar.org/paper/PASCAL-Boundaries%3A-A-Semantic-Boundary-Dataset-wit-Premachandran-Bonev/91bb3680cee8cd37b80e07644f66f9cccf1b1aff/figure/3		model transfers		
+		91bb3680cee8cd37b80e07644f66f9cccf1b1aff	table 3	https://www.semanticscholar.org/paper/PASCAL-Boundaries%3A-A-Semantic-Boundary-Dataset-wit-Premachandran-Bonev/91bb3680cee8cd37b80e07644f66f9cccf1b1aff/figure/5		ODS, OI, AP		
+subjectivity sense annotations	ee6e99ad8f37383549e29a61aba6532f93dcc7d2	-	-	-	MPQA? other aliases?			
+		-	-	-	-			
+		-	-	-	-			
+20 newsgroups	bff8252c3d7a2557e8a4bbbc94079d23c7c8d9fd	404 not found?	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+knext	ca4068cb750874a4c7815158d87d064b4eebc0f4	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+penn treebank	b6cb2a910294a8c0f8dd2ed212ec36c1721ea8bc	-	-	-	PTB			
+		-	-	-	-			
+		-	-	-	-			
+msr action recognition	bf188f31d29b01b923c3595935340ddfce467b50	9d42aaf0f8a26bc2aae24cd327684e9dc1c818b8	table 2	https://www.semanticscholar.org/paper/3D-human-action-recognition-based-on-the-Spatial-T-Yao-Jiang/9d42aaf0f8a26bc2aae24cd327684e9dc1c818b8/figure/3	MSR-Action3D dataset, MSR daily activity 3d, MSRdaily act. 3D, MSRDA, MSRAActionPairs Dataset	recognition rates		
+		9d42aaf0f8a26bc2aae24cd327684e9dc1c818b8	table 4	https://www.semanticscholar.org/paper/3D-human-action-recognition-based-on-the-Spatial-T-Yao-Jiang/9d42aaf0f8a26bc2aae24cd327684e9dc1c818b8/figure/6		recognition rates		
+		4b03327188bd8cf0fcaa3fc451565e7153d01964	table 3	https://www.semanticscholar.org/paper/Action-Recognition-from-RGB-D-Data%3A-Comparison-and-Asadi-Aghbolaghi-Bertiche/4b03327188bd8cf0fcaa3fc451565e7153d01964/figure/3		accuracy		
+		4b03327188bd8cf0fcaa3fc451565e7153d01964	table 6	https://www.semanticscholar.org/paper/Action-Recognition-from-RGB-D-Data%3A-Comparison-and-Asadi-Aghbolaghi-Bertiche/4b03327188bd8cf0fcaa3fc451565e7153d01964/figure/8		accuracy		
+		7f244bf47640fb485021f62cb602261035cd691c	table 1	https://www.semanticscholar.org/paper/Action-recognition-by-learning-pose-representation-Saggese-Strisciuglio/7f244bf47640fb485021f62cb602261035cd691c/figure/1		recognition rate, error rate, miss rate		
+		7f244bf47640fb485021f62cb602261035cd691c	table 2 	https://www.semanticscholar.org/paper/Action-recognition-by-learning-pose-representation-Saggese-Strisciuglio/7f244bf47640fb485021f62cb602261035cd691c/figure/3		accuracy		
+		a9f643dcd542547a5592cfa9ca55a739e19a7bba	table IV	https://www.semanticscholar.org/paper/A-Temporal-Order-Modeling-Approach-to-Human-Action-Ye-Hu/a9f643dcd542547a5592cfa9ca55a739e19a7bba/figure/13		accuracy		
+		a9f643dcd542547a5592cfa9ca55a739e19a7bba	table V	https://www.semanticscholar.org/paper/A-Temporal-Order-Modeling-Approach-to-Human-Action-Ye-Hu/a9f643dcd542547a5592cfa9ca55a739e19a7bba/figure/14		execution time		
+the joint student response analysis and 8th recognizing textual entailment challenge	a628d782e39ef5ce2d546b36d386abc9e5a5e064	-						
+		-						
+		-						
+tac 2008 rte track (rte-4)	351ec42df2b60c6042addf96e6b98673bbaf4dfd	4546b7207e1a87c205bdf45c70f7b06fb3c38e21	table 5	https://www.semanticscholar.org/paper/Inference-is-Everything%3A-Recasting-Semantic-Resour-White-Rastogi/4546b7207e1a87c205bdf45c70f7b06fb3c38e21/figure/5	RTE-3 dev., RTE4	accuracy		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 6	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/11		node count		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 7	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/13		accuracy		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 8	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/14		accuracy		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 9	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/15		average number of rules		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 10	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/16		accuracy		
+		deefa972eed2e039cc103b3ed74566a02f3da158	table 11	https://www.semanticscholar.org/paper/Knowledge-Based-Textual-Inference-via-Parse-Tree-T-Bar-Haim-Dagan/deefa972eed2e039cc103b3ed74566a02f3da158/figure/17		unsure		
+icoseg: interactive cosegmentation by touch	aef84912576b251c7ef2a9668f7f15a3cc667c8a	ced5b96ba18761646f25c6e8364aba6dc37136f4	table I	https://www.semanticscholar.org/paper/Robust-Object-Co-Segmentation-Using-Background-Pri-Han-Quan/ced5b96ba18761646f25c6e8364aba6dc37136f4/figure/7	sub-icoseg,	average precision		
+		ced5b96ba18761646f25c6e8364aba6dc37136f4	table II	https://www.semanticscholar.org/paper/Robust-Object-Co-Segmentation-Using-Background-Pri-Han-Quan/ced5b96ba18761646f25c6e8364aba6dc37136f4/figure/8		average precision		
+		ced5b96ba18761646f25c6e8364aba6dc37136f4	table III	https://www.semanticscholar.org/paper/Robust-Object-Co-Segmentation-Using-Background-Pri-Han-Quan/ced5b96ba18761646f25c6e8364aba6dc37136f4/figure/9		average precision		
+		ced5b96ba18761646f25c6e8364aba6dc37136f4	table VIII	https://www.semanticscholar.org/paper/Robust-Object-Co-Segmentation-Using-Background-Pri-Han-Quan/ced5b96ba18761646f25c6e8364aba6dc37136f4/figure/14		model component analysis		
+		ced5b96ba18761646f25c6e8364aba6dc37136f4	table X	https://www.semanticscholar.org/paper/Robust-Object-Co-Segmentation-Using-Background-Pri-Han-Quan/ced5b96ba18761646f25c6e8364aba6dc37136f4/figure/15		stage analysis		
+pascal recognizing textual entailment challenge (rte-7)	0f8468de03ee9f12d693237bec87916311bf1c24	4546b7207e1a87c205bdf45c70f7b06fb3c38e21	table 5	https://www.semanticscholar.org/paper/Inference-is-Everything%3A-Recasting-Semantic-Resour-White-Rastogi/4546b7207e1a87c205bdf45c70f7b06fb3c38e21/figure/5	RTE?	accuracy		
+		c6e6f4d0710e248d516cb5bebb6720ac2526900e	table 1	https://www.semanticscholar.org/paper/Siamese-Network-with-Soft-Attention-for-Semantic-T-Kolawole-Caro/c6e6f4d0710e248d516cb5bebb6720ac2526900e/figure/1	RTE?	accuracy		
+		c6e6f4d0710e248d516cb5bebb6720ac2526900e	table 2	https://www.semanticscholar.org/paper/Siamese-Network-with-Soft-Attention-for-Semantic-T-Kolawole-Caro/c6e6f4d0710e248d516cb5bebb6720ac2526900e/figure/3	RTE?	accuracy		
+webkb	7a40b7ddfb55fc3484a89aef859ab1eb91e34d98	-						
+		-						
+		-						
+bioportal	f1d2cbc925297a35d168b2c66308249dea4e541f	-						
+		-						
+		-						
+congressional speech	d65711a2c4953ca24d252c3072d442f408f2ea89	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+nell	ddf0f2226cc837750eb1eb57c43d8192ef0fc2b3	77f9c306868f02f6412c704169270a66ef680c87	table 2	https://www.semanticscholar.org/paper/DeepPath%3A-A-Reinforcement-Learning-Method-for-Know-Xiong-Hoang/77f9c306868f02f6412c704169270a66ef680c87/figure/2	NELL-995	prediction results		
+		77f9c306868f02f6412c704169270a66ef680c87	table 3	https://www.semanticscholar.org/paper/DeepPath%3A-A-Reinforcement-Learning-Method-for-Know-Xiong-Hoang/77f9c306868f02f6412c704169270a66ef680c87/figure/4		prediction results		
+		301b76b8ec44ad59d0fe734823a33fbea94d029e	table 2	https://www.semanticscholar.org/paper/Graph-Convolutional-Networks-Kipf-Welling/301b76b8ec44ad59d0fe734823a33fbea94d029e/figure/1		classification accuracy		
+pubchem library	9871e018085124fe765fae45840bbaaf1586c866	-	-	-	-	one result...		
+		-	-	-	-			
+		-	-	-	-			
+augmented wordnet	62a4a6abc2a52889db51b56ef082d02784266985	bf41692b28d7373fb2caaf766b4c885fe0e49806	table 9	https://www.semanticscholar.org/paper/A-Framework-for-Enriching-Lexical-Semantic-Resourc-Biemann-Faralli/bf41692b28d7373fb2caaf766b4c885fe0e49806/figure/13		accuracy		
+		bf41692b28d7373fb2caaf766b4c885fe0e49806	table 10	https://www.semanticscholar.org/paper/A-Framework-for-Enriching-Lexical-Semantic-Resourc-Biemann-Faralli/bf41692b28d7373fb2caaf766b4c885fe0e49806/figure/14		accuracy		
+		bf41692b28d7373fb2caaf766b4c885fe0e49806	table 13	https://www.semanticscholar.org/paper/A-Framework-for-Enriching-Lexical-Semantic-Resourc-Biemann-Faralli/bf41692b28d7373fb2caaf766b4c885fe0e49806/figure/17		precision, recall		
+		bf41692b28d7373fb2caaf766b4c885fe0e49806	table 15	https://www.semanticscholar.org/paper/A-Framework-for-Enriching-Lexical-Semantic-Resourc-Biemann-Faralli/bf41692b28d7373fb2caaf766b4c885fe0e49806/figure/19		Cumulative Fowlkes & Mallows measure		
+conll-x shared task: multi-lingual dependency parsing	5ffc08b6a4816ab19caa1c2633527c0a99877c4f	311de02e063e773fa01126e66da94096a2348817	table 3.3	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/10	CoNLL-2009, CoNLL 2005, CoNLL'09	avergae F1		
+		311de02e063e773fa01126e66da94096a2348817	table 3.4	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/12		avergae F1		
+		311de02e063e773fa01126e66da94096a2348817	table 3.5	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/13		avergae F2		
+		311de02e063e773fa01126e66da94096a2348817	table 3.8	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/16		F1		
+		311de02e063e773fa01126e66da94096a2348817	table 3.9	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/17		accuracy		
+		311de02e063e773fa01126e66da94096a2348817	table 6.1	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/31		F1		
+		311de02e063e773fa01126e66da94096a2348817	table 6.3	https://www.semanticscholar.org/paper/N-EURAL-F-ACTORS-%2C-AND-A-PPROXIMATION---AWARE-T-RA-Gormley/311de02e063e773fa01126e66da94096a2348817/figure/35		precision, recall, F1		
+ontonotes	6ee68cba9c5be48fa10b20e004bbfa2eaae07d86	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+subjectivity lexicon	9fcc74a36b4acd65a11c113c9950fc13ea0336c6	833c732b98c2adc49b3247140453caf9628f3354	table 2	https://www.semanticscholar.org/paper/Towards-Bootstrapping-a-Polarity-Shifter-Lexicon-u-Schulder-Wiegand/833c732b98c2adc49b3247140453caf9628f3354/figure/2		shifter?		
+		-	-	-	-			
+		-	-	-	-			
+aslan challenge	1fbde67e87890e5d45864e66edb86136fbdbe20e	e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150	table 1	https://www.semanticscholar.org/paper/Joint-Dimensionality-Reduction-and-Metric-Learning-Harandi-Salzmann/e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150/figure/0	ASLAN dataset	AUCs and training times		
+		e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150	table 2	https://www.semanticscholar.org/paper/Joint-Dimensionality-Reduction-and-Metric-Learning-Harandi-Salzmann/e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150/figure/2	ETHZ CS dataset	AUCs 		
+		e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150	table 3	https://www.semanticscholar.org/paper/Joint-Dimensionality-Reduction-and-Metric-Learning-Harandi-Salzmann/e7f6bfb9bb591eb1404ae13f0fa13ad4a3179150/figure/3		AUC and accuracy		
+ethz shape classes	2c8593180a92708f1392cf434e85c798cd929390	2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 9	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/14		F1 score		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 10	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/15		F1 score		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 11	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/16		F1 score		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 12	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/17		F1 score		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 13	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/18		F1 score		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 15	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/20		performance and runtime comparison		
+		2b969d7dc47b50c504bc8d9eb4c26fc7974e5317	table 16	https://www.semanticscholar.org/paper/Evaluating-contour-segment-descriptors-Yang-Tiebe/2b969d7dc47b50c504bc8d9eb4c26fc7974e5317/figure/21		retrieval results		
+power iteration clustering	108b13a6b81f1c1ef50c3f597ec7af2a37850d4e	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+verbocean	ba5bde2ebaefc59c447c0e2dcdb05f9ba0c62d58	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+biwi kinect head pose	072e8d2e7ad76ef4e3bb063b51d3ad4b6c392c8e	b825ac25867de32372eeff4b39e2b73dd9235abe	table 3	https://www.semanticscholar.org/paper/Accurate-and-fast-3D-head-pose-estimation-with-noi-Li-Zhong/b825ac25867de32372eeff4b39e2b73dd9235abe/figure/5	biwi kinect dataset, BIWI	accuracy		
+		dd715a98dab34437ad05758b20cc640c2cdc5715	table 2	https://www.semanticscholar.org/paper/Joint-head-pose-and-facial-landmark-regression-fro-Wang-Zhang/dd715a98dab34437ad05758b20cc640c2cdc5715/figure/3		head pose estimation?		
+		812eba8ddf1158e2e2630c0fe1260ce85de763a5	table 1	https://www.semanticscholar.org/paper/Face-from-Depth-for-Head-Pose-Estimation-on-Depth-Borghi-Fabbri/812eba8ddf1158e2e2630c0fe1260ce85de763a5/figure/1		head pose estimation error		
+		812eba8ddf1158e2e2630c0fe1260ce85de763a5	table 2	https://www.semanticscholar.org/paper/Face-from-Depth-for-Head-Pose-Estimation-on-Depth-Borghi-Fabbri/812eba8ddf1158e2e2630c0fe1260ce85de763a5/figure/3		L1, L2, absolute difference, squared distance, root-mean-square error, percentage of pixel under a certain threshold		
+inria person	10d6b12fa07c7c8d6c8c3f42c7f1c061c131d4c5	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+openstreetmap rendering	288d4ee26ad11336a7cc1da7e9cdebc121d09b48	-	-	-	-	404 not found		
+		-	-	-	-			
+		-	-	-	-			
+pubfig: public figures face	d3046251ec5d6e7f90ef5ef2b0ac885c01138555	9b1a70d6771547cbcf6ba646f8775614c0162aca	table 2	https://www.semanticscholar.org/paper/Combining-feature-extraction-and-expansion-to-impr-L%C3%B3pez-I%C3%B1esta-Grimaldo/9b1a70d6771547cbcf6ba646f8775614c0162aca/figure/3		equal error rate		
+		9b1a70d6771547cbcf6ba646f8775614c0162aca	table 3	https://www.semanticscholar.org/paper/Combining-feature-extraction-and-expansion-to-impr-L%C3%B3pez-I%C3%B1esta-Grimaldo/9b1a70d6771547cbcf6ba646f8775614c0162aca/figure/5		equal error rate		
+		9b1a70d6771547cbcf6ba646f8775614c0162aca	table 6	https://www.semanticscholar.org/paper/Combining-feature-extraction-and-expansion-to-impr-L%C3%B3pez-I%C3%B1esta-Grimaldo/9b1a70d6771547cbcf6ba646f8775614c0162aca/figure/10		equal error rate		
+movie review	24ef4a9a7f65c8cb40608e4bc76ef6e2f1c24dd0	57e82ff478c9196a11a57d086949511d360b39b2	table 2	https://www.semanticscholar.org/paper/Decoding-Decoders%3A-Finding-Optimal-Representation/57e82ff478c9196a11a57d086949511d360b39b2/figure/3	MR	performance		
+		57e82ff478c9196a11a57d086949511d360b39b2	table 3	https://www.semanticscholar.org/paper/Decoding-Decoders%3A-Finding-Optimal-Representation/57e82ff478c9196a11a57d086949511d360b39b2/figure/5		preformance		
+		57e82ff478c9196a11a57d086949511d360b39b2	table 6	https://www.semanticscholar.org/paper/Decoding-Decoders%3A-Finding-Optimal-Representation/57e82ff478c9196a11a57d086949511d360b39b2/figure/8		performance		
+reverb	189ed3f749766d02d42eb5b6d71017e085c212d4	08da7f399518a7e9bbbc029e07c07ced8bc0df0f	table 7	https://www.semanticscholar.org/paper/Assessing-and-Improving-Domain-Knowledge-Represent-Font-Zouaq/08da7f399518a7e9bbbc029e07c07ced8bc0df0f/figure/8		most frequent relations extracted		
+		9994cb04a3980f4536c8afa8f3a3c4757e5de652	table 3	https://www.semanticscholar.org/paper/Domain-Targeted%2C-High-Precision-Knowledge-Extracti-Mishra-Tandon/9994cb04a3980f4536c8afa8f3a3c4757e5de652/figure/4		precision		
+		-	-	-	-			
+stanford 40 actions	856c09ab10efbc8c61a84a951746654d947370f3	0db003826f960f5e1445f5ccee00eeedc2450773	table III	https://www.semanticscholar.org/paper/Hierarchical-Spatial-Sum%26%23x2013%3BProduct-Networks-f-Wang-Wang/0db003826f960f5e1445f5ccee00eeedc2450773/figure/13	Stanford-40	mean average precision 		
+		5d1fe57fa9a39d063e6778b8ca27313209cbca51	table 1	https://www.semanticscholar.org/paper/Scale-coding-bag-of-deep-features-for-human-attrib-Khan-Weijer/5d1fe57fa9a39d063e6778b8ca27313209cbca51/figure/1		mAP,MOP, FV-CNN, FV-CNN-SP		
+		5d1fe57fa9a39d063e6778b8ca27313209cbca51	table 5	https://www.semanticscholar.org/paper/Scale-coding-bag-of-deep-features-for-human-attrib-Khan-Weijer/5d1fe57fa9a39d063e6778b8ca27313209cbca51/figure/9				
+stanford synthetic object grasping point	e2decb6a36127ed5e229c17b08be5bf84f93d6ca	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+cmu seminar announcements	9ebae18ea1c12e8a4c12bfbc0bfb639004c21c87	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+biwi walking pedestrians	c2c3fd2c0744fcc31c2998d767e79685132047b8	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+youtube faces	560e0e58d0059259ddf86fcec1fa7975dee6a868	5dde5ce02b6370b29dfb21b29eb1a72683baea11	table 1	https://www.semanticscholar.org/paper/Neural-Class-Specific-Regression-for-face-verifica-Cao-Iosifidis/5dde5ce02b6370b29dfb21b29eb1a72683baea11/figure/4	youtube faces dataset	performance mean ERR%		
+		22043cbd2b70cb8195d8d0500460ddc00ddb1a62	table 7	https://www.semanticscholar.org/paper/Separability-Oriented-Subclass-Discriminant-Analys-Wan-Wang/22043cbd2b70cb8195d8d0500460ddc00ddb1a62/figure/11	youtube 	ema		
+		22043cbd2b70cb8195d8d0500460ddc00ddb1a62	table 8	https://www.semanticscholar.org/paper/Separability-Oriented-Subclass-Discriminant-Analys-Wan-Wang/22043cbd2b70cb8195d8d0500460ddc00ddb1a62/figure/13		run time		
+depth and appearance for mobile scene analysis	4f4e5913c8e5a9c97e4aa8705021e40e5bd5eb0e	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+the million song dataset	5aaf311172b9778d78f6904fbe40124c63463b57	-	-	-	million song			
+		-	-	-	-			
+		-	-	-	-			
+kitti	79b949d9b35c3f51dd20fb5c746cc81fc87147eb	34e2ece4125e3083af14680b45c749ec417ea42f	table 1	https://www.semanticscholar.org/paper/Learning-a-Bias-Correction-for-Lidar-only-Motion-E-Tang-Yoon/34e2ece4125e3083af14680b45c749ec417ea42f/figure/8		odometry errors 		
+		513b11920f15a55ff4e3dd1a063c386b863d6679	table II	https://www.semanticscholar.org/paper/Real-time-CPU-based-large-scale-3D-mesh-reconstruc-Piazza-Romanoni/513b11920f15a55ff4e3dd1a063c386b863d6679/figure/13		run times		
+		513b11920f15a55ff4e3dd1a063c386b863d6679	table III	https://www.semanticscholar.org/paper/Real-time-CPU-based-large-scale-3D-mesh-reconstruc-Piazza-Romanoni/513b11920f15a55ff4e3dd1a063c386b863d6679/figure/14		mean absolute error		
+cdnet	3e61851326f6b3c1c7b4d1670c784a9118fa7d82	561c129cf06b8b3ae2f4c232ce6462329741de35	table IV	https://www.semanticscholar.org/paper/Pixel-Modeling-Using-Histograms-Based-on-Fuzzy-Par-Zeng-Jia/561c129cf06b8b3ae2f4c232ce6462329741de35/figure/13		performance scores		
+		561c129cf06b8b3ae2f4c232ce6462329741de35	table V	https://www.semanticscholar.org/paper/Pixel-Modeling-Using-Histograms-Based-on-Fuzzy-Par-Zeng-Jia/561c129cf06b8b3ae2f4c232ce6462329741de35/figure/14		standard deviation		
+		70fa9da670c23ab17e3bea434a21b55815ecc6cb	table 2	https://www.semanticscholar.org/paper/Review-of-background-subtraction-methods-using-Gau-Goyal-Singhai/70fa9da670c23ab17e3bea434a21b55815ecc6cb/figure/3		comparative results		
+letor	e58b3338aeb359997c7fc2f4d761b253b5b80e0a	ac291287c907f51df767a1f9846f4ec453bb3a9f	table 3	https://www.semanticscholar.org/paper/Efficiently-Answering-Technical-Questions---A-Know-Yang-Zou/ac291287c907f51df767a1f9846f4ec453bb3a9f/figure/4		result for candidates re-ranking		
+		2a44bc9a8af2047d006876066ac3f89d8b7211d7	table 3	https://www.semanticscholar.org/paper/Sensitive-and-Scalable-Online-Evaluation-with-Theo-Oosterhuis-Rijke/2a44bc9a8af2047d006876066ac3f89d8b7211d7/figure/3		ebin error		
+		2a44bc9a8af2047d006876066ac3f89d8b7211d7	table 4	https://www.semanticscholar.org/paper/Sensitive-and-Scalable-Online-Evaluation-with-Theo-Oosterhuis-Rijke/2a44bc9a8af2047d006876066ac3f89d8b7211d7/figure/4		ebin error		
+humaneva	080ce01c304d3fd562c9aa17d1b234d5fc4b4555	43ef2ce17b8f5d81326a5a34af75723e2d3e7804	table 4	https://www.semanticscholar.org/paper/2D-3D-Pose-Consistency-based-Conditional-Random-Fi-Chang-Lee/43ef2ce17b8f5d81326a5a34af75723e2d3e7804/figure/7	humaneva-I	3D errors		
+		0112b4a8a8016ec0360506f5ccf25655487849e1	table 2	https://www.semanticscholar.org/paper/3D-Human-Pose-Estimation-from-a-Single-Image-via-D-Moreno-Noguer/0112b4a8a8016ec0360506f5ccf25655487849e1/figure/3		average overall joint error, average error of the occluded and hypothesized joints (in mm)		
+		1a4cb5070b8e1d7d35435b9426342051d421f4a7	table 4	https://www.semanticscholar.org/paper/A-Simple-Yet-Effective-Baseline-for-3d-Human-Pose-Martinez-Hossain/1a4cb5070b8e1d7d35435b9426342051d421f4a7/figure/6		results 		
+cambridge learner corpus	664e1a939f095e8718d92d3af1a9e2eb99823d71	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+arabic online commentary	b2e4d26f448e33da2cfae54d5abf67dd5b76a159	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+syntactic-ngrams	cad3ca0a113e2b44b592b08a0a9fe75139ac7a50	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+icsi meeting corpus	1503bcc5a850040e79f09665f699cbc5cdb23dbb	7b87d7ed9dea0edd03d82e96aeeff5d81105f7bc	table 3	https://www.semanticscholar.org/paper/Combining-Graph-Degeneracy-and-Submodularity-for-U-Tixier-Meladianos/7b87d7ed9dea0edd03d82e96aeeff5d81105f7bc/figure/5		recall, precision, F1		
+		018fde4b542cd94c160bfc479cca091401094886	table 1	https://www.semanticscholar.org/paper/Real-Time-Keyword-Extraction-from-Conversations-Vazirgiannis-Tixier/018fde4b542cd94c160bfc479cca091401094886/figure/1		statistical signifigance		
+		018fde4b542cd94c160bfc479cca091401094886	table 2	https://www.semanticscholar.org/paper/Real-Time-Keyword-Extraction-from-Conversations-Vazirgiannis-Tixier/018fde4b542cd94c160bfc479cca091401094886/figure/3		ROUGE, WMD		
+nus corpus of learner english	d73d0ad692b4105f6f0c63a0bebf1eb8bdc8c918	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+ami meeting corpus	d928c4805dada374e168bdae6d45329ef31ff066	01e5ec2c6830b867879120bf11f4626fa8351970	table 12.7	https://www.semanticscholar.org/paper/Sequence-Discriminative-Training-of-Neural-Network-Chen-Zhang/01e5ec2c6830b867879120bf11f4626fa8351970/figure/5	AMI SDM, AMI IHM	performance %WER		
+		619b299c1b2f20c0234a84d3712392d0badd81a8	table 5	https://www.semanticscholar.org/paper/An-investigation-into-learning-effective-speaker-s-Samarakoon-Sim/619b299c1b2f20c0234a84d3712392d0badd81a8/figure/4		performance %WER		
+		619b299c1b2f20c0234a84d3712392d0badd81a8	table 6	https://www.semanticscholar.org/paper/An-investigation-into-learning-effective-speaker-s-Samarakoon-Sim/619b299c1b2f20c0234a84d3712392d0badd81a8/figure/5		performance %WER		
+		619b299c1b2f20c0234a84d3712392d0badd81a8	table 7	https://www.semanticscholar.org/paper/An-investigation-into-learning-effective-speaker-s-Samarakoon-Sim/619b299c1b2f20c0234a84d3712392d0badd81a8/figure/6		performance %WER		
+wikipedia xml corpus	4e5fd73c741099b0236d2c72cf824898718c0460	-	-	-	-	404 not found		
+		-	-	-	-			
+		-	-	-	-			
+contemporary written japanese	68b620cce14833189d62c492d642b29b75488c58	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+ccgbank	cf7ba13c48a404b6c132207d20a2193497816cbd	e9bd71b5b122c6acd9492473e90f8fec7cdc417a	table 2	https://www.semanticscholar.org/paper/A-Dynamic-Window-Neural-Network-for-CCG-Supertaggi-Wu-Zhang/e9bd71b5b122c6acd9492473e90f8fec7cdc417a/figure/3	Japanese CCGbank	accuracy		
+		16f3a1eeefcb561b98a1bd4a546f1519a301eb24	table 1	https://www.semanticscholar.org/paper/A*-CCG-Parsing-with-a-Supertag-and-Dependency-Fact-Yoshikawa-Noji/16f3a1eeefcb561b98a1bd4a546f1519a301eb24/figure/1		F1		
+		16f3a1eeefcb561b98a1bd4a546f1519a301eb24	table 2	https://www.semanticscholar.org/paper/A*-CCG-Parsing-with-a-Supertag-and-Dependency-Fact-Yoshikawa-Noji/16f3a1eeefcb561b98a1bd4a546f1519a301eb24/figure/3		F1		
+		16f3a1eeefcb561b98a1bd4a546f1519a301eb24	table 3	https://www.semanticscholar.org/paper/A*-CCG-Parsing-with-a-Supertag-and-Dependency-Fact-Yoshikawa-Noji/16f3a1eeefcb561b98a1bd4a546f1519a301eb24/figure/5		F1		
+		16f3a1eeefcb561b98a1bd4a546f1519a301eb24	table 5	https://www.semanticscholar.org/paper/A*-CCG-Parsing-with-a-Supertag-and-Dependency-Fact-Yoshikawa-Noji/16f3a1eeefcb561b98a1bd4a546f1519a301eb24/figure/8		results?		
+mctest	bd9bf1a1ece60491fb662b437dc85a4e809411e1	2f2f0f3f6def111907780d6580f6b0a7dfc9153c	table 3	https://www.semanticscholar.org/paper/Evaluation-Metrics-for-Machine-Reading-Comprehensi-Sugawara-Kido/2f2f0f3f6def111907780d6580f6b0a7dfc9153c/figure/2		% frequencies		
+		2f2f0f3f6def111907780d6580f6b0a7dfc9153c	table 4	https://www.semanticscholar.org/paper/Evaluation-Metrics-for-Machine-Reading-Comprehensi-Sugawara-Kido/2f2f0f3f6def111907780d6580f6b0a7dfc9153c/figure/4		% frequencies		
+		2f2f0f3f6def111907780d6580f6b0a7dfc9153c	table 5	https://www.semanticscholar.org/paper/Evaluation-Metrics-for-Machine-Reading-Comprehensi-Sugawara-Kido/2f2f0f3f6def111907780d6580f6b0a7dfc9153c/figure/5		results of readability metrics		
+		2f2f0f3f6def111907780d6580f6b0a7dfc9153c	table 7	https://www.semanticscholar.org/paper/Evaluation-Metrics-for-Machine-Reading-Comprehensi-Sugawara-Kido/2f2f0f3f6def111907780d6580f6b0a7dfc9153c/figure/7		average number and distance apart of sentances		
+imagenet	760a4d0db261642ec8449ad4ca120a3ab847932b	4078ea635412586f8214439f941745636d05b3d6	table III	https://www.semanticscholar.org/paper/Scene-Classification-via-Triplet-Networks-Liu-Huang/4078ea635412586f8214439f941745636d05b3d6/figure/15	subimagenet+UCM, subimagenet+N-R	accuracy comparison		
+		4078ea635412586f8214439f941745636d05b3d6	table IV	https://www.semanticscholar.org/paper/Scene-Classification-via-Triplet-Networks-Liu-Huang/4078ea635412586f8214439f941745636d05b3d6/figure/16				
+		af17312546ad1016ae7f2ceca1a4fd2a95f0946c	table III	https://www.semanticscholar.org/paper/Hashing-with-Angular-Reconstructive-Embeddings-Hu-Yang/af17312546ad1016ae7f2ceca1a4fd2a95f0946c/figure/5		map and precision		
+hollywood2: human actions and scenes	b705317a618911b5f6e611181eeeece0a7079f80	6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 1	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/1		classification accuracy		
+		6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 2	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/3		classification accuracy, frame per second accuracy		
+		6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 5	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/6		map 		
+svitchboard	34e6f9005cf8ed6ee1ebda6bdc7c961065472762	-	-	-	-	no cited by		
+		-	-	-	-			
+		-	-	-	-			
+ig02	f57208b6b299267843b7976b2cda633c5e855c68	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+paraphrase discovery	8cc357c000c8c7df95015a6818c42648804105f5	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+ucf50	393e296732aab0c0502a3898258df3a88d33952d	6e7a80c377e405c1e5ccd4d698f5bde990b2be52	table 1	https://www.semanticscholar.org/paper/Action-recognition-by-saliency-based-dense-samplin-Xu-Hu/6e7a80c377e405c1e5ccd4d698f5bde990b2be52/figure/1		HOG+HOF+MBH		
+		6e7a80c377e405c1e5ccd4d698f5bde990b2be52	table 2	https://www.semanticscholar.org/paper/Action-recognition-by-saliency-based-dense-samplin-Xu-Hu/6e7a80c377e405c1e5ccd4d698f5bde990b2be52/figure/3		trajectories, features extraction speed		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 1	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/1		accuracy and effciency 		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 2	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/3		accuracy vs. processing time		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 3	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/5		performance comparison		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 4	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/7		computational cost and accuracy		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 5	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/9		performance comparsion		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 6	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/11		accuracy and computational cost		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 7	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/12		frame sampling rate and accuracy		
+		98127346920bdce9773aba6a2ffc8590b9558a4a	table 10	https://www.semanticscholar.org/paper/Efficient-human-action-recognition-using-histogram-Duta-Uijlings/98127346920bdce9773aba6a2ffc8590b9558a4a/figure/16		comparison to state of the art		
+proposition bank	837c2bf28887fc1a00e1b1148e5df748809da242	-	-	-	PropBank			
+		-	-	-	-			
+		-	-	-	-			
+learning human actions from movies	8d0ea6d9a4f4b32b49a6642aeeb42785a25277d0	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+the zebrafish model organism	f951b09330bc2ecb83d3c4731e435a57c7d8060a	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+mit traffic	995e1162b7189b51e8bd014134ee45b9eef9856e	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+voc	b6bebfd529b233f00cb854b7d8070319600cf59d	ccb27d726c0b799e800a63eac18a33bf262852aa	table 1	https://www.semanticscholar.org/paper/Conditional-Random-Fields-Meet-Deep-Neural-Network-Arnab-Zheng/ccb27d726c0b799e800a63eac18a33bf262852aa/figure/1	Pascal VOC, VOC12	IoU%		
+		ccb27d726c0b799e800a63eac18a33bf262852aa	table 2	https://www.semanticscholar.org/paper/Conditional-Random-Fields-Meet-Deep-Neural-Network-Arnab-Zheng/ccb27d726c0b799e800a63eac18a33bf262852aa/figure/3		IoU%		
+		c17a72780c35e0a4f2d294b4c3faab23da4b50ba	table IV	https://www.semanticscholar.org/paper/Deep-Crisp-Boundaries%3A-From-Boundaries-to-Higher-l-Wang-Zhao/c17a72780c35e0a4f2d294b4c3faab23da4b50ba/figure/14		performance		
+actom annotations for action detection	0dc7e973ac27adaeae86143c4b6b8bf97bed762c	-	-	-	-			404 not found
+		-	-	-	-			
+		-	-	-	-			
+libsvm data: classification, regression, and multi-label	78f4f74de487a37a8f705e5ef1aebe9b2caf7690	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+semcor	f9a25e0dc776857fc24ebc7115c980312f2719b1	4b35c9ec36b1f96b07952dcf9ab7b7cc14dbfc71	table 1	https://www.semanticscholar.org/paper/Grammatical-Role-Embeddings-for-Enhancements-of-Re-Simov-Popov/4b35c9ec36b1f96b07952dcf9ab7b7cc14dbfc71/figure/0		results		
+		4b35c9ec36b1f96b07952dcf9ab7b7cc14dbfc71	table 2	https://www.semanticscholar.org/paper/Grammatical-Role-Embeddings-for-Enhancements-of-Re-Simov-Popov/4b35c9ec36b1f96b07952dcf9ab7b7cc14dbfc71/figure/1		results		
+		9bdc4c5f6ba780f30ae081be7af34262af9a60a5	table 3	https://www.semanticscholar.org/paper/Train-O-Matic%3A-Large-Scale-Supervised-Word-Sense-D-Pasini-Navigli/9bdc4c5f6ba780f30ae081be7af34262af9a60a5/figure/2		F1		
+		9bdc4c5f6ba780f30ae081be7af34262af9a60a5	table 6	https://www.semanticscholar.org/paper/Train-O-Matic%3A-Large-Scale-Supervised-Word-Sense-D-Pasini-Navigli/9bdc4c5f6ba780f30ae081be7af34262af9a60a5/figure/5		performance comparison 		
+		9bdc4c5f6ba780f30ae081be7af34262af9a60a5	table 7	https://www.semanticscholar.org/paper/Train-O-Matic%3A-Large-Scale-Supervised-Word-Sense-D-Pasini-Navigli/9bdc4c5f6ba780f30ae081be7af34262af9a60a5/figure/6		performance comparison 		
+optimal reinsertion	c5d5a21536fc1b0c9d0ed02a1fc2a7508e52d5d8	-	-	-	-			404 not found
+		-	-	-	-			
+		-	-	-	-			
+iam handwriting	cbefffc89ea05195a2d0d1224204d8b3ff10108b	-	-	-	-			404 not found
+		-	-	-	-			
+		-	-	-	-			
+caltech	aedb8df8f953429ec5a6df99fda5c5d71dbee4ff	0fa077478abea097a1b74915ccaaeb4952eaaec7	table II	https://www.semanticscholar.org/paper/Object-Classification-With-Joint-Projection-and-Lo-Foroughi-Ray/0fa077478abea097a1b74915ccaaeb4952eaaec7/figure/12	caltech 101 dataset	recognition rates		
+		0fa077478abea097a1b74915ccaaeb4952eaaec7	table III	https://www.semanticscholar.org/paper/Object-Classification-With-Joint-Projection-and-Lo-Foroughi-Ray/0fa077478abea097a1b74915ccaaeb4952eaaec7/figure/13		recognition rates		
+		49919485aef3e9b9d79a2cfc2e82520b5ab06873	table 1	https://www.semanticscholar.org/paper/End-to-End-Lifelong-Learning%3A-a-Framework-to-Achie-Hao-Fan/49919485aef3e9b9d79a2cfc2e82520b5ab06873/figure/1		error rates		
+		49919485aef3e9b9d79a2cfc2e82520b5ab06873	table 2	https://www.semanticscholar.org/paper/End-to-End-Lifelong-Learning%3A-a-Framework-to-Achie-Hao-Fan/49919485aef3e9b9d79a2cfc2e82520b5ab06873/figure/3		performance		
+		49919485aef3e9b9d79a2cfc2e82520b5ab06873	table 3	https://www.semanticscholar.org/paper/End-to-End-Lifelong-Learning%3A-a-Framework-to-Achie-Hao-Fan/49919485aef3e9b9d79a2cfc2e82520b5ab06873/figure/5		performance		
+h3d	55b29a2505149d06d8c1d616cd30edca40cb029c	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+stanford background	dc08847b65953ef2ae3542e47b08b57a46b5ba34	e18a0ea7b83fddc22d6061906b6ba532ece4c8b1	table 1	https://www.semanticscholar.org/paper/Non-parametric-context-based-object-classification-Roncevic-Braovic/e18a0ea7b83fddc22d6061906b6ba532ece4c8b1/figure/1	SBD	confusion matrix		
+		e18a0ea7b83fddc22d6061906b6ba532ece4c8b1	table 2	https://www.semanticscholar.org/paper/Non-parametric-context-based-object-classification-Roncevic-Braovic/e18a0ea7b83fddc22d6061906b6ba532ece4c8b1/figure/2		confusion matrix		
+		e18a0ea7b83fddc22d6061906b6ba532ece4c8b1	table 3	https://www.semanticscholar.org/paper/Non-parametric-context-based-object-classification-Roncevic-Braovic/e18a0ea7b83fddc22d6061906b6ba532ece4c8b1/figure/4		confusion matrix		
+		e18a0ea7b83fddc22d6061906b6ba532ece4c8b1	table 4	https://www.semanticscholar.org/paper/Non-parametric-context-based-object-classification-Roncevic-Braovic/e18a0ea7b83fddc22d6061906b6ba532ece4c8b1/figure/6		confusion matrix		
+		e18a0ea7b83fddc22d6061906b6ba532ece4c8b1	table 5	https://www.semanticscholar.org/paper/Non-parametric-context-based-object-classification-Roncevic-Braovic/e18a0ea7b83fddc22d6061906b6ba532ece4c8b1/figure/8		accuracy		
+berkeley segmentation	8de22fba50048b89642d57a6f71e338f8a57cc87	8234c8d04dced6dd92df3077a564baccfaff96e8	table 1	https://www.semanticscholar.org/paper/Deep-Shrinkage-Convolutional-Neural-Network-for-Ad-Isogawa-Ida/8234c8d04dced6dd92df3077a564baccfaff96e8/figure/6	BSD68, BSDS, BSDS500	average PSNR		
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table I	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/10		score of segmentation	note: include methods, but don't cite specific papers	
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table II	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/11		region benchmarks		
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table III	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/12				
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table IV	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/13		region benchmarks		
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table V	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/14		boundary benchmarks		
+		8f2933617e320fc74b0a72d54ce33a977dcf6a0e	table VI	https://www.semanticscholar.org/paper/Computation-and-Memory-Efficient-Image-Segmentatio-Zhou-Do/8f2933617e320fc74b0a72d54ce33a977dcf6a0e/figure/15		memory usage and the computation time		
+stanford helicopter	5fc69f93422b11c944b2d53e9d2f93295eca3d19	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+uby	aa6331a5a336efd76a6e933509490fece941f126	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+dbpedia	2b2c30dfd3968c5d9418bb2c14b2382d3ccc64b2	a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 3	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/5		evaluation results		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 4	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/7		evaluation results 		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 5	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/9		evaluation results		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 6	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/11		evaluation results for dimension relevancy		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 7	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/13		evaluation results for dimestion completeness		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 8	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/15		metric values of mccol		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 9	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/17		evaluation results for the KGs		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 10	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/19		evaluation results for the KGs		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 11	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/20		evaluation results for the KGs regarding the dimensionality interoperability		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 12	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/22		evaluation results for the KGs regarding the dimensionality accessibility		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 13	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/23		evaluation results for the KGs regarding the dimension license 		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 14 	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/24		evaluation results for the KGs regarding the dimension interlinking		
+		a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8	table 15	https://www.semanticscholar.org/paper/Linked-data-quality-of-DBpedia%2C-Freebase%2C-OpenCyc%2C-F%C3%A4rber-Bartscherer/a531fb4d4e91c79adf6d81928e1ca5e64dcab3e8/figure/25		accuracy, trustworthiness, consistency, relevancy, completeness, timeliness, ease of understanding, interoperability, accessibility, licensing, interlinking		
+third recognising textual entailment challenge	de794d50713ea5f91a7c9da3d72041e2f5ef8452	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+attribute learning for understanding unstructured social activity	a5e5c0bfe949b951ae88114e950601934026430a	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+congealing complex images	ed0fb7c41635c0923b9d86b1cbe8cd6241603158	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+eurovoc	1e76f200e56801dace32557dcc008dcf7804db3b	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+recognising textual entailment challenge (rte-1)	b860d66221283cd29c657a58f4585943a5262f51	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+let's go!: speech	e4654d460be56c9590b61284dbff40b15506d83a	c71c51a21ae57c2f71b377b69377b952d25134cf	table 3	https://www.semanticscholar.org/paper/Root-Cause-Analysis-of-Miscommunication-Hotspots-i-Georgiladakis-Athanasopoulou/c71c51a21ae57c2f71b377b69377b952d25134cf/figure/3	LG	problematic %		
+		c71c51a21ae57c2f71b377b69377b952d25134cf	table 4	https://www.semanticscholar.org/paper/Root-Cause-Analysis-of-Miscommunication-Hotspots-i-Georgiladakis-Athanasopoulou/c71c51a21ae57c2f71b377b69377b952d25134cf/figure/4		root cause analysis datasets		
+		c71c51a21ae57c2f71b377b69377b952d25134cf	table 5	https://www.semanticscholar.org/paper/Root-Cause-Analysis-of-Miscommunication-Hotspots-i-Georgiladakis-Athanasopoulou/c71c51a21ae57c2f71b377b69377b952d25134cf/figure/5		percentage of root cause types		
+		c71c51a21ae57c2f71b377b69377b952d25134cf	table 6	https://www.semanticscholar.org/paper/Root-Cause-Analysis-of-Miscommunication-Hotspots-i-Georgiladakis-Athanasopoulou/c71c51a21ae57c2f71b377b69377b952d25134cf/figure/6		UAR %		
+		c71c51a21ae57c2f71b377b69377b952d25134cf	table 7	https://www.semanticscholar.org/paper/Root-Cause-Analysis-of-Miscommunication-Hotspots-i-Georgiladakis-Athanasopoulou/c71c51a21ae57c2f71b377b69377b952d25134cf/figure/7		UAR%		
+nusef	54c186f18b07b6566a42ad1198463f3faea09928	2b0e1f563917592cc7b8f2015b93292ae1949cdd	table II	https://www.semanticscholar.org/paper/Dual-Low-Rank-Pursuit%3A-Learning-Salient-Features-f-Lang-Feng/2b0e1f563917592cc7b8f2015b93292ae1949cdd/figure/8		performance		
+		5120c8e0e2ce4bdce8a5474b55f5b5297e68170b	table I	https://www.semanticscholar.org/paper/Weakly-Supervised-Human-Fixations-Prediction-Zhang-Li/5120c8e0e2ce4bdce8a5474b55f5b5297e68170b/figure/16		comparative SAUC scores		
+		-	-	-	-			
+animals with attributes	0566bf06a0368b518b8b474166f7b1dfef3f9283	69e4bcb9d7103165176112c675120f88b2ee7a13	table 2	https://www.semanticscholar.org/paper/Learning-to-Recognise-Unseen-Classes-by-A-Few-Simi-Long-Shao/69e4bcb9d7103165176112c675120f88b2ee7a13/figure/2	AwA	hit rate		
+		69e4bcb9d7103165176112c675120f88b2ee7a13	table 3	https://www.semanticscholar.org/paper/Learning-to-Recognise-Unseen-Classes-by-A-Few-Simi-Long-Shao/69e4bcb9d7103165176112c675120f88b2ee7a13/figure/4		state-of-the-art-results		
+		69e4bcb9d7103165176112c675120f88b2ee7a13	table 5	https://www.semanticscholar.org/paper/Learning-to-Recognise-Unseen-Classes-by-A-Few-Simi-Long-Shao/69e4bcb9d7103165176112c675120f88b2ee7a13/figure/8		averaged inference time		
+		69e4bcb9d7103165176112c675120f88b2ee7a13	table 6	https://www.semanticscholar.org/paper/Learning-to-Recognise-Unseen-Classes-by-A-Few-Simi-Long-Shao/69e4bcb9d7103165176112c675120f88b2ee7a13/figure/10		performance %		
+		69e4bcb9d7103165176112c675120f88b2ee7a13	table 7	https://www.semanticscholar.org/paper/Learning-to-Recognise-Unseen-Classes-by-A-Few-Simi-Long-Shao/69e4bcb9d7103165176112c675120f88b2ee7a13/figure/11		performance upper bound %		
+cmu_arctic	4fd4d980c5007458044c8a619823d35f8426c04c	344e1b401293a8c547bed50c71c4d5e61d2fbecc	table 1	https://www.semanticscholar.org/paper/A-Spectro-Temporal-Demodulation-Technique-for-Pitc-Dhiman-Adiga/344e1b401293a8c547bed50c71c4d5e61d2fbecc/figure/1	CMU-arctic	GPE %		
+		99f53c1117ead2974c5ff7729a77a6755809e133	table 1	https://www.semanticscholar.org/paper/Accurate-Synchronization-of-Speech-and-EGG-Signal-Kumar-Rao/99f53c1117ead2974c5ff7729a77a6755809e133/figure/1		mean glottis-to-microphone delay		
+		-	-	-	-	-		
+microsoft research paraphrase corpus	94d87fe702aa8b9df6c794d6658d4c6c1b143999	bb3fd1d7960c58a1f11ed14bf10cd5ec17f81748	table 6	https://www.semanticscholar.org/paper/A-Deep-Network-Model-for-Paraphrase-Detection-in-S-Agarwal-Ramampiaro/bb3fd1d7960c58a1f11ed14bf10cd5ec17f81748/figure/10	msrp	accuracy, F1		
+		bb3fd1d7960c58a1f11ed14bf10cd5ec17f81748	table 7	https://www.semanticscholar.org/paper/A-Deep-Network-Model-for-Paraphrase-Detection-in-S-Agarwal-Ramampiaro/bb3fd1d7960c58a1f11ed14bf10cd5ec17f81748/figure/11		accuracy, F1		
+								
+stonefly9	1394481b679eddbe9ea634d3d92cac70d2d66089	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+ucf youtube action	5a3f0e609c94da47e296857e562e1c7ceb0d50a9	6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 1	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/1		accuracy		
+		6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 2	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/3		accuracy		
+		6a248501e42f0c22f0b091e3a22c01197fa5cd2e	table 5	https://www.semanticscholar.org/paper/Improving-Bag-of-Visual-Words-model-using-visual-n-Hern%C3%A1ndez-Garc%C3%ADa-C%C3%B3zar/6a248501e42f0c22f0b091e3a22c01197fa5cd2e/figure/6		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table II	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/7		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table IV	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/9		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table IX	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/10		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table VI	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/12		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table VII	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/13		comparison		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table VIII	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/14		performance of different methods		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table X	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/15		performance of different methods		
+		4d1f77d9418a212c61a3c75c04a5b3884f6441ba	table XIII	https://www.semanticscholar.org/paper/Hierarchical-and-Spatio-Temporal-Sparse-Representa-Tian-Kong/4d1f77d9418a212c61a3c75c04a5b3884f6441ba/figure/17		comparisons		
+jeopardy! questions	8487e50a4a961fff3d81c01bf0099cac09d3e91b	-	-	-	-		404 not found	
+		-	-	-	-			
+		-	-	-	-			
+youtube-objects	faedfd28585c588fbd3b0e5752b5898a7f57c74b	e3ed68fe390a47bb99380febc905c25fdb07477e	table II	https://www.semanticscholar.org/paper/Object-Localization-in-Weakly-Labeled-Data-Using-R-Teh-Guo/e3ed68fe390a47bb99380febc905c25fdb07477e/figure/7	youtube-objects-subset	results		
+		e3ed68fe390a47bb99380febc905c25fdb07477e	table III	https://www.semanticscholar.org/paper/Object-Localization-in-Weakly-Labeled-Data-Using-R-Teh-Guo/e3ed68fe390a47bb99380febc905c25fdb07477e/figure/8		results		
+		1190e0210430e8b743af24cdc43efdeef407b669	table 2	https://www.semanticscholar.org/paper/Learning-Video-Object-Segmentation-from-Static-Ima-Khoreva-Perazzi/1190e0210430e8b743af24cdc43efdeef407b669/figure/3				
+multi-view stereo for community photo collections	db7361686946bbe77ccb0486bd791ee536e5d648	-	-	-	-			
+		-	-	-	-			
+		-	-	-	-			
+the mnist database of handwritten digits	641e6d89b3f080a8848ea6a8aa4e7e2ac09dace8	-	-	-	-	404 not found		
+		-	-	-	-			
+		-	-	-	-			
+second recognising textual entailment challenge (rte-2)	136326377c122560768db674e35f5bcd6de3bc40	1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 3.11	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/3		accuracy		
+		1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 3.13	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/5		accuracy		
+		1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 3.8	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/8		accuracy		
+		1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 4.11	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/11		comparison of the best matching		
+		1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 4.2	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/16		comparison with common metrics		
+		1b4aee6da3dc87a6c59218ef4675a68334c2c933	table 4.9	https://www.semanticscholar.org/paper/Methods-for-measuring-semantic-similarity-of-texts-Gaona/1b4aee6da3dc87a6c59218ef4675a68334c2c933/figure/19		comparison with previous work		
+grabcut	236ae3cad39a3e57fe0f8850fc3428e42cd8bfad	-	-	-	-	404 not found		
+		-	-	-	-			
+		-	-	-	-			
+dekang lin's dependency triples	9069975769561f24d3637526e6af07ab358a379f							
+								
+								
+recognition of human actions	b480f6a3750b4cebaf1db205692c8321d45926a2							
+								
+								
+olympic sports	e98655bf43c845e52647eac4c33dbc8180748fe5							
+								
+								
+ppmi	92dbc9cf4a8807e467369d78ae673a3a0360a480							
+								
+								
+3d object	c24455b20eb2111554fadd7313b6e5d65ba527ac				b3do			
+								
+								
+probase	5bd12dd0919a07591ce1ee9e8cb42f2d10299d8d							
+								
+								
+endgame	d088cdda1948d291d7c7cf4bbfe46c9391242cdc							
+								
+								
+yago	00a3f6924f90fcd77e6e7e6534b957a75d0ced07							
+								
+								
+virat video	d8891f71aa3e0fc7964037a0a4e5c35389e0e3e8							
+								
+								
+the blizzard challenge	7be93eece4af131d09149664fc5db2e089a9d369							
+								
+								
+tac 2010 rte track (rte-6)	9746994d09b5bf6c40bee3693ee8678e191f84b8							
+								
+								
+3d desktop objects	3069d33748a1740aedd10d308b6bcdf9bee09d3e							
+								
+								
+cora	032592a4057228d56687156d606a54dd97ea7898							
+								
+								
+learning visual attributes	22b1b9a0d3df813ba5912d457d8f366e7a0a273c							
+								
+								
+babelnet	7f90ef42f22d4f9b86d33b0ad7f16261273c8612							
+								
+								
+weizmann horse	db28f726e65743186168c89350fb0dedc54bf291							
+								
+								
+opencyc	543d58744f0402fe0cac4b5d52a943b110afd229							
+								
+								
+stanford contradiction	480c4b254a1a579669f13259cc475c42b58cff83							
+								
+								
+wsare	4f669fca768b81fd5543897efcb851759cebca61							
+								
+								
+hep-th	033384277d723f532c84ccccf247a20030c36434							
+								
+								
+tac 2009 rte track (rte-5)	db8885a0037fe47d973ade79d696586453710233							
+								
+								
+amr	7bef4d04939a8553e4d424d98899153fe8786022							
+								
+								
+radical	18b574f082a45379c24c736ce64625edee936173							
+								
+								
+3d objects on turntable	c1d6311b48cab44bf2cb077a606ed94fb8117d2b							
+								
+								
+the strand bilingual	2a954bdf203b327741ecf5d1c8fd70ccd15dcf73							
+								
+								
+questionbank	956d4b97f5814dd9e53abf286cc8cfe1283a01eb							
+								
+								
+university of florida sparse matrix collection	8f616bea75ac69f1e17d60735cdf8d4ff744191a							
+								
+								
+rgb-d object dataset	8031f5896bbd105a1e657bde77c7faac2291ce81							
+								
+								
+yahoo! music dataset	7d50b6883c38e34016a4841ec4ab2b92bfdfe3ad							
+								
+								
+labelme	6c4313542b5dc9b4ae32608fc7b3db6684a5c3be							
+								
+								
+dash	91b38dcdee26b1c2e60cf3e4c27bd91eed21ad57							
+								
+								
+social event detection	e1654a88a9b4a9c3347d7dcbb8db4ea46878a4f8							
+								
+								
+genia	da6c3fdf8ef9aae979a5dd156e074ba6691b2e2c							
+								
+								
+spontaneous speech corpus of japanese	ac23e62a18186c9a51dfea16d3602f52ff8c3b3a							
+								
+								
+salsa	3aa133ccc7e21793cb31ad96da8defb3dd50dab4							
+								
+								
+edinburgh twitter corpus	0f9e183f256e7275ca879ca825ecd1cd6f4c5049							
+								
+								
+ukwac	9c6b30794a3e2aa577b216be48f020ac81e84b62							
+								
+								
+potsdam commentary	328a884ddcd8c23ffcb55f8bf430581f7e530d78							
+								
+								
+coco	71b7178df5d2b112d07e45038cb5637208659ff7							
+								
+								
+stanford natural language inference	ee4578a09abef168a6a7808d447f78cf8631e731							
