@@ -5,7 +5,7 @@ from corvid.types.table import Table, Cell
 from typing import List, Tuple
 
 import numpy as np
-
+from scipy.optimize import linear_sum_assignment
 
 class SchemaMatcher(object):
 
@@ -74,54 +74,24 @@ class ColNameSchemaMatcher(SchemaMatcher):
             Counts cell level match between rows of two tables
         """
 
-        cell_match_counts = np.array([
-            [
-                self._compute_cell_similarity(cell1=gold_row[1:], cell2=pred_row[1:])
-                for pred_row in pred_table.grid[1:, :]
-            ]
-            for gold_row in gold_table.grid[1:, :]
-        ])
-
-        # negative sign here because scipy implementation minimizes sum of weights
-        index_gold, index_pred = linear_sum_assignment(
-            -1.0 * cell_match_counts)
-
-        return cell_match_counts[index_gold, index_pred].sum() / \
-               ((gold_table.nrow - 1) * (gold_table.ncol - 1))
-
-
-
-
-        column_mappings = []
-
-        # initializing w/ ncol - 1 because ignoring subject columns
         cell_similarities = np.zeros(shape=(table1.ncol - 1,
                                             table2.ncol - 1))
-
-        #
-        for idx1, table1_header_cell in enumerate(table1[1, :]):
-            for idx2, table2_header_cell in enumerate(table2[1, :]):
-                cell_similarities[idx1 - 1, idx2 - 1] = \
+        for idx1, table1_header_cell in enumerate(table1[0, 1:]):
+            for idx2, table2_header_cell in enumerate(table2[0, 1:]):
+                cell_similarities[idx1, idx2] = \
                     self._compute_cell_similarity(table1_header_cell,
                                                   table2_header_cell)
 
-        sum_similarity_score = 0.0
-        for table1_col_idx in range(cell_similarities.shape[0]):
-            # sort each row of cell similarity matrix descending
-            # get the indices in the sorted order
-            sorted_table2_col_indexes = np.argsort(
-                cell_similarities[table1_col_idx, :][::-1])
-            for table2_col_index in sorted_table2_col_indexes:
-                max_table2_match = np.amax(
-                    cell_similarities[:, table2_col_index])
-                if cell_similarities[table1_col_idx, table2_col_index] \
-                        >= max_table2_match:
-                    sum_similarity_score += \
-                        cell_similarities[table1_col_idx, table2_col_index]
-                    column_mappings.append(
-                        (table1_col_idx, table2_col_index))
-                    break
+        # negative sign here because scipy implementation minimizes sum of weights
+        index_table1, index_table2 = linear_sum_assignment(-1.0 * cell_similarities)
+
+        sum_similarity_score = cell_similarities[index_table1,
+                                                 index_table2].sum()
 
         return PairwiseMapping(table1, table2,
                                score=sum_similarity_score,
-                               column_mappings=column_mappings)
+                               column_mappings=[
+                                   (c1 + 1, c2 + 1)
+                                   for c1, c2, in zip(index_table1,
+                                                      index_table2)]
+                               )
