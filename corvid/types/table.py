@@ -225,6 +225,27 @@ class Table(object):
         new_grid = np.delete(arr=self.grid, obj=index, axis=1)
         return Table.create_from_grid(new_grid)
 
+    def append_left(self, other: 'Table') -> 'Table':
+        assert other.nrow == self.nrow
+        new_grid = np.append(other.grid, self.grid, axis=1)
+        return Table.create_from_grid(new_grid)
+
+    def append_right(self, other: 'Table') -> 'Table':
+        assert other.nrow == self.nrow
+        new_grid = np.append(self.grid, other.grid, axis=1)
+        return Table.create_from_grid(new_grid)
+
+    def append_top(self, other: 'Table') -> 'Table':
+        assert other.ncol == self.ncol
+        new_grid = np.append(other.grid, self.grid, axis=0)
+        return Table.create_from_grid(new_grid)
+
+    def append_bottom(self, other: 'Table') -> 'Table':
+        assert other.ncol == self.ncol
+        new_grid = np.append(self.grid, other.grid, axis=0)
+        return Table.create_from_grid(new_grid)
+
+
     # TODO: decide what data (i.e. caption, box) to keep after transposing
     # TODO: swap row-colspan for each cell
     # def transpose(self) -> 'Table':
