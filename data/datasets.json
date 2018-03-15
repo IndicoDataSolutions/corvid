@@ -46,9 +46,7 @@
       "name":"actions as spacetime shapes",
       "aliases":null,
       "paper_id":"183a697bdea9cdc9cec21267ddbf6ab2eb118258",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"bionlp shared task",
@@ -75,9 +73,7 @@
       "name":"ppdb",
       "aliases":null,
       "paper_id":"9ae62a9f18d2e29d2ad9b08e3418d6fd083d27d5",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"msrc12 kinect gesture",
@@ -150,9 +146,7 @@
       "name":"segmentation evaluation",
       "aliases":null,
       "paper_id":"ada48e5f8b0b702d95e61f253f26009230e84f91",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"caltech 101 silhouettes",
@@ -177,9 +171,7 @@
       "name":"oxford reconstruction",
       "aliases":null,
       "paper_id":"ebe4e33e4a05b629579214c42046bb05edbbed6f",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"cora citation matching",
@@ -243,9 +235,7 @@
       "name":"bmp image sequences for elliptical head tracking",
       "aliases":null,
       "paper_id":"4f3d1c12aeb188cf74e323f16404035d336fa658",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"test images for wallflower paper",
@@ -360,25 +350,19 @@
          "mpqa other aliases"
       ],
       "paper_id":"ee6e99ad8f37383549e29a61aba6532f93dcc7d2",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"20 newsgroups",
       "aliases":null,
       "paper_id":"bff8252c3d7a2557e8a4bbbc94079d23c7c8d9fd",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"knext",
       "aliases":null,
       "paper_id":"ca4068cb750874a4c7815158d87d064b4eebc0f4",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"penn treebank",
@@ -386,9 +370,7 @@
          "ptb"
       ],
       "paper_id":"b6cb2a910294a8c0f8dd2ed212ec36c1721ea8bc",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"msr action recognition",
@@ -439,9 +421,7 @@
       "name":"the joint student response analysis and 8th recognizing textual entailment challenge",
       "aliases":null,
       "paper_id":"a628d782e39ef5ce2d546b36d386abc9e5a5e064",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"tac 2008 rte track rte4",
@@ -536,25 +516,19 @@
       "name":"webkb",
       "aliases":null,
       "paper_id":"7a40b7ddfb55fc3484a89aef859ab1eb91e34d98",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"bioportal",
       "aliases":null,
       "paper_id":"f1d2cbc925297a35d168b2c66308249dea4e541f",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"congressional speech",
       "aliases":null,
       "paper_id":"d65711a2c4953ca24d252c3072d442f408f2ea89",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"nell",
@@ -581,9 +555,7 @@
       "name":"pubchem library",
       "aliases":null,
       "paper_id":"9871e018085124fe765fae45840bbaaf1586c866",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"augmented wordnet",
@@ -651,9 +623,7 @@
       "name":"ontonotes",
       "aliases":null,
       "paper_id":"6ee68cba9c5be48fa10b20e004bbfa2eaae07d86",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"subjectivity lexicon",
@@ -726,17 +696,13 @@
       "name":"power iteration clustering",
       "aliases":null,
       "paper_id":"108b13a6b81f1c1ef50c3f597ec7af2a37850d4e",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"verbocean",
       "aliases":null,
       "paper_id":"ba5bde2ebaefc59c447c0e2dcdb05f9ba0c62d58",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"biwi kinect head pose",
@@ -768,17 +734,13 @@
       "name":"inria person",
       "aliases":null,
       "paper_id":"10d6b12fa07c7c8d6c8c3f42c7f1c061c131d4c5",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"openstreetmap rendering",
       "aliases":null,
       "paper_id":"288d4ee26ad11336a7cc1da7e9cdebc121d09b48",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"pubfig public figures face",
@@ -860,25 +822,19 @@
       "name":"stanford synthetic object grasping point",
       "aliases":null,
       "paper_id":"e2decb6a36127ed5e229c17b08be5bf84f93d6ca",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"cmu seminar announcements",
       "aliases":null,
       "paper_id":"9ebae18ea1c12e8a4c12bfbc0bfb639004c21c87",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"biwi walking pedestrians",
       "aliases":null,
       "paper_id":"c2c3fd2c0744fcc31c2998d767e79685132047b8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"youtube faces",
@@ -905,9 +861,7 @@
       "name":"depth and appearance for mobile scene analysis",
       "aliases":null,
       "paper_id":"4f4e5913c8e5a9c97e4aa8705021e40e5bd5eb0e",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"the million song dataset",
@@ -915,9 +869,7 @@
          "million song"
       ],
       "paper_id":"5aaf311172b9778d78f6904fbe40124c63463b57",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"kitti",
@@ -1001,25 +953,19 @@
       "name":"cambridge learner corpus",
       "aliases":null,
       "paper_id":"664e1a939f095e8718d92d3af1a9e2eb99823d71",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"arabic online commentary",
       "aliases":null,
       "paper_id":"b2e4d26f448e33da2cfae54d5abf67dd5b76a159",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"syntacticngrams",
       "aliases":null,
       "paper_id":"cad3ca0a113e2b44b592b08a0a9fe75139ac7a50",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"icsi meeting corpus",
@@ -1044,9 +990,7 @@
       "name":"nus corpus of learner english",
       "aliases":null,
       "paper_id":"d73d0ad692b4105f6f0c63a0bebf1eb8bdc8c918",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ami meeting corpus",
@@ -1078,17 +1022,13 @@
       "name":"wikipedia xml corpus",
       "aliases":null,
       "paper_id":"4e5fd73c741099b0236d2c72cf824898718c0460",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"contemporary written japanese",
       "aliases":null,
       "paper_id":"68b620cce14833189d62c492d642b29b75488c58",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ccgbank",
@@ -1187,25 +1127,19 @@
       "name":"svitchboard",
       "aliases":null,
       "paper_id":"34e6f9005cf8ed6ee1ebda6bdc7c961065472762",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ig02",
       "aliases":null,
       "paper_id":"f57208b6b299267843b7976b2cda633c5e855c68",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"paraphrase discovery",
       "aliases":null,
       "paper_id":"8cc357c000c8c7df95015a6818c42648804105f5",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ucf50",
@@ -1260,33 +1194,25 @@
          "propbank"
       ],
       "paper_id":"837c2bf28887fc1a00e1b1148e5df748809da242",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"learning human actions from movies",
       "aliases":null,
       "paper_id":"8d0ea6d9a4f4b32b49a6642aeeb42785a25277d0",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"the zebrafish model organism",
       "aliases":null,
       "paper_id":"f951b09330bc2ecb83d3c4731e435a57c7d8060a",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"mit traffic",
       "aliases":null,
       "paper_id":"995e1162b7189b51e8bd014134ee45b9eef9856e",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"voc",
@@ -1314,17 +1240,13 @@
       "name":"actom annotations for action detection",
       "aliases":null,
       "paper_id":"0dc7e973ac27adaeae86143c4b6b8bf97bed762c",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"libsvm data classification regression and multilabel",
       "aliases":null,
       "paper_id":"78f4f74de487a37a8f705e5ef1aebe9b2caf7690",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"semcor",
@@ -1357,17 +1279,13 @@
       "name":"optimal reinsertion",
       "aliases":null,
       "paper_id":"c5d5a21536fc1b0c9d0ed02a1fc2a7508e52d5d8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"iam handwriting",
       "aliases":null,
       "paper_id":"cbefffc89ea05195a2d0d1224204d8b3ff10108b",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"caltech",
@@ -1402,9 +1320,7 @@
       "name":"h3d",
       "aliases":null,
       "paper_id":"55b29a2505149d06d8c1d616cd30edca40cb029c",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"stanford background",
@@ -1478,17 +1394,13 @@
       "name":"stanford helicopter",
       "aliases":null,
       "paper_id":"5fc69f93422b11c944b2d53e9d2f93295eca3d19",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"uby",
       "aliases":null,
       "paper_id":"aa6331a5a336efd76a6e933509490fece941f126",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"dbpedia",
@@ -1553,41 +1465,31 @@
       "name":"third recognising textual entailment challenge",
       "aliases":null,
       "paper_id":"de794d50713ea5f91a7c9da3d72041e2f5ef8452",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"attribute learning for understanding unstructured social activity",
       "aliases":null,
       "paper_id":"a5e5c0bfe949b951ae88114e950601934026430a",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"congealing complex images",
       "aliases":null,
       "paper_id":"ed0fb7c41635c0923b9d86b1cbe8cd6241603158",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"eurovoc",
       "aliases":null,
       "paper_id":"1e76f200e56801dace32557dcc008dcf7804db3b",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"recognising textual entailment challenge rte1",
       "aliases":null,
       "paper_id":"b860d66221283cd29c657a58f4585943a5262f51",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"lets go speech",
@@ -1700,9 +1602,7 @@
       "name":"stonefly9",
       "aliases":null,
       "paper_id":"1394481b679eddbe9ea634d3d92cac70d2d66089",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ucf youtube action",
@@ -1759,9 +1659,7 @@
       "name":"jeopardy questions",
       "aliases":null,
       "paper_id":"8487e50a4a961fff3d81c01bf0099cac09d3e91b",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"youtubeobjects",
@@ -1788,17 +1686,13 @@
       "name":"multiview stereo for community photo collections",
       "aliases":null,
       "paper_id":"db7361686946bbe77ccb0486bd791ee536e5d648",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"the mnist database of handwritten digits",
       "aliases":null,
       "paper_id":"641e6d89b3f080a8848ea6a8aa4e7e2ac09dace8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"second recognising textual entailment challenge rte2",
@@ -1835,41 +1729,31 @@
       "name":"grabcut",
       "aliases":null,
       "paper_id":"236ae3cad39a3e57fe0f8850fc3428e42cd8bfad",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"dekang lins dependency triples",
       "aliases":null,
       "paper_id":"9069975769561f24d3637526e6af07ab358a379f",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"recognition of human actions",
       "aliases":null,
       "paper_id":"b480f6a3750b4cebaf1db205692c8321d45926a2",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"olympic sports",
       "aliases":null,
       "paper_id":"e98655bf43c845e52647eac4c33dbc8180748fe5",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ppmi",
       "aliases":null,
       "paper_id":"92dbc9cf4a8807e467369d78ae673a3a0360a480",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"3d object",
@@ -1877,288 +1761,216 @@
          "b3do"
       ],
       "paper_id":"c24455b20eb2111554fadd7313b6e5d65ba527ac",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"probase",
       "aliases":null,
       "paper_id":"5bd12dd0919a07591ce1ee9e8cb42f2d10299d8d",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"endgame",
       "aliases":null,
       "paper_id":"d088cdda1948d291d7c7cf4bbfe46c9391242cdc",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"yago",
       "aliases":null,
       "paper_id":"00a3f6924f90fcd77e6e7e6534b957a75d0ced07",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"virat video",
       "aliases":null,
       "paper_id":"d8891f71aa3e0fc7964037a0a4e5c35389e0e3e8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"the blizzard challenge",
       "aliases":null,
       "paper_id":"7be93eece4af131d09149664fc5db2e089a9d369",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"tac 2010 rte track rte6",
       "aliases":null,
       "paper_id":"9746994d09b5bf6c40bee3693ee8678e191f84b8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"3d desktop objects",
       "aliases":null,
       "paper_id":"3069d33748a1740aedd10d308b6bcdf9bee09d3e",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"cora",
       "aliases":null,
       "paper_id":"032592a4057228d56687156d606a54dd97ea7898",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"learning visual attributes",
       "aliases":null,
       "paper_id":"22b1b9a0d3df813ba5912d457d8f366e7a0a273c",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"babelnet",
       "aliases":null,
       "paper_id":"7f90ef42f22d4f9b86d33b0ad7f16261273c8612",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"weizmann horse",
       "aliases":null,
       "paper_id":"db28f726e65743186168c89350fb0dedc54bf291",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"opencyc",
       "aliases":null,
       "paper_id":"543d58744f0402fe0cac4b5d52a943b110afd229",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"stanford contradiction",
       "aliases":null,
       "paper_id":"480c4b254a1a579669f13259cc475c42b58cff83",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"wsare",
       "aliases":null,
       "paper_id":"4f669fca768b81fd5543897efcb851759cebca61",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"hepth",
       "aliases":null,
       "paper_id":"033384277d723f532c84ccccf247a20030c36434",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"tac 2009 rte track rte5",
       "aliases":null,
       "paper_id":"db8885a0037fe47d973ade79d696586453710233",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"amr",
       "aliases":null,
       "paper_id":"7bef4d04939a8553e4d424d98899153fe8786022",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"radical",
       "aliases":null,
       "paper_id":"18b574f082a45379c24c736ce64625edee936173",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"3d objects on turntable",
       "aliases":null,
       "paper_id":"c1d6311b48cab44bf2cb077a606ed94fb8117d2b",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"the strand bilingual",
       "aliases":null,
       "paper_id":"2a954bdf203b327741ecf5d1c8fd70ccd15dcf73",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"questionbank",
       "aliases":null,
       "paper_id":"956d4b97f5814dd9e53abf286cc8cfe1283a01eb",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"university of florida sparse matrix collection",
       "aliases":null,
       "paper_id":"8f616bea75ac69f1e17d60735cdf8d4ff744191a",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"rgbd object dataset",
       "aliases":null,
       "paper_id":"8031f5896bbd105a1e657bde77c7faac2291ce81",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"yahoo music dataset",
       "aliases":null,
       "paper_id":"7d50b6883c38e34016a4841ec4ab2b92bfdfe3ad",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"labelme",
       "aliases":null,
       "paper_id":"6c4313542b5dc9b4ae32608fc7b3db6684a5c3be",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"dash",
       "aliases":null,
       "paper_id":"91b38dcdee26b1c2e60cf3e4c27bd91eed21ad57",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"social event detection",
       "aliases":null,
       "paper_id":"e1654a88a9b4a9c3347d7dcbb8db4ea46878a4f8",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"genia",
       "aliases":null,
       "paper_id":"da6c3fdf8ef9aae979a5dd156e074ba6691b2e2c",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"spontaneous speech corpus of japanese",
       "aliases":null,
       "paper_id":"ac23e62a18186c9a51dfea16d3602f52ff8c3b3a",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"salsa",
       "aliases":null,
       "paper_id":"3aa133ccc7e21793cb31ad96da8defb3dd50dab4",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"edinburgh twitter corpus",
       "aliases":null,
       "paper_id":"0f9e183f256e7275ca879ca825ecd1cd6f4c5049",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"ukwac",
       "aliases":null,
       "paper_id":"9c6b30794a3e2aa577b216be48f020ac81e84b62",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"potsdam commentary",
       "aliases":null,
       "paper_id":"328a884ddcd8c23ffcb55f8bf430581f7e530d78",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"coco",
       "aliases":null,
       "paper_id":"71b7178df5d2b112d07e45038cb5637208659ff7",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    },
    {
       "name":"stanford natural language inference",
       "aliases":null,
       "paper_id":"ee4578a09abef168a6a7808d447f78cf8631e731",
-      "gold_tables":[
-
-      ]
+      "gold_tables":null
    }
 ]

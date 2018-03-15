@@ -19,7 +19,7 @@ def canonicalize_path(path: str):
 
 
 def is_url_working(url: str) -> bool:
-    return requests.get(url).status_code >= 400
+    return requests.get(url).status_code < 400
 
 
 # TODO: make agnostic to specific ES API

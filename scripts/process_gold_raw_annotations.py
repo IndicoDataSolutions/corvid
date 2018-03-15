@@ -118,8 +118,8 @@ for row in tsv[1:, :]:
         continue
 
     # find corresponding dataset
-    dataset = datasets.get(normalize(row[index_column_dataset_paper_id]))
-    if dataset:
+    dataset = datasets.get(row[index_column_dataset_paper_id])
+    if dataset is not None:
         paper_id = normalize(row[index_column_gold_paper_id])
         caption_id = normalize(row[index_column_gold_caption_id])
         dataset['gold_tables'].append(
@@ -127,6 +127,11 @@ for row in tsv[1:, :]:
                 'paper_id': paper_id,
                 'caption_id': caption_id
             })
+
+# replace empty 'gold_tables' lists with None
+for dataset in datasets.values():
+    if len(dataset.get('gold_tables')) == 0:
+        dataset['gold_tables'] = None
 
 # convert to list
 datasets = [dataset for dataset in datasets.values()]

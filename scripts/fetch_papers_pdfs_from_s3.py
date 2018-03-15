@@ -34,6 +34,7 @@ if __name__ == '__main__':
     if os.path.exists(output_dir) and not args.overwrite:
         raise Exception('{} already exists'.format(output_dir))
 
+    # TODO: this function doesnt correctly verify S3 urls; try boto3
     # verify S3 endpoint
     s3_url = args.input_url if args.input_url else S3_PDFS_URL
     if not is_url_working(url=s3_url):
