@@ -324,51 +324,57 @@ if __name__ == '__main__':
         log_summary[dataset_paper_id]['extract_source_tables']['num_relevant'] = len(relevant_source_tables)
 
 
+    #
     # log summaries
+    #
     print('Datasets with/without gold tables: {}/{}'.format(
         sum([d.get('process_gold_papers') != 'MISSING' for d in
-             log_summary.values()]),
+             log_summary.values() if d.get('process_gold_papers')]),
         sum([d.get('process_gold_papers') == 'MISSING' for d in
-             log_summary.values()])
+             log_summary.values() if d.get('process_gold_papers')])
     ))
 
     print('Gold PDFs success/fail/skip fetch from S3: {}/{}/{}'.format(
         sum([dd.get('fetch_pdf_from_s3').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('fetch_pdf_from_s3').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('fetch_pdf_from_s3').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING'])
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
     ))
 
     print('Gold PDFs success/fail/skip parse to TETML: {}/{}/{}'.format(
         sum([dd.get('parse_pdf_to_tetml').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('parse_pdf_to_tetml').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('parse_pdf_to_tetml').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING'])
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
     ))
 
     print('Gold TETML success/fail/skip Table Extractor: {}/{}/{}'.format(
         sum([dd.get('extract_tables_from_tetml').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('extract_tables_from_tetml').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING']),
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
         sum([dd.get('extract_tables_from_tetml').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()] if
-             dd != 'MISSING'])
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
     ))
 
     print('Gold candidate/usable tables: {}/{}'.format(
-        sum([d.get('extract_gold_tables').get('num_candidate') for d in log_summary.values()]),
-        sum([d.get('extract_gold_tables').get('num_relevant') for d in log_summary.values()])
+        sum([d.get('extract_gold_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('extract_gold_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
+    ))
+
+    print('Relevant source papers: {}'.format(
+        sum([d.get('relevant_source_papers') for d in log_summary.values() if d.get('relevant_source_papers')])
     ))
