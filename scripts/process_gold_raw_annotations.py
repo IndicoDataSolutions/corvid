@@ -1,8 +1,6 @@
 """
 
-Script that takes TSV format of manual annotations and:
-    * extracts corresponding Gold Tables + pickles
-    * creates `datasets.json`
+Script that takes TSV format of manual annotations and creates `datasets.json`
 
 MAKES ASSUMPTION THAT EVERY DATASET IN TSV HAS AT LEAST A paper_id ASSOCIATED W/ IT
 
@@ -110,7 +108,7 @@ for i, row in enumerate(tsv):
         'gold_tables': []
     }
 
-# add gold table data to each dataset json
+# add gold table data to each dataset JSON
 for row in tsv[1:, :]:
 
     if row[index_column_gold_paper_id] == '':
@@ -130,7 +128,10 @@ for row in tsv[1:, :]:
                 'caption_id': caption_id
             })
 
+# convert to list
 datasets = [dataset for dataset in datasets.values()]
 
+# generate datasets file
 with open('data/datasets.json', 'w') as f:
     json.dump(datasets, f)
+

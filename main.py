@@ -28,13 +28,18 @@ for dataset in datasets:
 
 import os
 import json
+import re
 
 from bs4 import BeautifulSoup
 
+from corvid.types.table import EMPTY_CAPTION
+
 from corvid.table_extraction.table_extractor import TetmlTableExtractor
+
 from corvid.util.files import is_url_working, read_one_json_from_es, \
     fetch_one_pdf_from_s3
 from corvid.util.tetml import parse_one_pdf
+
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
     TET_BIN_PATH, TETML_DIR, convert_paper_id_to_s3_filename, \
     convert_paper_id_to_es_endpoint
@@ -53,6 +58,7 @@ if __name__ == '__main__':
     log_summary = {}
 
     for dataset in datasets:
+
         dataset_name = dataset.get('name')
         dataset_aliases = dataset.get('aliases')
         dataset_paper_id = dataset.get('paper_id')
@@ -72,7 +78,9 @@ if __name__ == '__main__':
             'extract_tables_from_tetml': {
                 'success': 0,
                 'fail': 0
-            }
+            },
+            'num_all_tables': 0,
+            'num_relevant_tables': 0
         }
 
         if not dataset_paper_id:
@@ -91,7 +99,7 @@ if __name__ == '__main__':
             log_summary[dataset_name]['fetch_dataset_paper_json_from_es'] = 'FAIL'
             continue
 
-        dataset_tables = []
+        all_tables = []
         for paper_id in relevant_paper_ids:
             # fetch PDFs of relevant papers
             try:
@@ -125,9 +133,27 @@ if __name__ == '__main__':
                     tables = TetmlTableExtractor.extract_tables(
                         tetml=BeautifulSoup(f_tetml),
                         caption_search_window=CAPTION_SEARCH_WINDOW)
-                    dataset_tables.extend(tables)
+                    all_tables.extend(tables)
                 log_summary[dataset_name]['extract_tables_from_tetml']['success'] += 1
             except Exception as e:
                 print(e)
                 log_summary[dataset_name]['extract_tables_from_tetml']['fail'] += 1
                 continue
+
+        # filter relevant tables based on (1) has caption, (2) caption contains dataset name and/or alias
+        all_dataset_names = [dataset_name] + dataset_aliases \
+            if dataset_aliases else [dataset_name]
+        relevant_tables = []
+        for table in all_tables:
+            is_has_caption = table.caption != EMPTY_CAPTION
+            is_contains_name_or_alias = any([
+                name in re.sub('[^A-Za-z0-9]+', '', table.caption).lower()
+                for name in all_dataset_names
+            ])
+            if is_has_caption and is_contains_name_or_alias:
+                relevant_tables.append(table)
+
+        log_summary[dataset_name]['num_all_tables'] = len(all_tables)
+        log_summary[dataset_name]['num_relevant_tables'] = len(relevant_tables)
+
+    
