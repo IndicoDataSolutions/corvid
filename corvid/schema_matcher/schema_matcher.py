@@ -104,50 +104,50 @@ class ColNameSchemaMatcher(SchemaMatcher):
                                )
 
 
-class ColValueSchemaMatcher(SchemaMatcher):
-
-    def map_tables(self, tables: List[Table], target_schema: Table) -> \
-            List[PairwiseMapping]:
-        pairwise_mappings = []
-
-        for idx1 in range(len(tables)):
-            for idx2 in range(idx1+1, len(tables)):
-                pairwise_mappings.append(
-                    self._compute_cell_match(tables[idx1], tables[idx2]))
-
-        return pairwise_mappings
-
-    def _compute_cell_list_distance(self, l1: List[Cell],
-                                    l2: List[Cell], agg: str) -> float:
-        """Returns distance between aggregate measures
-        to indicate the match between two columns of any length"""
-
-        try:
-            l1 = [float(str(cell)) for cell in l1]
-            l2 = [float(str(cell)) for cell in l2]
-        except Exception as e:
-            print(e)
-            raise ValueError
-
-        if agg == 'mean':
-            return np.mean(l1) - np.mean(l2)
-        elif agg == 'max':
-            return np.max(l1) - np.max(l2)
-        elif agg == 'min':
-            return np.min(l1) - np.min(l2)
-        else:
-            cell_similarities = np.array(
-                [
-                    [
-                        self._compute_cell_list_distance(cell1, cell2)
-                        for cell2 in l2
-                    ]
-                    for cell1 in l1
-                ]
-            )
-
-            # negative sign here because scipy implementation minimizes sum of weights
-            index_l1, index_l2 = linear_sum_assignment(
-                -1.0 * cell_similarities)
-
-            return cell_similarities[index_l1, index_l2].sum()
+# class ColValueSchemaMatcher(SchemaMatcher):
+#
+#     def map_tables(self, tables: List[Table], target_schema: Table) -> \
+#             List[PairwiseMapping]:
+#         pairwise_mappings = []
+#
+#         for idx1 in range(len(tables)):
+#             for idx2 in range(idx1+1, len(tables)):
+#                 pairwise_mappings.append(
+#                     self._compute_cell_match(tables[idx1], tables[idx2]))
+#
+#         return pairwise_mappings
+#
+#     def _compute_cell_list_distance(self, l1: List[Cell],
+#                                     l2: List[Cell], agg: str) -> float:
+#         """Returns distance between aggregate measures
+#         to indicate the match between two columns of any length"""
+#
+#         try:
+#             l1 = [float(str(cell)) for cell in l1]
+#             l2 = [float(str(cell)) for cell in l2]
+#         except Exception as e:
+#             print(e)
+#             raise ValueError
+#
+#         if agg == 'mean':
+#             return np.mean(l1) - np.mean(l2)
+#         elif agg == 'max':
+#             return np.max(l1) - np.max(l2)
+#         elif agg == 'min':
+#             return np.min(l1) - np.min(l2)
+#         else:
+#             cell_similarities = np.array(
+#                 [
+#                     [
+#                         self._compute_cell_list_distance(cell1, cell2)
+#                         for cell2 in l2
+#                     ]
+#                     for cell1 in l1
+#                 ]
+#             )
+#
+#             # negative sign here because scipy implementation minimizes sum of weights
+#             index_l1, index_l2 = linear_sum_assignment(
+#                 -1.0 * cell_similarities)
+#
+#             return cell_similarities[index_l1, index_l2].sum()
