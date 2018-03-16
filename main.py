@@ -54,14 +54,17 @@ from corvid.util.tetml import parse_one_pdf
 from corvid.util.strings import remove_non_alphanumeric
 
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_DIR,\
+    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_DIR, \
     convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
+
+from src.s2base.s2base.elastic import citations_lookup, default_es_client
 
 CAPTION_SEARCH_WINDOW = 3
 
 
 # TODO: load from local if exists, else ...
-def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], Dict]:
+def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[
+    Dict[str, Table], Dict]:
     """For each `paper_id`, iteratively performs:
 
         * fetch PDF
@@ -124,9 +127,9 @@ def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], 
         if not os.path.exists(tetml_path):
             try:
                 output_path = parse_one_pdf(tet_path=TET_BIN_PATH,
-                                           pdf_path=pdf_path,
-                                           out_dir=TETML_DIR,
-                                           is_overwrite=True)
+                                            pdf_path=pdf_path,
+                                            out_dir=TETML_DIR,
+                                            is_overwrite=True)
                 assert output_path == tetml_path
                 log_summary['parse_pdf_to_tetml']['success'] += 1
             except Exception as e:
@@ -217,14 +220,16 @@ def print_log(log_summary: Dict):
     ))
 
     print('Gold candidate/usable tables: {}/{}'.format(
-        sum([d.get('extract_gold_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
-        sum([d.get('extract_gold_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
+        sum([d.get('extract_gold_tables').get('num_candidate') for d in
+             log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('extract_gold_tables').get('num_relevant') for d in
+             log_summary.values() if d.get('process_gold_papers')])
     ))
 
     print('Relevant source papers: {}'.format(
-        sum([d.get('relevant_source_papers') for d in log_summary.values() if d.get('relevant_source_papers')])
+        sum([d.get('relevant_source_papers') for d in log_summary.values() if
+             d.get('relevant_source_papers')])
     ))
-
 
     print('Source PDFs success/fail/skip fetch from S3: {}/{}/{}'.format(
         sum([dd.get('fetch_pdf_from_s3').get('success') for dd in
@@ -263,10 +268,11 @@ def print_log(log_summary: Dict):
     ))
 
     print('Source candidate/usable tables: {}/{}'.format(
-        sum([d.get('extract_source_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
-        sum([d.get('extract_source_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
+        sum([d.get('extract_source_tables').get('num_candidate') for d in
+             log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('extract_source_tables').get('num_relevant') for d in
+             log_summary.values() if d.get('process_gold_papers')])
     ))
-
 
 
 if __name__ == '__main__':
@@ -275,7 +281,7 @@ if __name__ == '__main__':
 
     # verify external dependencies
     assert is_url_working(ES_PROD_URL)
-    #assert is_url_working(S3_PDFS_URL)
+    # assert is_url_working(S3_PDFS_URL)
     assert os.path.exists(TET_BIN_PATH)
 
     log_summary = {}
@@ -317,9 +323,11 @@ if __name__ == '__main__':
         # verify dataset has a paper associated with it
         #
         if not dataset_paper_id:
-            log_summary[dataset_paper_id]['fetch_dataset_paper']['paper_id'] = 'MISSING'
+            log_summary[dataset_paper_id]['fetch_dataset_paper'][
+                'paper_id'] = 'MISSING'
             continue
-        log_summary[dataset_paper_id]['fetch_dataset_paper']['paper_id'] = 'EXISTS'
+        log_summary[dataset_paper_id]['fetch_dataset_paper'][
+            'paper_id'] = 'EXISTS'
 
         #
         # fetch dataset paper JSON (used later to find relevant source papers)
@@ -333,15 +341,18 @@ if __name__ == '__main__':
                     convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
                 # with open(json_path, 'w') as f_json:
                 #     json.dump(dataset_paper_json, f_json)
-                log_summary[dataset_paper_id]['fetch_dataset_paper']['from_es'] = 'SUCCESS'
+                log_summary[dataset_paper_id]['fetch_dataset_paper'][
+                    'from_es'] = 'SUCCESS'
             except Exception as e:
                 print(e)
-                log_summary[dataset_paper_id]['fetch_dataset_paper']['from_es'] = 'FAIL'
+                log_summary[dataset_paper_id]['fetch_dataset_paper'][
+                    'from_es'] = 'FAIL'
                 continue
         else:
             with open(json_path, 'r') as f_json:
                 dataset_paper_json = json.load(f_json)
-            log_summary[dataset_paper_id]['fetch_dataset_paper']['from_es'] = 'SKIP'
+            log_summary[dataset_paper_id]['fetch_dataset_paper'][
+                'from_es'] = 'SKIP'
 
         #
         # [FOR GOLD EVAL 1] get metadata about dataset's gold tables
@@ -378,7 +389,8 @@ if __name__ == '__main__':
         #
         relevant_gold_tables = []
         for tables in candidate_gold_tables.values():
-            log_summary[dataset_paper_id]['extract_gold_tables']['num_candidate'] += len(tables)
+            log_summary[dataset_paper_id]['extract_gold_tables'][
+                'num_candidate'] += len(tables)
             for table in tables:
                 is_has_caption = table.caption != EMPTY_CAPTION
                 is_contains_caption_id = any([
@@ -389,15 +401,25 @@ if __name__ == '__main__':
                 if is_has_caption and is_contains_caption_id:
                     relevant_gold_tables.append(table)
 
-        log_summary[dataset_paper_id]['extract_gold_tables']['num_relevant'] = len(relevant_gold_tables)
+        log_summary[dataset_paper_id]['extract_gold_tables'][
+            'num_relevant'] = len(relevant_gold_tables)
 
         #
         # [FOR SOURCE TABLES 1] collect paper_ids that might contain
         # relevant tables for aggregation.  currently, this is based on
         #   * did this paper cite the dataset?
         #
-        relevant_paper_ids = dataset_paper_json.get('citedBy')
-        log_summary[dataset_paper_id]['relevant_source_papers'] = len(relevant_paper_ids)
+        # relevant_paper_ids = dataset_paper_json.get('citedBy')
+        relevant_paper_ids = []
+        es_client = default_es_client(ES_PROD_URL)
+        for dataset_gold_table in dataset_gold_tables:
+            gold_table_paper = dataset_gold_table.get('paper_id')
+            relevant_paper_ids.append(
+                citations_lookup(paper_id=gold_table_paper,
+                                 es_client=es_client))
+
+        log_summary[dataset_paper_id]['relevant_source_papers'] = len(
+            relevant_paper_ids)
         if len(relevant_paper_ids) < 1:
             continue
 
@@ -426,7 +448,8 @@ if __name__ == '__main__':
         # TODO: soft matching for multiword aliases
         relevant_source_tables = []
         for tables in all_source_tables.values():
-            log_summary[dataset_paper_id]['extract_source_tables']['num_candidate'] += len(tables)
+            log_summary[dataset_paper_id]['extract_source_tables'][
+                'num_candidate'] += len(tables)
             for table in tables:
                 is_has_caption = table.caption != EMPTY_CAPTION
                 is_contains_name_or_alias = any([
@@ -436,10 +459,10 @@ if __name__ == '__main__':
                 if is_has_caption and is_contains_name_or_alias:
                     relevant_source_tables.append(table)
 
-        log_summary[dataset_paper_id]['extract_source_tables']['num_relevant'] = len(relevant_source_tables)
+        log_summary[dataset_paper_id]['extract_source_tables'][
+            'num_relevant'] = len(relevant_source_tables)
         if len(relevant_source_tables) < 1:
             continue
-
 
         #
         # [AGGREGATE TABLES] in our experiments, the `target_schema` is
@@ -456,7 +479,6 @@ if __name__ == '__main__':
             #
             # [AGGREGATE TABLES 1] remove gold tables from source tables list
             #
-
 
             #
             # [AGGREGATE TABLES 2] aggregate source tables to a single table
@@ -483,10 +505,9 @@ if __name__ == '__main__':
             }
 
             agg_pickle_path = '{}{}.pickle'.format(
-                os.path.join(AGGREGATION_PICKLE_DIR,dataset_paper_id), i)
+                os.path.join(AGGREGATION_PICKLE_DIR, dataset_paper_id), i)
             with open(agg_pickle_path, 'wb') as f_output:
                 pickle.dump(output, f_output)
-
 
     #
     # save results
@@ -494,4 +515,3 @@ if __name__ == '__main__':
     print_log(log_summary)
     with open('log_summary.json', 'w') as f_log:
         json.dump(log_summary, f_log)
-
