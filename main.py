@@ -54,7 +54,7 @@ from corvid.util.tetml import parse_one_pdf
 from corvid.util.strings import remove_non_alphanumeric
 
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, OUTPUT_DIR,\
+    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_PATH,\
     convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
 
 CAPTION_SEARCH_WINDOW = 3
@@ -183,6 +183,9 @@ if __name__ == '__main__':
             remove_non_alphanumeric(alias) for alias in dataset.get('aliases')
         ] if dataset.get('aliases') else []
         dataset_paper_id = dataset.get('paper_id')
+
+        if dataset_paper_id != '0f8468de03ee9f12d693237bec87916311bf1c24':
+            continue
 
         # initialize logging
         log_summary[dataset_paper_id] = {
@@ -348,22 +351,14 @@ if __name__ == '__main__':
             #
             # [AGGREGATE TABLES 2] aggregate source tables to a single table
             #
-            output_path = '{}.pickle'.format(os.path.join(OUTPUT_DIR,
-                                                          dataset_paper_id))
-            if not os.path.exists(output_path):
-                pairwise_mappings = schema_matcher.map_tables(
-                    tables=relevant_source_tables,
-                    target_schema=target_schema
-                )
-                aggregate_table = schema_matcher.aggregate_tables(
-                    pairwise_mappings=pairwise_mappings,
-                    target_schema=target_schema
-                )
-                with open(output_path, 'wb') as f_output:
-                    pickle.dump(aggregate_table, f_output)
-            else:
-                with open(output_path, 'rb') as f_output:
-                    aggregate_table = pickle.load(f_output)
+            pairwise_mappings = schema_matcher.map_tables(
+                tables=relevant_source_tables,
+                target_schema=target_schema
+            )
+            aggregate_table = schema_matcher.aggregate_tables(
+                pairwise_mappings=pairwise_mappings,
+                target_schema=target_schema
+            )
 
             #
             # [AGGREGATE TABLES 3] evaluation
@@ -375,8 +370,11 @@ if __name__ == '__main__':
                                          pred_table=aggregate_table)
             })
 
-
-
+    #
+    # save results
+    #
+    with open(AGGREGATION_PICKLE_PATH, 'wb') as f_output:
+        pickle.dump(outputs, f_output)
 
     #
     # log summaries
