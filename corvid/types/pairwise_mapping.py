@@ -1,8 +1,0 @@
-"""
-
-
-
-"""
-
-class PairwiseMapping(object):
-    pass

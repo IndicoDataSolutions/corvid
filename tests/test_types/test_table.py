@@ -158,6 +158,12 @@ class TestTable(unittest.TestCase):
         x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
         y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
         z = Cell(tokens=[Token(text='z')], rowspan=1, colspan=1)
+        self.assertEqual(self.easy_table.insert_row(index=0, row=[x, y, z]),
+                         Table.create_from_grid(grid=[
+                             [x, y, z],
+                             [self.a, self.b, self.c],
+                             [self.d, self.e, self.f]
+                         ]))
         self.assertEqual(self.easy_table.insert_row(index=1, row=[x, y, z]),
                          Table.create_from_grid(grid=[
                              [self.a, self.b, self.c],
@@ -191,6 +197,50 @@ class TestTable(unittest.TestCase):
                              [self.d, self.f]
                          ]))
 
+    def test_append_left(self):
+        self.assertEqual(
+            self.easy_table.append_left(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.f, self.b, self.d, self.a, self.b, self.c],
+                      [self.c, self.e, self.a, self.d, self.e, self.f]])
+        )
+
+    def test_append_right(self):
+        self.assertEqual(
+            self.easy_table.append_right(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.a, self.b, self.c, self.f, self.b, self.d],
+                      [self.d, self.e, self.f, self.c, self.e, self.a]])
+        )
+
+    def test_append_top(self):
+        self.assertEqual(
+            self.easy_table.append_top(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a],
+                      [self.a, self.b, self.c],
+                      [self.d, self.e, self.f]])
+        )
+
+    def test_append_bottom(self):
+        self.assertEqual(
+            self.easy_table.append_bottom(other=Table.create_from_grid(
+                grid=[[self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])),
+            Table.create_from_grid(
+                grid=[[self.a, self.b, self.c],
+                      [self.d, self.e, self.f],
+                      [self.f, self.b, self.d],
+                      [self.c, self.e, self.a]])
+        )
+
     def test_compute_bounding_box(self):
         table = Table.create_from_cells(
             cells=[
@@ -206,3 +256,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(box.ll.y, -0.5)
         self.assertEqual(box.ur.x, 2.5)
         self.assertEqual(box.ur.y, 1.5)
+
+    # TODO: implement this later
+    def test_eq(self):
+        pass
