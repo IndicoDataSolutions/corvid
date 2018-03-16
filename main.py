@@ -184,8 +184,8 @@ if __name__ == '__main__':
         ] if dataset.get('aliases') else []
         dataset_paper_id = dataset.get('paper_id')
 
-        if dataset_paper_id != '0f8468de03ee9f12d693237bec87916311bf1c24':
-            continue
+        # if dataset_paper_id != '0f8468de03ee9f12d693237bec87916311bf1c24':
+        #     continue
 
         # initialize logging
         log_summary[dataset_paper_id] = {
