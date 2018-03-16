@@ -54,7 +54,7 @@ from corvid.util.tetml import parse_one_pdf
 from corvid.util.strings import remove_non_alphanumeric
 
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_PATH,\
+    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_DIR,\
     convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
 
 CAPTION_SEARCH_WINDOW = 3
@@ -132,6 +132,8 @@ def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], 
             except Exception as e:
                 print(e)
                 log_summary['parse_pdf_to_tetml']['fail'] += 1
+                # TODO: temp solution
+                os.remove(pdf_path)
                 continue
         else:
             log_summary['parse_pdf_to_tetml']['skip'] += 1
@@ -144,21 +146,127 @@ def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], 
                     tables = TetmlTableExtractor.extract_tables(
                         tetml=BeautifulSoup(f_tetml),
                         caption_search_window=CAPTION_SEARCH_WINDOW)
-                with open(pickle_path, 'wb') as f_pickle:
-                    pickle.dump(tables, f_pickle)
+                # with open(pickle_path, 'wb') as f_pickle:
+                #     pickle.dump(tables, f_pickle)
                 log_summary['extract_tables_from_tetml']['success'] += 1
             except Exception as e:
                 print(e)
                 log_summary['extract_tables_from_tetml']['fail'] += 1
+                # TODO: temp solution
+                os.remove(tetml_path)
                 continue
         else:
             with open(pickle_path, 'rb') as f_pickle:
                 tables = pickle.load(f_pickle)
             log_summary['extract_tables_from_tetml']['skip'] += 1
 
+        # TODO: temp solution
+        os.remove(pdf_path)
+        os.remove(tetml_path)
+
         all_tables[paper_id] = tables
 
     return all_tables, log_summary
+
+
+def print_log(log_summary: Dict):
+    #
+    # log summaries
+    #
+    print('Datasets with/without gold tables: {}/{}'.format(
+        sum([d.get('process_gold_papers') != 'MISSING' for d in
+             log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('process_gold_papers') == 'MISSING' for d in
+             log_summary.values() if d.get('process_gold_papers')])
+    ))
+
+    print('Gold PDFs success/fail/skip fetch from S3: {}/{}/{}'.format(
+        sum([dd.get('fetch_pdf_from_s3').get('success') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('fetch_pdf_from_s3').get('fail') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('fetch_pdf_from_s3').get('skip') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Gold PDFs success/fail/skip parse to TETML: {}/{}/{}'.format(
+        sum([dd.get('parse_pdf_to_tetml').get('success') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('parse_pdf_to_tetml').get('fail') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('parse_pdf_to_tetml').get('skip') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Gold TETML success/fail/skip Table Extractor: {}/{}/{}'.format(
+        sum([dd.get('extract_tables_from_tetml').get('success') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('extract_tables_from_tetml').get('fail') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING']),
+        sum([dd.get('extract_tables_from_tetml').get('skip') for dd in
+             [d.get('process_gold_papers') for d in log_summary.values()
+              if d.get('process_gold_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Gold candidate/usable tables: {}/{}'.format(
+        sum([d.get('extract_gold_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('extract_gold_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
+    ))
+
+    print('Relevant source papers: {}'.format(
+        sum([d.get('relevant_source_papers') for d in log_summary.values() if d.get('relevant_source_papers')])
+    ))
+
+
+    print('Source PDFs success/fail/skip fetch from S3: {}/{}/{}'.format(
+        sum([dd.get('fetch_pdf_from_s3').get('success') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('fetch_pdf_from_s3').get('fail') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('fetch_pdf_from_s3').get('skip') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Source PDFs success/fail/skip parse to TETML: {}/{}/{}'.format(
+        sum([dd.get('parse_pdf_to_tetml').get('success') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('parse_pdf_to_tetml').get('fail') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('parse_pdf_to_tetml').get('skip') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Source TETML success/fail/skip Table Extractor: {}/{}/{}'.format(
+        sum([dd.get('extract_tables_from_tetml').get('success') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('extract_tables_from_tetml').get('fail') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING']),
+        sum([dd.get('extract_tables_from_tetml').get('skip') for dd in
+             [d.get('process_source_papers') for d in log_summary.values()
+              if d.get('process_source_papers')] if dd != 'MISSING'])
+    ))
+
+    print('Source candidate/usable tables: {}/{}'.format(
+        sum([d.get('extract_source_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
+        sum([d.get('extract_source_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
+    ))
+
 
 
 if __name__ == '__main__':
@@ -172,7 +280,6 @@ if __name__ == '__main__':
 
     log_summary = {}
 
-    outputs = {dataset.get('paper_id'): [] for dataset in datasets}
     for dataset in datasets:
 
         #
@@ -224,8 +331,8 @@ if __name__ == '__main__':
                     es_url=ES_PROD_URL,
                     paper_id=dataset_paper_id,
                     convert_paper_id_to_es_endpoint=convert_paper_id_to_es_endpoint)
-                with open(json_path, 'w') as f_json:
-                    json.dump(dataset_paper_json, f_json)
+                # with open(json_path, 'w') as f_json:
+                #     json.dump(dataset_paper_json, f_json)
                 log_summary[dataset_paper_id]['fetch_dataset_paper']['from_es'] = 'SUCCESS'
             except Exception as e:
                 print(e)
@@ -291,7 +398,7 @@ if __name__ == '__main__':
         #
         relevant_paper_ids = dataset_paper_json.get('citedBy')
         log_summary[dataset_paper_id]['relevant_source_papers'] = len(relevant_paper_ids)
-        if len(candidate_gold_tables) < 1:
+        if len(relevant_paper_ids) < 1:
             continue
 
         #
@@ -330,6 +437,8 @@ if __name__ == '__main__':
                     relevant_source_tables.append(table)
 
         log_summary[dataset_paper_id]['extract_source_tables']['num_relevant'] = len(relevant_source_tables)
+        if len(relevant_source_tables) < 1:
+            continue
 
 
         #
@@ -337,7 +446,8 @@ if __name__ == '__main__':
         # an empty (header-only) version of a gold table
         #
         schema_matcher = ColNameSchemaMatcher()
-        for gold_table in relevant_gold_tables:
+        for i, gold_table in enumerate(relevant_gold_tables):
+            gold_table.id = i
 
             # TODO: make sure this would still work even with `target_schema = gold_table`
             gold_header_row = gold_table[0, :]
@@ -355,78 +465,33 @@ if __name__ == '__main__':
                 tables=relevant_source_tables,
                 target_schema=target_schema
             )
+            if len(pairwise_mappings) < 1:
+                continue
             aggregate_table = schema_matcher.aggregate_tables(
                 pairwise_mappings=pairwise_mappings,
                 target_schema=target_schema
             )
 
             #
-            # [AGGREGATE TABLES 3] evaluation
+            # [AGGREGATE TABLES 3] evaluation and save results
             #
-            outputs[dataset_paper_id].append({
+            output = {
                 'gold': gold_table,
                 'pred': aggregate_table,
                 'score': compute_metrics(gold_table=gold_table,
                                          pred_table=aggregate_table)
-            })
+            }
+
+            agg_pickle_path = '{}{}.pickle'.format(
+                os.path.join(AGGREGATION_PICKLE_DIR,dataset_paper_id), i)
+            with open(agg_pickle_path, 'wb') as f_output:
+                pickle.dump(output, f_output)
+
 
     #
     # save results
     #
-    with open(AGGREGATION_PICKLE_PATH, 'wb') as f_output:
-        pickle.dump(outputs, f_output)
+    print_log(log_summary)
+    with open('log_summary.json', 'w') as f_log:
+        json.dump(log_summary, f_log)
 
-    #
-    # log summaries
-    #
-    print('Datasets with/without gold tables: {}/{}'.format(
-        sum([d.get('process_gold_papers') != 'MISSING' for d in
-             log_summary.values() if d.get('process_gold_papers')]),
-        sum([d.get('process_gold_papers') == 'MISSING' for d in
-             log_summary.values() if d.get('process_gold_papers')])
-    ))
-
-    print('Gold PDFs success/fail/skip fetch from S3: {}/{}/{}'.format(
-        sum([dd.get('fetch_pdf_from_s3').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('fetch_pdf_from_s3').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('fetch_pdf_from_s3').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING'])
-    ))
-
-    print('Gold PDFs success/fail/skip parse to TETML: {}/{}/{}'.format(
-        sum([dd.get('parse_pdf_to_tetml').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('parse_pdf_to_tetml').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('parse_pdf_to_tetml').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING'])
-    ))
-
-    print('Gold TETML success/fail/skip Table Extractor: {}/{}/{}'.format(
-        sum([dd.get('extract_tables_from_tetml').get('success') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('extract_tables_from_tetml').get('fail') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING']),
-        sum([dd.get('extract_tables_from_tetml').get('skip') for dd in
-             [d.get('process_gold_papers') for d in log_summary.values()
-              if d.get('process_gold_papers')] if dd != 'MISSING'])
-    ))
-
-    print('Gold candidate/usable tables: {}/{}'.format(
-        sum([d.get('extract_gold_tables').get('num_candidate') for d in log_summary.values() if d.get('process_gold_papers')]),
-        sum([d.get('extract_gold_tables').get('num_relevant') for d in log_summary.values() if d.get('process_gold_papers')])
-    ))
-
-    print('Relevant source papers: {}'.format(
-        sum([d.get('relevant_source_papers') for d in log_summary.values() if d.get('relevant_source_papers')])
-    ))
