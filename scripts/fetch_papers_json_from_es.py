@@ -10,7 +10,7 @@ import argparse
 import json
 
 from corvid.util.files import is_url_working, read_one_json_from_es
-from config import PAPER_IDS_TXT, PAPERS_JSON, convert_paper_id_to_es_endpoint
+from config import convert_paper_id_to_es_endpoint
 
 try:
     from config import ES_PROD_URL as ES_URL
@@ -30,19 +30,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # TODO: allow a list of paper_ids or a file as input
-    paper_ids_filename = args.paper_ids if args.paper_ids else PAPER_IDS_TXT
+    paper_ids_filename = args.paper_ids
     with open(paper_ids_filename, 'r') as f:
         paper_ids = f.read().splitlines()
 
     # verify output filepath
-    output_filepath = args.output_path if args.output_path else PAPERS_JSON
+    output_filepath = args.output_path
     if os.path.exists(output_filepath) and not args.overwrite:
         raise Exception('{} already exists'.format(output_filepath))
 
     # verify ES endpoint
     es_url = args.input_url if args.input_url else ES_URL
-    if not is_url_working(url=es_url):
-        raise Exception('{} not working'.format(es_url))
+    assert is_url_working(url=es_url)
 
     papers = []
     num_success = 0
