@@ -11,6 +11,8 @@ from typing import Dict, List, Callable
 
 import json
 import requests
+import boto3
+from botocore.exceptions import ClientError
 
 
 def canonicalize_path(path: str):
@@ -19,8 +21,15 @@ def canonicalize_path(path: str):
 
 
 def is_url_working(url: str) -> bool:
-    return requests.get(url).status_code >= 400
+    return requests.get(url).status_code < 400
 
+
+def is_s3_resource_exists(bucket: str, key: str) -> bool:
+    try:
+        boto3.resource('s3').Object(bucket, key).last_modified
+        return True
+    except ClientError:
+        return False
 
 # TODO: make agnostic to specific ES API
 def read_one_json_from_es(es_url: str, paper_id: str,

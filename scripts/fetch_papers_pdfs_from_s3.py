@@ -7,8 +7,8 @@ Fetches remote Paper PDFs from S3 and saves to a directory
 import os
 import argparse
 
-from corvid.util.files import is_url_working, fetch_one_pdf_from_s3
-from config import PAPER_IDS_TXT, PDF_DIR, S3_PDFS_URL, \
+from corvid.util.files import fetch_one_pdf_from_s3
+from config import PDF_DIR, S3_PDFS_URL, \
     convert_paper_id_to_s3_filename
 
 if __name__ == '__main__':
@@ -24,8 +24,7 @@ if __name__ == '__main__':
                         help='overwrite existing files')
     args = parser.parse_args()
 
-    # TODO: allow a list of paper_ids or a file as input
-    paper_ids_filename = args.paper_ids if args.paper_ids else PAPER_IDS_TXT
+    paper_ids_filename = args.paper_ids
     with open(paper_ids_filename, 'r') as f:
         paper_ids = f.read().splitlines()
 
@@ -34,10 +33,8 @@ if __name__ == '__main__':
     if os.path.exists(output_dir) and not args.overwrite:
         raise Exception('{} already exists'.format(output_dir))
 
-    # verify S3 endpoint
+    # TODO: add some endpoint verification
     s3_url = args.input_url if args.input_url else S3_PDFS_URL
-    if not is_url_working(url=s3_url):
-        raise Exception('{} not working'.format(s3_url))
 
     papers = []
     num_success = 0

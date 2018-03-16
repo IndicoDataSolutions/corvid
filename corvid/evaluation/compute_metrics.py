@@ -109,10 +109,10 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
     """Computes all evaluation metrics between a `gold` and `pred` Table pair"""
 
-    for gold_cell in gold_table.grid[0, :]:
-        for pred_cell in pred_table.grid[0, :]:
-            if str(gold_cell) != str(pred_cell):
-                raise Exception('`gold` and `pred` requires identical schema')
+    for gold_cell, pred_cell in zip(gold_table.grid[0, :],
+                                    pred_table.grid[0, :]):
+        if str(gold_cell) != str(pred_cell):
+            raise Exception('`gold` and `pred` requires identical schema')
 
     return {
         'row_level_recall': row_level_recall(gold_table, pred_table),
