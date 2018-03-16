@@ -43,6 +43,10 @@ from corvid.types.table import Table, EMPTY_CAPTION
 
 from corvid.table_extraction.table_extractor import TetmlTableExtractor
 
+from corvid.schema_matcher.schema_matcher import ColNameSchemaMatcher
+
+from corvid.evaluation.compute_metrics import compute_metrics
+
 from corvid.util.files import is_url_working, read_one_json_from_es, \
     fetch_one_pdf_from_s3
 from corvid.util.tetml import parse_one_pdf
@@ -50,8 +54,8 @@ from corvid.util.tetml import parse_one_pdf
 from corvid.util.strings import remove_non_alphanumeric
 
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, convert_paper_id_to_s3_filename, \
-    convert_paper_id_to_es_endpoint
+    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, OUTPUT_DIR,\
+    convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
 
 CAPTION_SEARCH_WINDOW = 3
 
@@ -168,6 +172,7 @@ if __name__ == '__main__':
 
     log_summary = {}
 
+    outputs = {dataset.get('paper_id'): [] for dataset in datasets}
     for dataset in datasets:
 
         #
@@ -322,6 +327,55 @@ if __name__ == '__main__':
                     relevant_source_tables.append(table)
 
         log_summary[dataset_paper_id]['extract_source_tables']['num_relevant'] = len(relevant_source_tables)
+
+
+        #
+        # [AGGREGATE TABLES] in our experiments, the `target_schema` is
+        # an empty (header-only) version of a gold table
+        #
+        schema_matcher = ColNameSchemaMatcher()
+        for gold_table in relevant_gold_tables:
+
+            # TODO: make sure this would still work even with `target_schema = gold_table`
+            gold_header_row = gold_table[0, :]
+            target_schema = Table.create_from_grid(grid=[gold_header_row])
+
+            #
+            # [AGGREGATE TABLES 1] remove gold tables from source tables list
+            #
+
+
+            #
+            # [AGGREGATE TABLES 2] aggregate source tables to a single table
+            #
+            output_path = '{}.pickle'.format(os.path.join(OUTPUT_DIR,
+                                                          dataset_paper_id))
+            if not os.path.exists(output_path):
+                pairwise_mappings = schema_matcher.map_tables(
+                    tables=relevant_source_tables,
+                    target_schema=target_schema
+                )
+                aggregate_table = schema_matcher.aggregate_tables(
+                    pairwise_mappings=pairwise_mappings,
+                    target_schema=target_schema
+                )
+                with open(output_path, 'wb') as f_output:
+                    pickle.dump(aggregate_table, f_output)
+            else:
+                with open(output_path, 'rb') as f_output:
+                    aggregate_table = pickle.load(f_output)
+
+            #
+            # [AGGREGATE TABLES 3] evaluation
+            #
+            outputs[dataset_paper_id].append({
+                'gold': gold_table,
+                'pred': aggregate_table,
+                'score': compute_metrics(gold_table=gold_table,
+                                         pred_table=aggregate_table)
+            })
+
+
 
 
     #
