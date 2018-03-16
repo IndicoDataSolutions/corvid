@@ -26,7 +26,7 @@ def count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
     return compute_similarity(
         x=row1,
         y=row2,
-        sim=lambda cell1, cell2: str(cell1) == str(cell2),
+        sim=lambda cell1, cell2: str(cell1).lower().strip() == str(cell2).lower().strip(),
         agg=sum)
 
 
