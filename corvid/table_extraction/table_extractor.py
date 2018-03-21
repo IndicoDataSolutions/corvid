@@ -18,7 +18,9 @@ class TableExtractor(object):
 
 class TetmlTableExtractor(TableExtractor):
     @classmethod
-    def extract_tables(cls, tetml: BeautifulSoup,
+    def extract_tables(cls,
+                       tetml: BeautifulSoup,
+                       paper_id: str,
                        caption_search_window: int = 3) -> List[Table]:
 
         tables: List[Table] = []
@@ -41,7 +43,9 @@ class TetmlTableExtractor(TableExtractor):
                         table_id=table_id,
                         table_tag=tag,
                         caption=TetmlTableExtractor._select_caption(before,
-                                                                    after))
+                                                                    after),
+                        paper_id=paper_id
+                    )
                     tables.append(table)
                     print('Parsed Table {}.'.format(table_id))
                     num_success += 1
@@ -123,7 +127,10 @@ class TetmlTableExtractor(TableExtractor):
         return EMPTY_CAPTION
 
     @classmethod
-    def _create_table_from_tetml(cls, table_id: int, table_tag: Tag,
+    def _create_table_from_tetml(cls,
+                                 table_id: int,
+                                 table_tag: Tag,
+                                 paper_id: str,
                                  caption: str) -> Table:
         cells = []
         ncol_per_row = []
@@ -170,7 +177,7 @@ class TetmlTableExtractor(TableExtractor):
             cells=cells,
             nrow=len(ncol_per_row),
             ncol=ncol_per_row[0],
-            paper_id='PAPER_ID',
+            paper_id=paper_id,
             page_num=0,
             caption=caption)
         return table

@@ -14,3 +14,6 @@ pylint==1.8.1
 
 # tests
 pytest
+
+# s2 base utilities
+-e git://github.com/allenai/s2base.git#egg=s2base
