@@ -221,6 +221,8 @@ def create_dataset(name: str,
     candidate_gold_tables, sub_log = find_tables_from_paper_ids(paper_ids=unique_gold_paper_ids)
     log_summary['find_tables_from_gold_paper_ids'] = sub_log
 
+    if len(candidate_gold_tables) < 1:
+        return None, log_summary
 
     # TODO: consider omnipage parsing of deepfigures images instead of noisy matching
     #
@@ -230,12 +232,20 @@ def create_dataset(name: str,
     #
     relevant_gold_tables = []
     for gold_table_id in gold_table_ids:
-        for candidate_gold_table in candidate_gold_tables[gold_table_id.get('paper_id')]:
+
+        relevant_gold_paper_id =  gold_table_id.get('paper_id')
+        relevant_gold_caption_id = remove_non_alphanumeric(gold_table_id.get('caption_id')).lower()
+
+        # not all gold paper ids are represented among candidates (i.e. failed extraction); skip these
+        if not candidate_gold_tables.get(relevant_gold_paper_id):
+            continue
+
+        # otherwise, match candidate gold tables based on relevant caption id
+        for candidate_gold_table in candidate_gold_tables.get(relevant_gold_paper_id):
             log_summary['num_candidate_gold_tables'] += 1
 
             # TODO: matching is noisy, so doesnt lead to a single table per gold_table_id
-            caption_id = remove_non_alphanumeric(gold_table_id.get('caption_id')).lower()
-            is_contains_caption_id = remove_non_alphanumeric(candidate_gold_table.caption).lower().startswith(caption_id)
+            is_contains_caption_id = remove_non_alphanumeric(candidate_gold_table.caption).lower().startswith(relevant_gold_caption_id)
 
             if candidate_gold_table.caption != EMPTY_CAPTION and is_contains_caption_id:
                 relevant_gold_tables.append(candidate_gold_table)
@@ -293,6 +303,9 @@ if __name__ == '__main__':
         )
         log_summary[dataset_paper_id]['create_dataset'] = sub_log_dataset
 
+        if dataset is None:
+            continue
+
         outputs = []
         for gold_table in dataset.gold_tables:
 
@@ -302,7 +315,7 @@ if __name__ == '__main__':
             relevant_source_tables, _ = find_tables_from_paper_ids(paper_ids=relevant_source_paper_ids)
 
             pairwise_mappings = schema_matcher.map_tables(
-                tables=[table for table in relevant_source_tables.values()],
+                tables=[table for tables in relevant_source_tables.values() for table in tables],
                 target_schema=gold_table
             )
             aggregate_table = schema_matcher.aggregate_tables(

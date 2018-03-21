@@ -17,3 +17,7 @@ pytest
 
 # s2 base utilities
 -e git://github.com/allenai/s2base.git#egg=s2base
+arrow
+traitlets
+elasticsearch
+pandas
