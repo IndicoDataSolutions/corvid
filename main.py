@@ -75,14 +75,14 @@ from corvid.table_extraction.table_extractor import TetmlTableExtractor
 
 from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
 
-from corvid.table_aggregation.compute_metrics import compute_metrics
+from corvid.table_aggregation.evaluate import evaluate
 
-from corvid.util.files import is_url_working, fetch_one_pdf_from_s3
+from corvid.util.files import is_url_working, is_s3_bucket_exists, fetch_one_pdf_from_s3
 from corvid.util.tetml import parse_one_pdf
 
 from corvid.util.strings import remove_non_alphanumeric
 
-from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
+from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_BUCKET, PDF_DIR, \
     TET_BIN_PATH, TETML_DIR, PICKLE_DIR, AGGREGATION_PICKLE_DIR,\
     convert_paper_id_to_s3_filename
 
@@ -136,7 +136,7 @@ def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], 
         if not os.path.exists(pdf_path):
             try:
                 output_path = fetch_one_pdf_from_s3(
-                    s3_url=S3_PDFS_URL,
+                    s3_bucket=S3_PDFS_BUCKET,
                     paper_id=paper_id,
                     out_dir=PDF_DIR,
                     convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     # verify external dependencies
     assert is_url_working(ES_PROD_URL)
     es_client = default_es_client(ES_PROD_URL)
-    #assert is_url_working(S3_PDFS_URL)
+    assert is_s3_bucket_exists(S3_PDFS_BUCKET)
     assert os.path.exists(TET_BIN_PATH)
 
 
@@ -324,7 +324,7 @@ if __name__ == '__main__':
             outputs.append({
                 'gold': gold_table,
                 'pred': aggregate_table,
-                'score': compute_metrics(gold_table=gold_table,
+                'score': evaluate(gold_table=gold_table,
                                          pred_table=aggregate_table)
             })
 

@@ -24,12 +24,11 @@ def is_url_working(url: str) -> bool:
     return requests.get(url).status_code < 400
 
 
-def is_s3_resource_exists(bucket: str, key: str) -> bool:
-    try:
-        boto3.resource('s3').Object(bucket, key).last_modified
-        return True
-    except ClientError:
-        return False
+def is_s3_bucket_exists(bucket: str) -> bool:
+    s3 = boto3.resource('s3')
+    return s3.Bucket(bucket) in s3.buckets.all()
+
+
 
 # TODO: make agnostic to specific ES API
 def read_one_json_from_es(es_url: str, paper_id: str,
@@ -44,7 +43,7 @@ def read_one_json_from_es(es_url: str, paper_id: str,
 
 
 # TODO: use boto3
-def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
+def fetch_one_pdf_from_s3(s3_bucket: str, paper_id: str, out_dir: str,
                           convert_paper_id_to_s3_filename: Callable,
                           is_overwrite: bool = False) -> str:
     s3_filename = convert_paper_id_to_s3_filename(paper_id)
@@ -53,9 +52,8 @@ def fetch_one_pdf_from_s3(s3_url: str, paper_id: str, out_dir: str,
     if os.path.exists(pdf_path) and not is_overwrite:
         raise Exception('{} already exists'.format(pdf_path))
 
-    subprocess.run('aws s3 cp {} {}'.format(os.path.join(s3_url,
-                                                         s3_filename),
-                                            pdf_path),
-                   shell=True, check=True)
+    s3 = boto3.resource('s3')
+    s3.Object(s3_bucket, s3_filename).download_file(pdf_path)
 
     return pdf_path
+

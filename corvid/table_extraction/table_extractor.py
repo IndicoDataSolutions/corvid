@@ -12,7 +12,7 @@ from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
 
 class TableExtractor(object):
     @classmethod
-    def extract_tables(cls, xml: BeautifulSoup) -> List[Table]:
+    def extract_tables(cls) -> List[Table]:
         raise NotImplementedError
 
 

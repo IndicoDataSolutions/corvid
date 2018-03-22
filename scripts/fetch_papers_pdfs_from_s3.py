@@ -8,7 +8,7 @@ import os
 import argparse
 
 from corvid.util.files import fetch_one_pdf_from_s3
-from config import PDF_DIR, S3_PDFS_URL, \
+from config import PDF_DIR, S3_PDFS_BUCKET, \
     convert_paper_id_to_s3_filename
 
 if __name__ == '__main__':
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         raise Exception('{} already exists'.format(output_dir))
 
     # TODO: add some endpoint verification
-    s3_url = args.input_url if args.input_url else S3_PDFS_URL
+    s3_url = args.input_url if args.input_url else S3_PDFS_BUCKET
 
     papers = []
     num_success = 0

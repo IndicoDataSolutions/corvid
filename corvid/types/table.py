@@ -61,18 +61,6 @@ class Cell(object):
 
         return Box.compute_bounding_box(bounding_boxes)
 
-    @classmethod
-    def create_simple_cells(cls, token_strings: List[str],
-                            tokenizer: Callable) -> 'List[Cell]':
-        """Quickly instantiate a List[Cell] given a List[str] and a
-        `tokenizer`, which takes a string input and outputs a List[Token].
-        Each Cell will have the default row/colspan.
-        """
-        return [
-            Cell(tokens=tokenizer(token_string))
-            for token_string in token_strings
-        ]
-
 
 class Table(object):
     """A Table is a matrix representation of a collection of Cells:
@@ -200,6 +188,8 @@ class Table(object):
     def __eq__(self, other: 'Table') -> bool:
         """Only compares Tables on whether they contain the same str(Cells).
         Doesnt compare other fields like `caption`, etc."""
+
+        assert self.nrow == other.nrow and self.ncol == other.ncol
 
         for i in range(self.nrow):
             for j in range(self.ncol):
