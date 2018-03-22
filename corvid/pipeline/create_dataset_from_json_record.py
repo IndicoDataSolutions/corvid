@@ -13,7 +13,7 @@ from corvid.types.table import Table
 
 from corvid.util.strings import remove_non_alphanumeric
 
-from corvid.pipeline.create_tables_from_paper_id import create_tables_from_paper_id
+from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id
 
 
 GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
@@ -24,14 +24,32 @@ def create_dataset_from_json_record(name: str,
                                     paper_id: str,
                                     gold_table_records: List[GoldTableRecord]) -> Dataset:
     """
+    A single dataset JSON record will, at least, have the fields:
+    {
+        "name": "mnist",
+        "aliases": [
+            "handwritten digits",
+            "modified institute of standards and technology"
+        ],
+        "paper_id": "id_of_paper_publishing_this_dataset",
+        "gold_table_records": [
+            {
+                "paper_id": "id_of_paper_containing_gold_table",
+                "caption_id": "table vii"
+            },
+            ...
+        ]
+    }
 
+    Note:  if one of these fields is missing (e.g. dataset missing paper_id),
+           the Dataset object will still be created.
     """
 
     matched_gold_tables = []
 
-    # note: may be fewer than number indicated in `gold_table_records`
     for gold_table_record in gold_table_records:
-        candidate_gold_tables = create_tables_from_paper_id(
+        # note: may return fewer than number indicated in `gold_table_records`
+        candidate_gold_tables = extract_tables_from_paper_id(
             paper_id=gold_table_record.paper_id
         )
 
