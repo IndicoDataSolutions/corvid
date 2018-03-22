@@ -54,9 +54,8 @@ for dataset in datasets:
         save(dataset, pred_table, metrics)
 """
 
-import os
 import json
-import re
+import os
 
 try:
     import cPickle as pickle
@@ -74,19 +73,18 @@ from corvid.types.dataset import Dataset
 
 from corvid.table_extraction.table_extractor import TetmlTableExtractor
 
-from corvid.schema_matcher.schema_matcher import ColNameSchemaMatcher
+from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
 
-from corvid.evaluation.compute_metrics import compute_metrics
+from corvid.table_aggregation.compute_metrics import compute_metrics
 
-from corvid.util.files import is_url_working, read_one_json_from_es, \
-    fetch_one_pdf_from_s3
+from corvid.util.files import is_url_working, fetch_one_pdf_from_s3
 from corvid.util.tetml import parse_one_pdf
 
 from corvid.util.strings import remove_non_alphanumeric
 
 from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_URL, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, JSON_DIR, AGGREGATION_PICKLE_DIR,\
-    convert_paper_id_to_s3_filename, convert_paper_id_to_es_endpoint
+    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, AGGREGATION_PICKLE_DIR,\
+    convert_paper_id_to_s3_filename
 
 CAPTION_SEARCH_WINDOW = 3
 

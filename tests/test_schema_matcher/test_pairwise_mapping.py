@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from corvid.schema_matcher.pairwise_mapping import PairwiseMapping
+from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 from corvid.types.table import Box, Token, Cell, Table, EMPTY_CAPTION
 
 

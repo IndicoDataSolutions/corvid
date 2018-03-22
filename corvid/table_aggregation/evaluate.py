@@ -106,7 +106,7 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 
 
 # TODO: link to documentation that describes formulas for each of these
-def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
+def evaluate(gold_table: Table, pred_table: Table) -> Dict[str, float]:
     """Computes all evaluation metrics between a `gold` and `pred` Table pair"""
 
     for gold_cell, pred_cell in zip(gold_table.grid[0, :],
