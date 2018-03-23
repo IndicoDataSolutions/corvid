@@ -21,6 +21,7 @@ from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
 from corvid.table_extraction.table_extractor import TetmlTableExtractor, TetmlTableExtractorException
 
 
+# TODO: logging mechanism that counts different types of Exceptions
 def extract_tables_from_paper_id(paper_id: str,
                                  pdf_fetcher: PaperFetcher,
                                  pdf_parser: PDFParser,
