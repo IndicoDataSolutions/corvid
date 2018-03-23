@@ -6,57 +6,67 @@ Extracts as many tables as possible from a given paper
 
 import os
 
-from corvid.util.files import fetch_one_pdf_from_s3
+from typing import List
+
+try:
+    import cPickle as pickle
+except:
+    import pickle
+
+from bs4 import BeautifulSoup
+
+from corvid.types.table import Table
+from corvid.pipeline.paper_fetcher import PaperFetcher, PaperFetcherException
+from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
+from corvid.table_extraction.table_extractor import TetmlTableExtractor, TetmlTableExtractorException
+
 
 def extract_tables_from_paper_id(paper_id: str,
-                                 pdf_path: str,
-                                 ):
+                                 pdf_fetcher: PaperFetcher,
+                                 pdf_parser: PDFParser,
+                                 target_table_dir: str) -> List[Table]:
     """
+
+    Handles caching (i.e. if target_file already exists locally, skips fetching)
 
     """
 
     # fetch PDFs of relevant papers
+    pdf_path = pdf_fetcher.get_target_path(paper_id)
     if not os.path.exists(pdf_path):
         try:
-            fetch_one_pdf_from_s3(
-                s3_bucket=S3_PDFS_BUCKET,
-                paper_id=paper_id,
-                out_dir=PDF_DIR,
-                convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
-                is_overwrite=True)
-        except Exception as e:
+            pdf_fetcher.fetch(paper_id)
+        except PaperFetcherException as e:
             print(e)
 
-    # parse each PDF to TETML
-    tetml_path = '{}.tetml'.format(os.path.join(TETML_DIR, paper_id))
-    if not os.path.exists(tetml_path):
+    # parse each PDF to XML
+    xml_path = pdf_parser.get_target_path(paper_id)
+    if not os.path.exists(xml_path):
         try:
-            output_path = parse_one_pdf(tet_path=TET_BIN_PATH,
-                                       pdf_path=pdf_path,
-                                       out_dir=TETML_DIR,
-                                       is_overwrite=True)
-        except Exception as e:
+            pdf_parser.parse(paper_id, source_pdf_path=pdf_path)
+        except PDFParserException as e:
             print(e)
 
-
+    # TODO: consider moving file path management into table_extractor
     # extract tables from TETML or load if already exists
-    pickle_path = '{}.pickle'.format(os.path.join(PICKLE_DIR, paper_id))
+    pickle_path = '{}.pickle'.format(os.path.join(target_table_dir, paper_id))
     if not os.path.exists(pickle_path):
         try:
-            with open(tetml_path, 'r') as f_tetml:
+            with open(xml_path, 'r') as f_xml:
                 tables = TetmlTableExtractor.extract_tables(
-                    tetml=BeautifulSoup(f_tetml),
-                    paper_id=paper_id,
-                    caption_search_window=CAPTION_SEARCH_WINDOW)
+                    tetml=BeautifulSoup(f_xml),
+                    paper_id=paper_id
+                )
             with open(pickle_path, 'wb') as f_pickle:
                 pickle.dump(tables, f_pickle)
 
-        except Exception as e:
+        except TetmlTableExtractorException as e:
             print(e)
-
+            tables = []
     else:
         with open(pickle_path, 'rb') as f_pickle:
             tables = pickle.load(f_pickle)
 
     return tables
+
 

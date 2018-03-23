@@ -1,6 +1,6 @@
 """
 
-Classes that interface with external resources and download Paper files locally
+Classes that interfaces with external resources and download Paper files locally
 
 """
 
@@ -21,11 +21,13 @@ from botocore.exceptions import ClientError
 from config import convert_paper_id_to_s3_filename, convert_paper_id_to_es_id
 
 
-class S3PDFPaperFetcherException(Exception):
+class PaperFetcherException(Exception):
     pass
 
+class S3PDFPaperFetcherException(PaperFetcherException):
+    pass
 
-class ElasticSearchJSONPaperFetcherException(Exception):
+class ElasticSearchJSONPaperFetcherException(PaperFetcherException):
     pass
 
 
@@ -41,12 +43,15 @@ class PaperFetcher(object):
 
         Raises exception unless user implements `_fetch()`
         """
-        target_path = os.path.join(self.target_dir, paper_id)
+        target_path = self.get_target_path(paper_id)
         self._fetch(paper_id, target_path)
         return target_path
 
     def _fetch(self, paper_id: str, target_path: str):
         raise NotImplementedError
+
+    def get_target_path(self, paper_id) -> str:
+        return os.path.join(self.target_dir, paper_id)
 
 
 class S3PDFPaperFetcher(PaperFetcher):

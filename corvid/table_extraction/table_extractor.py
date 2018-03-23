@@ -9,6 +9,11 @@ from bs4 import Tag, BeautifulSoup
 
 from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
 
+class TableExtractorException(Exception):
+    pass
+
+class TetmlTableExtractorException(TableExtractorException):
+    pass
 
 class TableExtractor(object):
     @classmethod
@@ -58,7 +63,7 @@ class TetmlTableExtractor(TableExtractor):
                 table_id += 1
 
             else:
-                raise Exception('Should only be seeing `table` and `para` tags')
+                raise TetmlTableExtractorException('Should only be seeing `table` and `para` tags')
 
         print('Successfully parsed {} of {} detected tables'
               .format(num_success, num_success + num_fail))
@@ -168,8 +173,7 @@ class TetmlTableExtractor(TableExtractor):
 
         # TODO: add more filters here if necessary
         if not all([ncol == ncol_per_row[0] for ncol in ncol_per_row]):
-            raise Exception('Table {} has unequal columns per row. Skipping...'
-                            .format(table_id))
+            raise TetmlTableExtractorException('Table {} has unequal columns per row. Skipping...'.format(table_id))
 
         # TODO: `page_num` and `paper_id` fields
         # BUILD TABLE FROM LIST OF CELLS
