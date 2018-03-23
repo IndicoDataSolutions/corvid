@@ -1,6 +1,6 @@
 """
 
-Classes that interface with external resources and download files locally
+Classes that interface with external resources and download Paper files locally
 
 """
 
@@ -30,28 +30,39 @@ class ElasticSearchJSONPaperFetcherException(Exception):
 
 
 class PaperFetcher(object):
+    def __init__(self, target_dir: str):
+        if not os.path.exists(target_dir):
+            raise FileNotFoundError('Target directory {} doesnt exist'.format(target_dir))
+        self.target_dir = target_dir
+
     def fetch(self, paper_id: str) -> str:
+        """Primary method for fetching a Paper resource given its id.
+        Returns the local path of the fetched file.
+
+        Raises exception unless user implements `_fetch()`
+        """
+        target_path = os.path.join(self.target_dir, paper_id)
+        self._fetch(paper_id, target_path)
+        return target_path
+
+    def _fetch(self, paper_id: str, target_path: str):
         raise NotImplementedError
 
 
 class S3PDFPaperFetcher(PaperFetcher):
 
-    def __init__(self, bucket: str, target_pdf_dir: str):
+    def __init__(self, bucket: str, target_dir: str):
         self.s3 = boto3.resource('s3')
 
         if self.s3.Bucket(bucket) not in self.s3.buckets.all():
             raise S3PDFPaperFetcherException('Bucket {} doesnt exist'.format(bucket))
         self.bucket = bucket
 
-        if not os.path.exists(target_pdf_dir):
-            raise FileNotFoundError('Target directory {} doesnt exist'.format(target_pdf_dir))
-        self.target_pdf_dir = target_pdf_dir
+        super(S3PDFPaperFetcher, self).__init__(target_dir)
+
 
     # TODO: maybe keep `Bucket()` in `self` and call `download_file()` off it?
-    def fetch(self, paper_id: str):
-
-        target_path = os.path.join(self.target_pdf_dir, paper_id)
-
+    def _fetch(self, paper_id: str, target_path: str):
         try:
             s3_filename = convert_paper_id_to_s3_filename(paper_id)
             self.s3.Object(self.bucket, s3_filename).download_file(target_path)
@@ -65,7 +76,7 @@ class S3PDFPaperFetcher(PaperFetcher):
 
 class ElasticSearchJSONPaperFetcher(PaperFetcher):
 
-    def __init__(self, host_url: str, index: str, doc_type: str, target_json_dir: str):
+    def __init__(self, host_url: str, index: str, doc_type: str, target_dir: str):
         self.es = Elasticsearch(host_url)
 
         if requests.get(host_url).status_code >= 400:
@@ -75,15 +86,10 @@ class ElasticSearchJSONPaperFetcher(PaperFetcher):
         self.index = index
         self.doc_type = doc_type
 
-        if not os.path.exists(target_json_dir):
-            raise FileNotFoundError('Target directory {} doesnt exist'.format(target_json_dir))
-        self.target_pdf_dir = target_json_dir
+        super(ElasticSearchJSONPaperFetcher, self).__init__(target_dir)
 
 
-    def fetch(self, paper_id: str):
-
-        target_path = os.path.join(self.target_pdf_dir, paper_id)
-
+    def _fetch(self, paper_id: str, target_path: str):
         try:
             es_id = convert_paper_id_to_es_id(paper_id)
             result = self.es.get(index=self.index,
@@ -97,4 +103,3 @@ class ElasticSearchJSONPaperFetcher(PaperFetcher):
                 raise ElasticSearchJSONPaperFetcherException('Couldnt find paper {}'.format(paper_id))
             else:
                 raise ElasticSearchJSONPaperFetcherException
-
