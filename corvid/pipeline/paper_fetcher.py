@@ -50,8 +50,8 @@ class PaperFetcher(object):
     def _fetch(self, paper_id: str, target_path: str):
         raise NotImplementedError
 
-    def get_target_path(self, paper_id) -> str:
-        return os.path.join(self.target_dir, paper_id)
+    def get_target_path(self, paper_id: str) -> str:
+        raise NotImplementedError
 
 
 class S3PDFPaperFetcher(PaperFetcher):
@@ -77,6 +77,9 @@ class S3PDFPaperFetcher(PaperFetcher):
                 raise S3PDFPaperFetcherException('Couldnt find paper {}'.format(paper_id))
             else:
                 raise S3PDFPaperFetcherException
+
+    def get_target_path(self, paper_id: str) -> str:
+        return '{}.pdf'.format(os.path.join(self.target_dir, paper_id))
 
 
 class ElasticSearchJSONPaperFetcher(PaperFetcher):
@@ -108,3 +111,6 @@ class ElasticSearchJSONPaperFetcher(PaperFetcher):
                 raise ElasticSearchJSONPaperFetcherException('Couldnt find paper {}'.format(paper_id))
             else:
                 raise ElasticSearchJSONPaperFetcherException
+
+    def get_target_path(self, paper_id: str) -> str:
+        return '{}.json'.format(os.path.join(self.target_dir, paper_id))

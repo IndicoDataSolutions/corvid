@@ -13,8 +13,7 @@ from corvid.types.table import Table
 
 from corvid.util.strings import remove_non_alphanumeric
 
-from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id
-
+from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id, POSSIBLE_EXCEPTIONS
 
 GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
 
@@ -22,7 +21,10 @@ GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
 def create_dataset_from_json_record(name: str,
                                     aliases: List[str],
                                     paper_id: str,
-                                    gold_table_records: List[GoldTableRecord]) -> Dataset:
+                                    gold_table_records: List[GoldTableRecord],
+                                    pdf_fetcher,
+                                    pdf_parser,
+                                    target_table_dir) -> Dataset:
     """
     A single dataset JSON record will, at least, have the fields:
     {
@@ -50,7 +52,10 @@ def create_dataset_from_json_record(name: str,
     for gold_table_record in gold_table_records:
         # note: may return fewer than number indicated in `gold_table_records`
         candidate_gold_tables = extract_tables_from_paper_id(
-            paper_id=gold_table_record.paper_id
+            paper_id=gold_table_record.paper_id,
+            pdf_fetcher=pdf_fetcher,
+            pdf_parser=pdf_parser,
+            target_table_dir=target_table_dir
         )
 
         for candidate_gold_table in candidate_gold_tables:

@@ -26,7 +26,6 @@ class PDFParser(object):
             raise FileNotFoundError('Target directory {} doesnt exist'.format(target_dir))
         self.target_dir = target_dir
 
-
     def parse(self, paper_id: str, source_pdf_path: str) -> str:
         """Primary method for parsing a Paper's PDF given its id.
         Returns the local path of the XML output of the parsing.
@@ -40,8 +39,8 @@ class PDFParser(object):
     def _parse(self, paper_id: str, source_pdf_path: str, target_path: str):
         raise NotImplementedError
 
-    def get_target_path(self, paper_id) -> str:
-        return os.path.join(self.target_dir, paper_id)
+    def get_target_path(self, paper_id: str) -> str:
+        raise NotImplementedError
 
 
 class TetmlPDFParser(PDFParser):
@@ -52,7 +51,6 @@ class TetmlPDFParser(PDFParser):
 
         super(TetmlPDFParser, self).__init__(target_dir)
 
-
     def _parse(self, paper_id: str, source_pdf_path: str, target_path: str):
         try:
             cmd = '{tet} --tetml wordplus --targetdir {targetdir} --pageopt {pageopt} --docopt checkglyphlists {pdf}' \
@@ -62,9 +60,13 @@ class TetmlPDFParser(PDFParser):
                         pdf=source_pdf_path)
             subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError as e:
-            os.remove(target_path)
+            if os.path.exists(target_path):
+                os.remove(target_path)
             print(e)
             raise TetmlPDFParserException('TET failed to parse {}'.format(source_pdf_path))
+
+    def get_target_path(self, paper_id: str) -> str:
+        return '{}.tetml'.format(os.path.join(self.target_dir, paper_id))
 
 
 class OmnipagePDFParser(PDFParser):

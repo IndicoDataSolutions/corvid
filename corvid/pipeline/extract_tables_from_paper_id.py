@@ -21,6 +21,17 @@ from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
 from corvid.table_extraction.table_extractor import TetmlTableExtractor, TetmlTableExtractorException
 
 
+class PipelineFetchPDFsException(Exception):
+    pass
+
+class PipelineParsePDFsException(Exception):
+    pass
+
+class PipelineExtractTablesException(Exception):
+    pass
+
+POSSIBLE_EXCEPTIONS = [PipelineFetchPDFsException, PipelineParsePDFsException, PipelineExtractTablesException]
+
 # TODO: logging mechanism that counts different types of Exceptions
 def extract_tables_from_paper_id(paper_id: str,
                                  pdf_fetcher: PaperFetcher,
@@ -39,6 +50,8 @@ def extract_tables_from_paper_id(paper_id: str,
             pdf_fetcher.fetch(paper_id)
         except PaperFetcherException as e:
             print(e)
+            raise PipelineFetchPDFsException
+
 
     # parse each PDF to XML
     xml_path = pdf_parser.get_target_path(paper_id)
@@ -47,6 +60,7 @@ def extract_tables_from_paper_id(paper_id: str,
             pdf_parser.parse(paper_id, source_pdf_path=pdf_path)
         except PDFParserException as e:
             print(e)
+            raise PipelineParsePDFsException
 
     # TODO: consider moving file path management into table_extractor
     # extract tables from TETML or load if already exists
@@ -63,7 +77,7 @@ def extract_tables_from_paper_id(paper_id: str,
 
         except TetmlTableExtractorException as e:
             print(e)
-            tables = []
+            raise PipelineExtractTablesException
     else:
         with open(pickle_path, 'rb') as f_pickle:
             tables = pickle.load(f_pickle)
