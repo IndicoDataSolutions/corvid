@@ -13,7 +13,7 @@ from corvid.types.table import Table
 
 from corvid.util.strings import remove_non_alphanumeric
 
-from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id, POSSIBLE_EXCEPTIONS
+from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id
 
 GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
 
@@ -79,6 +79,10 @@ def is_match_gold_table_record(candidate_gold_table: Table,
     """
 
     is_correct_paper = candidate_gold_table.paper_id == gold_table_record.paper_id
-    is_starts_with_caption_id = remove_non_alphanumeric(candidate_gold_table.caption).lower().startswith(gold_table_record.caption_id)
 
-    return is_correct_paper and is_starts_with_caption_id
+    normalized_gold_table_caption = remove_non_alphanumeric(candidate_gold_table.caption).lower()
+    normalized_caption_id = remove_non_alphanumeric(gold_table_record.caption_id).lower()
+    is_starts_with_caption_id = normalized_gold_table_caption.startswith(normalized_caption_id)
+
+    # return is_correct_paper and is_starts_with_caption_id
+    return is_starts_with_caption_id

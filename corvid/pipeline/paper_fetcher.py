@@ -4,6 +4,7 @@ Classes that interfaces with external resources and download Paper files locally
 
 """
 
+from typing import List
 
 import os
 
@@ -52,6 +53,7 @@ class PaperFetcher(object):
 
     def get_target_path(self, paper_id: str) -> str:
         raise NotImplementedError
+
 
 
 class S3PDFPaperFetcher(PaperFetcher):
@@ -114,3 +116,11 @@ class ElasticSearchJSONPaperFetcher(PaperFetcher):
 
     def get_target_path(self, paper_id: str) -> str:
         return '{}.json'.format(os.path.join(self.target_dir, paper_id))
+
+    def get_references(self, paper_id: str) -> List[str]:
+        x = self.es.search(index='citation',
+                           doc_type='citation',
+                           q='citingPaper.id:{} AND _exists_:citedPaper.id'.format('0e068fcb42399385a3307c8de2a5c40bab967d79'),
+                           _source=['citedPaper.id'])
+        return [hit['_source']['citedPaper']['id'] for hit in x['hits']['hits']]
+

@@ -20,7 +20,6 @@ from corvid.pipeline.paper_fetcher import PaperFetcher, PaperFetcherException
 from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
 from corvid.table_extraction.table_extractor import TetmlTableExtractor, TetmlTableExtractorException
 
-
 class PipelineFetchPDFsException(Exception):
     pass
 
