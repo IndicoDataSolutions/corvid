@@ -15,7 +15,8 @@ except:
 
 
 # pipeline functions
-from corvid.pipeline.create_dataset_from_json_record import create_dataset_from_json_record, GoldTableRecord
+from collections import namedtuple
+GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
 from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id, POSSIBLE_EXCEPTIONS
 
 # resource managers
@@ -43,6 +44,24 @@ from config import DATASETS_JSON, \
     AGGREGATION_PICKLE_DIR
 
 
+def is_match_gold_table_record(candidate_gold_table: Table,
+                               gold_table_record: GoldTableRecord) -> bool:
+    """
+    Note: `caption_id` refers to the text at beginning of captions that
+          identifies the specific table within a paper.  for example,
+          'table iv' or 'table 2'
+    """
+
+    is_correct_paper = candidate_gold_table.paper_id == gold_table_record.paper_id
+
+    normalized_gold_table_caption = remove_non_alphanumeric(candidate_gold_table.caption).lower()
+    normalized_caption_id = remove_non_alphanumeric(gold_table_record.caption_id).lower()
+    is_starts_with_caption_id = normalized_gold_table_caption.startswith(normalized_caption_id)
+
+    # return is_correct_paper and is_starts_with_caption_id
+    return is_starts_with_caption_id
+
+
 def get_source_paper_ids(es_client: Elasticsearch,
                          gold_table: Table,
                          dataset: Dataset) -> List[str]:
@@ -65,8 +84,9 @@ if __name__ == '__main__':
     log_datasets = {
         'num_dataset_without_paper_id': 0,
         'num_dataset_without_gold_tables': 0,
-        'num_known_exceptions': {exception.__name__: 0 for exception in POSSIBLE_EXCEPTIONS},
-        'num_unknown_exceptions': 0
+        'num_gold_record_success': 0,
+        'num_gold_record_known_exceptions': {exception.__name__: 0 for exception in POSSIBLE_EXCEPTIONS},
+        'num_gold_record_unknown_exceptions': 0
     }
 
     all_results = {}
@@ -84,28 +104,48 @@ if __name__ == '__main__':
             log_datasets['num_dataset_without_gold_tables'] += 1
             continue
 
-        try:
-            dataset = create_dataset_from_json_record(
-                name=remove_non_alphanumeric(dataset_record.get('name')),
-                aliases=[remove_non_alphanumeric(alias) for alias in dataset_record.get('aliases')] if dataset_record.get('aliases') else [],
-                paper_id=dataset_paper_id,
-                gold_table_records=[GoldTableRecord(paper_id=gold_table_record.get('paper_id'),
-                                                    caption_id=gold_table_record.get('caption_id'))
-                                    for gold_table_record in gold_table_records],
-                pdf_fetcher=pdf_fetcher,
-                pdf_parser=pdf_parser,
-                target_table_dir=PICKLE_DIR
-            )
-            datasets.append(dataset)
-        except Exception as e:
-            print(e)
-            if type(e) not in POSSIBLE_EXCEPTIONS:
-                log_datasets['num_unknown_exceptions'] += 1
-            else:
-                for i, exception_type in enumerate(POSSIBLE_EXCEPTIONS):
-                    if type(e) == exception_type:
-                        log_datasets['num_known_exceptions'][type(e).__name__] += 1
-            continue
+        # TODO: BUG.  exits at first gold record failure. needs to be closer to gold loop
+        matched_gold_tables = []
+
+        gold_table_records = [
+            GoldTableRecord(paper_id=gold_table_record.get('paper_id'),
+                            caption_id=gold_table_record.get('caption_id'))
+            for gold_table_record in gold_table_records
+        ]
+
+        for gold_table_record in gold_table_records:
+
+            try:
+                # note: may return fewer than number indicated in `gold_table_records`
+                candidate_gold_tables = extract_tables_from_paper_id(
+                    paper_id=gold_table_record.paper_id,
+                    pdf_fetcher=pdf_fetcher,
+                    pdf_parser=pdf_parser,
+                    target_table_dir=PICKLE_DIR
+                )
+
+                for candidate_gold_table in candidate_gold_tables:
+                    if is_match_gold_table_record(candidate_gold_table,
+                                                  gold_table_record):
+                        matched_gold_tables.append(candidate_gold_table)
+
+                dataset = Dataset(name=remove_non_alphanumeric(dataset_record.get('name')),
+                                  paper_id=dataset_paper_id,
+                                  aliases=[remove_non_alphanumeric(alias) for alias in dataset_record.get('aliases')] if dataset_record.get('aliases') else [],
+                                  gold_tables=matched_gold_tables)
+
+                datasets.append(dataset)
+                log_datasets['num_gold_record_success'] += 1
+
+            except Exception as e:
+                print(e)
+                if type(e) not in POSSIBLE_EXCEPTIONS:
+                    log_datasets['num_gold_record_unknown_exceptions'] += 1
+                else:
+                    for i, exception_type in enumerate(POSSIBLE_EXCEPTIONS):
+                        if type(e) == exception_type:
+                            log_datasets['num_gold_record_known_exceptions'][type(e).__name__] += 1
+                continue
 
         results_per_dataset = []
         for gold_table in dataset.gold_tables:

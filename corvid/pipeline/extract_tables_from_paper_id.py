@@ -51,7 +51,6 @@ def extract_tables_from_paper_id(paper_id: str,
             print(e)
             raise PipelineFetchPDFsException
 
-
     # parse each PDF to XML
     xml_path = pdf_parser.get_target_path(paper_id)
     if not os.path.exists(xml_path):
