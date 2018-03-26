@@ -13,6 +13,7 @@ try:
 except:
     import pickle
 
+import numpy as np
 
 # pipeline functions
 from collections import namedtuple
@@ -237,3 +238,6 @@ if __name__ == '__main__':
 
     with open(os.path.join(LOGS_DIR, 'log_sources.json'), 'w') as f_log_sources:
         json.dump(log_sources, f_log_sources)
+
+    print(np.mean([result.get('score').get('cell_level_recall') for results in all_results.values() for result in results]))
+    print(np.mean([result.get('score').get('row_level_recall') for results in all_results.values() for result in results]))
