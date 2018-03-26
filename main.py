@@ -1,319 +1,211 @@
 """
 
-Executes entire table aggregation pipeline
-
-    Input: `datasets.json` containing `paper_id` for each dataset of interest
-    Output: `agg_tables.json` containing aggregated tables per dataset
-
-INPUT FORMAT:
-[
-    {
-      "name": "dataset name",
-      "aliases": [
-         "alias 1",
-         "alias 2"
-      ],
-      "paper_id": "dataset paper id",
-      "gold_tables": [
-         {
-            "paper_id": "gold paper id",
-            "caption_id": "table * (taken from beginning of caption)"
-         }
-      ]
-   },
-   {
-      "name": "other dataset name",
-      "aliases": null,
-      "paper_id": null,
-      "gold_tables": null
-   },
-   ...
-]
-
-
-PSEUDOCODE:
-for dataset in datasets:
-    load_metadata_about_dataset()
-
-    tables = []
-    papers = find_relevant_papers(dataset)
-    for paper in papers:
-        pdf_path = fetch_pdf(paper)
-        xml_path = parse_pdf(pdf_path)
-        tables.add(extract_tables(xml_path))
-
-    normalize(tables)
-    filter_relevant(tables)
-
-    gold_tables = load_gold_tables(dataset)
-    for gold_table in gold_tables:
-        target_schema = gold_table.schema
-        dont_cheat = [table for table in tables if table.paper_id != gold_table.paper_id]
-        pred_table = aggregate_tables(dont_cheat, target_schema)
-        metrics = evaluate_metrics(gold_table, pred_table)
-        save(dataset, pred_table, metrics)
 """
 
-import json
 import os
+
+from typing import List
+
+import json
 
 try:
     import cPickle as pickle
 except:
     import pickle
 
-from typing import List, Dict, Tuple
 
-from bs4 import BeautifulSoup
+# pipeline functions
+from collections import namedtuple
+GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
+from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id, POSSIBLE_EXCEPTIONS
 
-from src.s2base.s2base.elastic import citations_lookup, default_es_client
+# resource managers
+from corvid.pipeline.paper_fetcher import ElasticSearchJSONPaperFetcher, S3PDFPaperFetcher
+from corvid.pipeline.pdf_parser import TetmlPDFParser
 
-from corvid.types.table import Table, EMPTY_CAPTION
-from corvid.types.dataset import Dataset
-
-from corvid.table_extraction.table_extractor import TetmlTableExtractor
-
+# table aggregation
 from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
-
 from corvid.table_aggregation.evaluate import evaluate
 
-from corvid.util.files import is_url_working, is_s3_bucket_exists, fetch_one_pdf_from_s3
-from corvid.util.tetml import parse_one_pdf
+# types
+from elasticsearch import Elasticsearch
+from corvid.types.table import Table
+from corvid.types.dataset import Dataset
 
+# util
 from corvid.util.strings import remove_non_alphanumeric
 
-from config import DATASETS_JSON, ES_PROD_URL, S3_PDFS_BUCKET, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, PICKLE_DIR, AGGREGATION_PICKLE_DIR,\
-    convert_paper_id_to_s3_filename
+# paths
+from config import DATASETS_JSON, DATASETS_PICKLE, \
+    ES_PROD_URL, ES_PAPER_DOC_TYPE, ES_PAPER_INDEX, JSON_DIR, get_references, \
+    S3_PDFS_BUCKET, PDF_DIR, \
+    TET_BIN_PATH, TETML_DIR, \
+    PICKLE_DIR, \
+    AGGREGATION_PICKLE_DIR, \
+    LOGS_DIR
 
-CAPTION_SEARCH_WINDOW = 3
 
-
-
-
-def find_tables_from_paper_ids(paper_ids: List[str]) -> Tuple[Dict[str, Table], Dict]:
-    """For each `paper_id`, iteratively performs:
-
-        * fetch PDF
-        * parse PDF to TETML
-        * extract tables from TETML
-
-    Loop continues even if any of these components fails, but updates
-    the `log_summary` with error statistics
-
-    Returns extracted tables in format:
-        {
-            'paper_id': [table1, table2],
-            'paper_id': [table3],
-            'paper_id': [table4], [table5], [table6]
-        }
+def is_match_gold_table_record(candidate_gold_table: Table,
+                               gold_table_record: GoldTableRecord) -> bool:
+    """
+    Note: `caption_id` refers to the text at beginning of captions that
+          identifies the specific table within a paper.  for example,
+          'table iv' or 'table 2'
     """
 
-    log_summary = {
-        'num_paper_ids': len(paper_ids),
-        'fetch_pdf_from_s3': {
-            'success': 0,
-            'fail': 0,
-            'skip': 0
-        },
-        'parse_pdf_to_tetml': {
-            'success': 0,
-            'fail': 0,
-            'skip': 0
-        },
-        'extract_tables_from_tetml': {
-            'success': 0,
-            'fail': 0,
-            'skip': 0
-        }
-    }
+    is_correct_paper = candidate_gold_table.paper_id == gold_table_record.paper_id
 
-    all_tables = {}
-    for paper_id in paper_ids:
+    normalized_gold_table_caption = remove_non_alphanumeric(candidate_gold_table.caption).lower()
+    normalized_caption_id = remove_non_alphanumeric(gold_table_record.caption_id).lower()
+    is_starts_with_caption_id = normalized_gold_table_caption.startswith(normalized_caption_id)
 
-        # fetch PDFs of relevant papers
-        pdf_path = '{}.pdf'.format(os.path.join(PDF_DIR, paper_id))
-        if not os.path.exists(pdf_path):
-            try:
-                output_path = fetch_one_pdf_from_s3(
-                    s3_bucket=S3_PDFS_BUCKET,
-                    paper_id=paper_id,
-                    out_dir=PDF_DIR,
-                    convert_paper_id_to_s3_filename=convert_paper_id_to_s3_filename,
-                    is_overwrite=True)
-                assert output_path == pdf_path
-                log_summary['fetch_pdf_from_s3']['success'] += 1
-            except Exception as e:
-                print(e)
-                log_summary['fetch_pdf_from_s3']['fail'] += 1
-                continue
-        else:
-            log_summary['fetch_pdf_from_s3']['skip'] += 1
-
-        # parse each PDF to TETML
-        tetml_path = '{}.tetml'.format(os.path.join(TETML_DIR, paper_id))
-        if not os.path.exists(tetml_path):
-            try:
-                output_path = parse_one_pdf(tet_path=TET_BIN_PATH,
-                                           pdf_path=pdf_path,
-                                           out_dir=TETML_DIR,
-                                           is_overwrite=True)
-                assert output_path == tetml_path
-                log_summary['parse_pdf_to_tetml']['success'] += 1
-            except Exception as e:
-                print(e)
-                log_summary['parse_pdf_to_tetml']['fail'] += 1
-                continue
-        else:
-            log_summary['parse_pdf_to_tetml']['skip'] += 1
-
-        # extract tables from TETML or load if already exists
-        pickle_path = '{}.pickle'.format(os.path.join(PICKLE_DIR, paper_id))
-        if not os.path.exists(pickle_path):
-            try:
-                with open(tetml_path, 'r') as f_tetml:
-                    tables = TetmlTableExtractor.extract_tables(
-                        tetml=BeautifulSoup(f_tetml),
-                        paper_id=paper_id,
-                        caption_search_window=CAPTION_SEARCH_WINDOW)
-                with open(pickle_path, 'wb') as f_pickle:
-                    pickle.dump(tables, f_pickle)
-                log_summary['extract_tables_from_tetml']['success'] += 1
-            except Exception as e:
-                print(e)
-                log_summary['extract_tables_from_tetml']['fail'] += 1
-                continue
-        else:
-            with open(pickle_path, 'rb') as f_pickle:
-                tables = pickle.load(f_pickle)
-            log_summary['extract_tables_from_tetml']['skip'] += 1
-
-        all_tables[paper_id] = tables
-
-    return all_tables, log_summary
+    # return is_correct_paper and is_starts_with_caption_id
+    return is_starts_with_caption_id
 
 
-
-
-def create_dataset(name: str,
-                   aliases: List[str],
-                   paper_id: str,
-                   gold_table_ids: List[Dict]) -> Tuple[Dataset, Dict]:
-    """Creates a Dataset object given a single JSON from `datasets.json`.
-
-    Returns `None` if invalid JSON.
-
-    A `gold_table_id` is a Dict containing fields used to identify the table
-    within the specific paper.  For example, a `gold_paper_id` and
-    `caption_id` pair can be used to identify a specific table.
-
-    """
-
-    log_summary = {
-        'find_tables_from_gold_paper_ids': dict(),
-        'num_candidate_gold_tables': 0,
-        'num_relevant_gold_tables': 0
-    }
-
-    unique_gold_paper_ids = list(set([id.get('paper_id') for id in gold_table_ids]))
-    candidate_gold_tables, sub_log = find_tables_from_paper_ids(paper_ids=unique_gold_paper_ids)
-    log_summary['find_tables_from_gold_paper_ids'] = sub_log
-
-    if len(candidate_gold_tables) < 1:
-        return None, log_summary
-
-    # TODO: consider omnipage parsing of deepfigures images instead of noisy matching
-    #
-    # identify relevant gold tables among candidates by matching their captions to caption_id
-    #
-    # e.g. does the caption begin with 'table iv' from paper '12345'?
-    #
-    relevant_gold_tables = []
-    for gold_table_id in gold_table_ids:
-
-        relevant_gold_paper_id =  gold_table_id.get('paper_id')
-        relevant_gold_caption_id = remove_non_alphanumeric(gold_table_id.get('caption_id')).lower()
-
-        # not all gold paper ids are represented among candidates (i.e. failed extraction); skip these
-        if not candidate_gold_tables.get(relevant_gold_paper_id):
-            continue
-
-        # otherwise, match candidate gold tables based on relevant caption id
-        for candidate_gold_table in candidate_gold_tables.get(relevant_gold_paper_id):
-            log_summary['num_candidate_gold_tables'] += 1
-
-            # TODO: matching is noisy, so doesnt lead to a single table per gold_table_id
-            is_contains_caption_id = remove_non_alphanumeric(candidate_gold_table.caption).lower().startswith(relevant_gold_caption_id)
-
-            if candidate_gold_table.caption != EMPTY_CAPTION and is_contains_caption_id:
-                relevant_gold_tables.append(candidate_gold_table)
-                log_summary['num_relevant_gold_tables'] += 1
-
-    # TODO: `cited_by_paper_ids` unused for now
-    return Dataset(name=name,
-                   paper_id=paper_id,
-                   aliases=aliases,
-                   gold_tables=relevant_gold_tables,
-                   cited_by_paper_ids=[]), log_summary
-
-
+def get_source_paper_ids(es_client: Elasticsearch,
+                         gold_table: Table,
+                         dataset: Dataset) -> List[str]:
+    return get_references(es=es_client, paper_id=gold_table.paper_id)
 
 
 if __name__ == '__main__':
     with open(DATASETS_JSON, 'r') as f_datasets:
-        dataset_jsons = json.load(f_datasets)
+        dataset_records = json.load(f_datasets)
 
-    # verify external dependencies
-    assert is_url_working(ES_PROD_URL)
-    es_client = default_es_client(ES_PROD_URL)
-    assert is_s3_bucket_exists(S3_PDFS_BUCKET)
-    assert os.path.exists(TET_BIN_PATH)
-
-
+    # initialize resources
     schema_matcher = ColNameSchemaMatcher()
+    json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
+                                                 index=ES_PAPER_INDEX,
+                                                 doc_type=ES_PAPER_DOC_TYPE,
+                                                 target_dir=JSON_DIR)
+    pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
+    pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH, target_dir=TETML_DIR)
 
-    log_summary = {
+    #
+    #
+    #  PART 1:  Build each dataset
+    #
+    #
+
+    log_datasets = {
         'num_dataset_without_paper_id': 0,
-        'num_dataset_without_gold_tables': 0
+        'num_dataset_without_gold_tables': 0,
+        'num_gold_record_success': 0,
+        'num_gold_record_known_exceptions': {exception.__name__: 0 for exception in POSSIBLE_EXCEPTIONS},
+        'num_gold_record_unknown_exceptions': 0
     }
 
-    for dataset_json in dataset_jsons:
+    datasets = []
+    for dataset_record in dataset_records:
 
-        dataset_paper_id = dataset_json.get('paper_id')
+        # required fields for dataset record include `paper_id` and `gold_table_ids`
+        dataset_paper_id = dataset_record.get('paper_id')
         if not dataset_paper_id:
-            log_summary['num_dataset_without_paper_id'] += 1
+            log_datasets['num_dataset_without_paper_id'] += 1
             continue
 
-        gold_table_ids = dataset_json.get('gold_tables')
-        if not gold_table_ids or len(gold_table_ids) < 1:
-            log_summary['num_dataset_without_gold_tables'] += 1
+        gold_table_records = dataset_record.get('gold_tables')
+        if not gold_table_records or len(gold_table_records) < 1:
+            log_datasets['num_dataset_without_gold_tables'] += 1
             continue
 
-        log_summary[dataset_paper_id] = {
-            'create_dataset': dict()
-        }
+        # TODO: BUG.  exits at first gold record failure. needs to be closer to gold loop
+        matched_gold_tables = []
 
-        dataset, sub_log_dataset = create_dataset(
-            name=remove_non_alphanumeric(dataset_json.get('name')),
-            aliases=[remove_non_alphanumeric(alias) for alias in set(dataset_json.get('aliases'))] if dataset_json.get('aliases') else [],
-            paper_id=dataset_paper_id,
-            gold_table_ids=gold_table_ids
-        )
-        log_summary[dataset_paper_id]['create_dataset'] = sub_log_dataset
+        gold_table_records = [
+            GoldTableRecord(paper_id=gold_table_record.get('paper_id'),
+                            caption_id=gold_table_record.get('caption_id'))
+            for gold_table_record in gold_table_records
+        ]
 
-        if dataset is None:
-            continue
+        for gold_table_record in gold_table_records:
 
-        outputs = []
+            try:
+                # note: may return fewer than number indicated in `gold_table_records`
+                candidate_gold_tables = extract_tables_from_paper_id(
+                    paper_id=gold_table_record.paper_id,
+                    pdf_fetcher=pdf_fetcher,
+                    pdf_parser=pdf_parser,
+                    target_table_dir=PICKLE_DIR
+                )
+
+                for candidate_gold_table in candidate_gold_tables:
+                    if is_match_gold_table_record(candidate_gold_table,
+                                                  gold_table_record):
+                        matched_gold_tables.append(candidate_gold_table)
+
+                dataset = Dataset(name=remove_non_alphanumeric(dataset_record.get('name')),
+                                  paper_id=dataset_paper_id,
+                                  aliases=[remove_non_alphanumeric(alias) for alias in dataset_record.get('aliases')] if dataset_record.get('aliases') else [],
+                                  gold_tables=matched_gold_tables)
+
+                datasets.append(dataset)
+                log_datasets['num_gold_record_success'] += 1
+
+            except Exception as e:
+                print(e)
+                if type(e) not in POSSIBLE_EXCEPTIONS:
+                    log_datasets['num_gold_record_unknown_exceptions'] += 1
+                else:
+                    for i, exception_type in enumerate(POSSIBLE_EXCEPTIONS):
+                        if type(e) == exception_type:
+                            log_datasets['num_gold_record_known_exceptions'][type(e).__name__] += 1
+                continue
+
+    with open(os.path.join(LOGS_DIR, 'log_datasets.json'), 'w') as f_log_datasets:
+        json.dump(log_datasets, f_log_datasets)
+    with open(DATASETS_PICKLE, 'wb') as f_datasets_pickle:
+        pickle.dump(datasets, f_datasets_pickle)
+
+
+    #
+    #
+    #  PART 2:  Predict each gold table
+    #
+    #
+
+    with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
+        datasets = pickle.load(f_datasets_pickle)
+
+    log_sources = {
+        'num_source_table_success': 0,
+        'num_source_table_known_exceptions': {exception.__name__: 0 for exception in POSSIBLE_EXCEPTIONS},
+        'num_source_table_unknown_exceptions': 0
+    }
+
+    all_results = {}
+    for dataset in datasets:
+
+        results_per_dataset = []
         for gold_table in dataset.gold_tables:
 
+            # TODO: refactor to not rely on logic from `config.py`
             # TODO: temp restrict to only papers cited by gold paper
-            relevant_source_paper_ids = citations_lookup(paper_id=gold_table.paper_id,
-                                                         es_client=es_client)
-            relevant_source_tables, _ = find_tables_from_paper_ids(paper_ids=relevant_source_paper_ids)
+            source_paper_ids = get_source_paper_ids(es_client=json_fetcher.es,
+                                                    gold_table=gold_table,
+                                                    dataset=dataset)
+            source_tables = []
+            for source_paper_id in source_paper_ids:
+                try:
+                    source_tables.extend(extract_tables_from_paper_id(
+                        paper_id=source_paper_id,
+                        pdf_fetcher=pdf_fetcher,
+                        pdf_parser=pdf_parser,
+                        target_table_dir=PICKLE_DIR
+                    ))
+                    log_sources['num_source_table_success'] += 1
+                except Exception as e:
+                    if type(e) not in POSSIBLE_EXCEPTIONS:
+                        log_sources['num_source_table_unknown_exceptions'] += 1
+                    else:
+                        for i, exception_type in enumerate(POSSIBLE_EXCEPTIONS):
+                            if type(e) == exception_type:
+                                log_sources['num_source_table_known_exceptions'][type(e).__name__] += 1
+                    continue
 
             pairwise_mappings = schema_matcher.map_tables(
-                tables=[table for tables in relevant_source_tables.values() for table in tables],
+                tables=source_tables,
                 target_schema=gold_table
             )
             aggregate_table = schema_matcher.aggregate_tables(
@@ -321,17 +213,22 @@ if __name__ == '__main__':
                 target_schema=gold_table
             )
 
-            outputs.append({
-                'gold': gold_table,
-                'pred': aggregate_table,
+            # a single result is for a dataset-gold pair
+            results_per_dataset.append({
+                'num_source_papers': len(source_paper_ids),
+                'pairwise_mappings': pairwise_mappings,
+                'gold_table': gold_table,
+                'pred_table': aggregate_table,
                 'score': evaluate(gold_table=gold_table,
-                                         pred_table=aggregate_table)
+                                  pred_table=aggregate_table)
             })
 
-        agg_pickle_path = '{}.pickle'.format(
-            os.path.join(AGGREGATION_PICKLE_DIR, dataset_paper_id))
-        with open(agg_pickle_path, 'wb') as f_output:
-            pickle.dump(outputs, f_output)
+        # save results for all gold tables under this dataset
+        agg_pickle_path = '{}.pickle'.format(os.path.join(AGGREGATION_PICKLE_DIR, dataset_paper_id))
+        with open(agg_pickle_path, 'wb') as f_results:
+            pickle.dump(results_per_dataset, f_results)
 
+        all_results.update({dataset_paper_id: results_per_dataset})
 
-
+    with open(os.path.join(LOGS_DIR, 'log_sources.json'), 'w') as f_log_sources:
+        json.dump(log_sources, f_log_sources)
