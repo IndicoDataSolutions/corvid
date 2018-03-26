@@ -1,6 +1,6 @@
 """
 
-Parse raw PDFs using PDFlib's TET
+Parse raw PDFs using PDFLib's TET
 
 """
 
@@ -8,7 +8,7 @@ import argparse
 import os
 
 from config import TET_BIN_PATH, PDF_DIR, TETML_DIR
-from corvid.util.tetml import parse_one_pdf
+from corvid.pipeline.pdf_parser import TetmlPDFParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -31,15 +31,19 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    # define parser
+    pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
+                                target_dir=output_dir)
+
     num_success = 0
     for pdf_path in pdf_paths:
+        paper_id = os.path.basename(pdf_path).replace('.pdf', '')
         try:
-            tetml_path = parse_one_pdf(
-                tet_path=args.parser if args.parser else TET_BIN_PATH,
-                pdf_path=pdf_path,
-                out_dir=output_dir,
-                is_overwrite=args.overwrite)
-            print('Parsed PDF {} to {}'.format(pdf_path, tetml_path))
+            pdf_parser.parse(
+                paper_id=paper_id,
+                source_pdf_path=pdf_path
+            )
+            print('Parsed PDF {} to {}'.format(pdf_path, pdf_path))
             num_success += 1
         except Exception as e:
             print(e)
