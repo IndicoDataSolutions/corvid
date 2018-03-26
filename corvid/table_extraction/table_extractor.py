@@ -15,6 +15,10 @@ class TableExtractorException(Exception):
 class TetmlTableExtractorException(TableExtractorException):
     pass
 
+class OmnipageTableExtractorException(TableExtractorException):
+    pass
+
+
 class TableExtractor(object):
     @classmethod
     def extract_tables(cls) -> List[Table]:
@@ -185,3 +189,69 @@ class TetmlTableExtractor(TableExtractor):
             page_num=0,
             caption=caption)
         return table
+
+
+
+class OmnipageTableExtractor(TableExtractor):
+    @classmethod
+    def extract_tables(cls,
+                       xml: BeautifulSoup,
+                       paper_id: str) -> List[Table]:
+        tables = []
+        table_id = 0
+        tags = xml.find_all('tablezone')
+        for index_tag, tag in enumerate(tags):
+
+            try:
+                table = OmnipageTableExtractor._create_table_from_xml(
+                    table_id=table_id,
+                    table_tag=tag,
+                    paper_id=paper_id
+                )
+                tables.append(table)
+            except Exception as e:
+                print(e)
+                print('Failed to parse Table {}. Skipping...'.format(table_id))
+
+            table_id += 1
+
+        return tables
+
+
+    @classmethod
+    def _create_table_from_xml(cls,
+                               table_id: int,
+                               table_tag: Tag,
+                               paper_id: str) -> Table:
+
+        ncol = len(table_tag.find('gridtable').find_all('gridcol'))
+        nrow = len(table_tag.find('gridtable').find_all('gridrow'))
+
+        cells = []
+        for cell_tag in table_tag.find_all('cellzone'):
+
+            # BUILD LIST OF TOKENS
+            tokens = []
+            for word_tag in cell_tag.find_all('wd'):
+                token = Token(text=word_tag.get_text(strip=True))
+                tokens.append(token)
+
+            # BUILD CELL FROM LIST OF TOKENS
+            cell = Cell(
+                tokens=tokens,
+                rowspan=int(cell_tag.get('gridrowtill')) - int(cell_tag.get('gridrowfrom')) + 1,
+                colspan=int(cell_tag.get('gridcoltill')) - int(cell_tag.get('gridcolfrom')) + 1
+            )
+            cells.append(cell)
+
+        # BUILD TABLE FROM LIST OF CELLS
+        table = Table.create_from_cells(
+            cells=cells,
+            nrow=nrow,
+            ncol=ncol,
+            paper_id=paper_id,
+            page_num=0,
+            caption=EMPTY_CAPTION)
+
+        return table
+
