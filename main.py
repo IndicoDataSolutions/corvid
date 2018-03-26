@@ -69,24 +69,24 @@ def get_source_paper_ids(es_client: Elasticsearch,
     return get_references(es=es_client, paper_id=gold_table.paper_id)
 
 
-if __name__ == '__main__':
-    with open(DATASETS_JSON, 'r') as f_datasets:
-        dataset_records = json.load(f_datasets)
+# initialize resources
+schema_matcher = ColNameSchemaMatcher()
+json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
+                                             index=ES_PAPER_INDEX,
+                                             doc_type=ES_PAPER_DOC_TYPE,
+                                             target_dir=JSON_DIR)
+pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
+pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH, target_dir=TETML_DIR)
 
-    # initialize resources
-    schema_matcher = ColNameSchemaMatcher()
-    json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
-                                                 index=ES_PAPER_INDEX,
-                                                 doc_type=ES_PAPER_DOC_TYPE,
-                                                 target_dir=JSON_DIR)
-    pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
-    pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH, target_dir=TETML_DIR)
+if __name__ == '__main__':
 
     #
     #
     #  PART 1:  Build each dataset
     #
     #
+    with open(DATASETS_JSON, 'r') as f_datasets:
+        dataset_records = json.load(f_datasets)
 
     log_datasets = {
         'num_dataset_without_paper_id': 0,
@@ -169,6 +169,7 @@ if __name__ == '__main__':
         datasets = pickle.load(f_datasets_pickle)
 
     log_sources = {
+        'num_missing_source_paper_ids': 0,
         'num_source_table_success': 0,
         'num_source_table_known_exceptions': {exception.__name__: 0 for exception in POSSIBLE_EXCEPTIONS},
         'num_source_table_unknown_exceptions': 0
@@ -185,6 +186,10 @@ if __name__ == '__main__':
             source_paper_ids = get_source_paper_ids(es_client=json_fetcher.es,
                                                     gold_table=gold_table,
                                                     dataset=dataset)
+            if len(source_paper_ids) < 1:
+                log_sources['num_missing_source_paper_ids'] += 1
+                continue
+
             source_tables = []
             for source_paper_id in source_paper_ids:
                 try:
@@ -224,11 +229,11 @@ if __name__ == '__main__':
             })
 
         # save results for all gold tables under this dataset
-        agg_pickle_path = '{}.pickle'.format(os.path.join(AGGREGATION_PICKLE_DIR, dataset_paper_id))
+        agg_pickle_path = '{}.pickle'.format(os.path.join(AGGREGATION_PICKLE_DIR, dataset.paper_id))
         with open(agg_pickle_path, 'wb') as f_results:
             pickle.dump(results_per_dataset, f_results)
 
-        all_results.update({dataset_paper_id: results_per_dataset})
+        all_results.update({dataset.paper_id: results_per_dataset})
 
     with open(os.path.join(LOGS_DIR, 'log_sources.json'), 'w') as f_log_sources:
         json.dump(log_sources, f_log_sources)
