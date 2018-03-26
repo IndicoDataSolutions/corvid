@@ -35,6 +35,13 @@ if __name__ == '__main__':
     # define output files
     pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR
 
+    # logs
+    logs = {
+        'num_extract_success': 0,
+        'num_missing_tetml': 0,
+        'num_unknown_error': 0
+    }
+
     papers = {}
     for tetml_path in os.listdir(tetml_dir):
         paper_id = tetml_path.replace('.tetml', '')
@@ -50,6 +57,7 @@ if __name__ == '__main__':
                 print('Extracting tables from {}...'.format(paper_id))
                 tables = TetmlTableExtractor.extract_tables(
                     tetml=BeautifulSoup(f_tetml),
+                    paper_id=paper_id,
                     caption_search_window=3)
 
                 print(DIVIDER.join([str(table) for table in tables]))
@@ -59,8 +67,18 @@ if __name__ == '__main__':
                     pickle.dump(tables, f_pickle)
 
                 papers.update({paper_id: tables})
+
+                logs['num_extract_success'] += 1
+
         except FileNotFoundError as e:
             print(e)
             print('{} missing TETML file. Skipping...'.format(paper_id))
+
+            logs['num_missing_tetml'] += 1
+
+        except Exception as e:
+            print(e)
+
+            logs['num_unknown_error'] += 1
 
         print(DIVIDER)

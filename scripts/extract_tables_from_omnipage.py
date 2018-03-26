@@ -35,6 +35,13 @@ if __name__ == '__main__':
     # define output files
     pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR
 
+    # logs
+    logs = {
+        'num_extract_success': 0,
+        'num_missing_xml': 0,
+        'num_unknown_error': 0
+    }
+
     papers = {}
     for omnipage_path in os.listdir(omnipage_dir):
         paper_id = omnipage_path.replace('.xml', '')
@@ -60,9 +67,19 @@ if __name__ == '__main__':
                     pickle.dump(tables, f_pickle)
 
                 papers.update({paper_id: tables})
+
+                logs['num_extract_success'] += 1
+
         except FileNotFoundError as e:
             print(e)
             print('{} missing OmniPage XML file. Skipping...'.format(paper_id))
+
+            logs['num_missing_xml'] += 1
+
+        except Exception as e:
+            print(e)
+
+            logs['num_unknown_error'] += 1
 
         print(DIVIDER)
 
