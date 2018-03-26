@@ -46,7 +46,7 @@ if __name__ == '__main__':
             continue
 
         try:
-            with open(omnipage_path, 'r') as f_omnipage:
+            with open(omnipage_path, 'rb') as f_omnipage:
                 print('Extracting tables from {}...'.format(paper_id))
                 tables = OmnipageTableExtractor.extract_tables(
                     xml=BeautifulSoup(f_omnipage),
