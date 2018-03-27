@@ -241,14 +241,14 @@ def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> 
 
 if __name__ == '__main__':
 
-    tetml_datasets = build_datasets(tetml_pdf_parser, TETML_PICKLE_DIR)
-    omnipage_datasets = build_datasets(omnipage_pdf_parser, OMNIPAGE_PICKLE_DIR)
+    tetml_datasets = build_datasets(tetml_pdf_parser, tetml_table_extractor)
+    omnipage_datasets = build_datasets(omnipage_pdf_parser, omnipage_table_extractor)
 
-    tetml_results = build_aggregates(tetml_pdf_parser, TETML_PICKLE_DIR)
-    omnipage_pdf_parser = build_aggregates(omnipage_pdf_parser, OMNIPAGE_PICKLE_DIR)
+    tetml_results = build_aggregates(tetml_pdf_parser, tetml_table_extractor)
+    omnipage_results = build_aggregates(omnipage_pdf_parser, omnipage_table_extractor)
 
     print(np.mean([result.get('score').get('cell_level_recall') for results in tetml_results.values() for result in results]))
     print(np.mean([result.get('score').get('row_level_recall') for results in tetml_results.values() for result in results]))
 
-    print(np.mean([result.get('score').get('cell_level_recall') for results in omnipage_pdf_parser.values() for result in results]))
-    print(np.mean([result.get('score').get('row_level_recall') for results in omnipage_pdf_parser.values() for result in results]))
+    print(np.mean([result.get('score').get('cell_level_recall') for results in omnipage_results.values() for result in results]))
+    print(np.mean([result.get('score').get('row_level_recall') for results in omnipage_results.values() for result in results]))
