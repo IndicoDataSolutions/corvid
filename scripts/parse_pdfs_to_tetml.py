@@ -7,7 +7,7 @@ Parse raw PDFs using PDFLib's TET
 import argparse
 import os
 
-from config import TET_BIN_PATH, PDF_DIR, TETML_DIR
+from config import TET_BIN_PATH, PDF_DIR, TETML_XML_DIR
 from corvid.pipeline.pdf_parser import TetmlPDFParser
 
 if __name__ == '__main__':
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     pdf_paths = [os.path.join(pdf_dir, path) for path in os.listdir(pdf_dir)]
 
     # define output directory
-    output_dir = args.output_dir if args.output_dir else TETML_DIR
+    output_dir = args.output_dir if args.output_dir else TETML_XML_DIR
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

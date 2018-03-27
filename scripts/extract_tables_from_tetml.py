@@ -15,7 +15,7 @@ try:
 except:
     import pickle
 
-from config import TETML_DIR, PICKLE_DIR
+from config import TETML_XML_DIR, PICKLE_DIR
 
 DIVIDER = '\n\n-----------------------------------------------\n\n'
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # define input files
-    tetml_dir = args.input_dir if args.input_dir else TETML_DIR
+    tetml_dir = args.input_dir if args.input_dir else TETML_XML_DIR
 
     # define output files
     pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR

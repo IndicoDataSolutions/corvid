@@ -4,7 +4,7 @@
 
 import os
 
-from typing import List
+from typing import List, Dict
 
 import json
 
@@ -22,7 +22,7 @@ from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_pap
 
 # resource managers
 from corvid.pipeline.paper_fetcher import ElasticSearchJSONPaperFetcher, S3PDFPaperFetcher
-from corvid.pipeline.pdf_parser import TetmlPDFParser
+from corvid.pipeline.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
 
 # table aggregation
 from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
@@ -37,13 +37,12 @@ from corvid.types.dataset import Dataset
 from corvid.util.strings import remove_non_alphanumeric
 
 # paths
-from config import DATASETS_JSON, DATASETS_PICKLE, \
+from config import DATASETS_JSON, DATASETS_PICKLE, DATASETS_LOG,\
     ES_PROD_URL, ES_PAPER_DOC_TYPE, ES_PAPER_INDEX, JSON_DIR, get_references, \
     S3_PDFS_BUCKET, PDF_DIR, \
-    TET_BIN_PATH, TETML_DIR, \
-    PICKLE_DIR, \
-    AGGREGATION_PICKLE_DIR, \
-    LOGS_DIR
+    TET_BIN_PATH, TETML_XML_DIR, TETML_PICKLE_DIR, \
+    OMNIPAGE_BIN_PATH, OMNIPAGE_XML_DIR, OMNIPAGE_PICKLE_DIR, \
+    AGGREGATE_PICKLE, AGGREGATE_LOG\
 
 
 def is_match_gold_table_record(candidate_gold_table: Table,
@@ -77,15 +76,12 @@ json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
                                              doc_type=ES_PAPER_DOC_TYPE,
                                              target_dir=JSON_DIR)
 pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
-pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH, target_dir=TETML_DIR)
+tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
+                                  target_dir=TETML_XML_DIR)
+omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
+                                        target_dir=OMNIPAGE_XML_DIR)
 
-if __name__ == '__main__':
-
-    #
-    #
-    #  PART 1:  Build each dataset
-    #
-    #
+def build_datasets(pdf_parser: PDFParser, target_table_pickle_dir: str) -> List[Dataset]:
     with open(DATASETS_JSON, 'r') as f_datasets:
         dataset_records = json.load(f_datasets)
 
@@ -128,7 +124,7 @@ if __name__ == '__main__':
                     paper_id=gold_table_record.paper_id,
                     pdf_fetcher=pdf_fetcher,
                     pdf_parser=pdf_parser,
-                    target_table_dir=PICKLE_DIR
+                    target_table_dir=target_table_pickle_dir
                 )
 
                 for candidate_gold_table in candidate_gold_tables:
@@ -154,18 +150,15 @@ if __name__ == '__main__':
                             log_datasets['num_gold_record_known_exceptions'][type(e).__name__] += 1
                 continue
 
-    with open(os.path.join(LOGS_DIR, 'log_datasets.json'), 'w') as f_log_datasets:
-        json.dump(log_datasets, f_log_datasets)
     with open(DATASETS_PICKLE, 'wb') as f_datasets_pickle:
         pickle.dump(datasets, f_datasets_pickle)
+    with open(DATASETS_LOG, 'w') as f_log_datasets:
+        json.dump(log_datasets, f_log_datasets)
+
+    return datasets
 
 
-    #
-    #
-    #  PART 2:  Predict each gold table
-    #
-    #
-
+def build_aggregates(pdf_parser: PDFParser, target_table_pickle_dir: str) -> Dict:
     with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
         datasets = pickle.load(f_datasets_pickle)
 
@@ -198,7 +191,7 @@ if __name__ == '__main__':
                         paper_id=source_paper_id,
                         pdf_fetcher=pdf_fetcher,
                         pdf_parser=pdf_parser,
-                        target_table_dir=PICKLE_DIR
+                        target_table_dir=target_table_pickle_dir
                     ))
                     log_sources['num_source_table_success'] += 1
                 except Exception as e:
@@ -229,15 +222,27 @@ if __name__ == '__main__':
                                   pred_table=aggregate_table)
             })
 
-        # save results for all gold tables under this dataset
-        agg_pickle_path = '{}.pickle'.format(os.path.join(AGGREGATION_PICKLE_DIR, dataset.paper_id))
-        with open(agg_pickle_path, 'wb') as f_results:
-            pickle.dump(results_per_dataset, f_results)
-
         all_results.update({dataset.paper_id: results_per_dataset})
 
-    with open(os.path.join(LOGS_DIR, 'log_sources.json'), 'w') as f_log_sources:
+    # save results for all gold tables under this dataset
+    with open(AGGREGATE_PICKLE, 'wb') as f_results:
+        pickle.dump(all_results, f_results)
+    with open(AGGREGATE_LOG, 'w') as f_log_sources:
         json.dump(log_sources, f_log_sources)
 
-    print(np.mean([result.get('score').get('cell_level_recall') for results in all_results.values() for result in results]))
-    print(np.mean([result.get('score').get('row_level_recall') for results in all_results.values() for result in results]))
+    return all_results
+
+
+if __name__ == '__main__':
+
+    tetml_datasets = build_datasets(tetml_pdf_parser, TETML_PICKLE_DIR)
+    omnipage_datasets = build_datasets(omnipage_pdf_parser, OMNIPAGE_PICKLE_DIR)
+
+    tetml_results = build_aggregates(tetml_pdf_parser, TETML_PICKLE_DIR)
+    omnipage_pdf_parser = build_aggregates(omnipage_pdf_parser, OMNIPAGE_PICKLE_DIR)
+
+    print(np.mean([result.get('score').get('cell_level_recall') for results in tetml_results.values() for result in results]))
+    print(np.mean([result.get('score').get('row_level_recall') for results in tetml_results.values() for result in results]))
+
+    print(np.mean([result.get('score').get('cell_level_recall') for results in omnipage_pdf_parser.values() for result in results]))
+    print(np.mean([result.get('score').get('row_level_recall') for results in omnipage_pdf_parser.values() for result in results]))
