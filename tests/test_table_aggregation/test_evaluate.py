@@ -5,8 +5,8 @@
 
 import unittest
 
-from corvid.table_aggregation.compute_metrics import count_matching_cells, \
-    row_level_recall, cell_level_recall, compute_metrics
+from corvid.table_aggregation.evaluate import count_matching_cells, \
+    row_level_recall, cell_level_recall, evaluate
 from corvid.types.table import Token, Cell, Table
 
 
