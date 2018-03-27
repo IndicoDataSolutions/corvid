@@ -1,6 +1,7 @@
 """
 
-Extracts as many tables as possible from a given paper
+Retrieves as many tables as possible from a given paper.
+Fetches resources or performs extraction, if necessary.
 
 """
 
@@ -13,12 +14,11 @@ try:
 except:
     import pickle
 
-from bs4 import BeautifulSoup
 
 from corvid.types.table import Table
 from corvid.pipeline.paper_fetcher import PaperFetcher, PaperFetcherException
 from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
-from corvid.table_extraction.table_extractor import TetmlTableExtractor, TetmlTableExtractorException
+from corvid.table_extraction.table_extractor import TableExtractor, TableExtractorException
 
 class PipelineFetchPDFsException(Exception):
     pass
@@ -32,10 +32,10 @@ class PipelineExtractTablesException(Exception):
 POSSIBLE_EXCEPTIONS = [PipelineFetchPDFsException, PipelineParsePDFsException, PipelineExtractTablesException]
 
 # TODO: logging mechanism that counts different types of Exceptions
-def extract_tables_from_paper_id(paper_id: str,
-                                 pdf_fetcher: PaperFetcher,
-                                 pdf_parser: PDFParser,
-                                 target_table_dir: str) -> List[Table]:
+def retrieve_tables_from_paper_id(paper_id: str,
+                                  pdf_fetcher: PaperFetcher,
+                                  pdf_parser: PDFParser,
+                                  table_extractor: TableExtractor) -> List[Table]:
     """
 
     Handles caching (i.e. if target_file already exists locally, skips fetching)
@@ -51,9 +51,9 @@ def extract_tables_from_paper_id(paper_id: str,
             print(e)
             raise PipelineFetchPDFsException
 
-    # parse each PDF to XML
-    xml_path = pdf_parser.get_target_path(paper_id)
-    if not os.path.exists(xml_path):
+    # parse each PDF to some parsed output (e.g. XML)
+    parse_output_path = pdf_parser.get_target_path(paper_id)
+    if not os.path.exists(parse_output_path):
         try:
             pdf_parser.parse(paper_id, source_pdf_path=pdf_path)
         except PDFParserException as e:
@@ -61,24 +61,19 @@ def extract_tables_from_paper_id(paper_id: str,
             raise PipelineParsePDFsException
 
     # TODO: consider moving file path management into table_extractor
-    # extract tables from TETML or load if already exists
-    pickle_path = '{}.pickle'.format(os.path.join(target_table_dir, paper_id))
+    # extract tables from XML or load if already exists
+    pickle_path = table_extractor.get_target_path(paper_id)
     if not os.path.exists(pickle_path):
         try:
-            with open(xml_path, 'r') as f_xml:
-                tables = TetmlTableExtractor.extract_tables(
-                    tetml=BeautifulSoup(f_xml),
-                    paper_id=paper_id
-                )
-            with open(pickle_path, 'wb') as f_pickle:
-                pickle.dump(tables, f_pickle)
-
-        except TetmlTableExtractorException as e:
+            table_extractor.extract(paper_id=paper_id,
+                                    source_path=parse_output_path)
+        except TableExtractorException as e:
             print(e)
             raise PipelineExtractTablesException
-    else:
-        with open(pickle_path, 'rb') as f_pickle:
-            tables = pickle.load(f_pickle)
+
+    # retrieve tables
+    with open(pickle_path, 'rb') as f_pickle:
+        tables = pickle.load(f_pickle)
 
     return tables
 

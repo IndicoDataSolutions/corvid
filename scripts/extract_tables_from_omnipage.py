@@ -15,7 +15,7 @@ try:
 except:
     import pickle
 
-from config import OMNIPAGE_XML_DIR, PICKLE_DIR
+from config import OMNIPAGE_XML_DIR, OMNIPAGE_PICKLE_DIR
 
 DIVIDER = '\n\n-----------------------------------------------\n\n'
 
@@ -33,7 +33,9 @@ if __name__ == '__main__':
     omnipage_dir = args.input_dir if args.input_dir else OMNIPAGE_XML_DIR
 
     # define output files
-    pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR
+    pickle_dir = args.output_dir if args.output_dir else OMNIPAGE_PICKLE_DIR
+
+    table_extractor = OmnipageTableExtractor(target_dir=pickle_dir)
 
     # logs
     logs = {
@@ -55,16 +57,14 @@ if __name__ == '__main__':
         try:
             with open(omnipage_path, 'rb') as f_omnipage:
                 print('Extracting tables from {}...'.format(paper_id))
-                tables = OmnipageTableExtractor.extract_tables(
-                    xml=BeautifulSoup(f_omnipage),
-                    paper_id=paper_id
+                table_extractor.extract(
+                    paper_id=paper_id,
+                    source_path=omnipage_path
                 )
+                with open(pickle_path, 'rb') as f_pickle:
+                    tables = pickle.load(f_pickle)
 
                 print(DIVIDER.join([str(table) for table in tables]))
-
-                print('Pickling extracted tables for {}...'.format(paper_id))
-                with open(pickle_path, 'wb') as f_pickle:
-                    pickle.dump(tables, f_pickle)
 
                 papers.update({paper_id: tables})
 

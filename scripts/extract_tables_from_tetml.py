@@ -15,7 +15,7 @@ try:
 except:
     import pickle
 
-from config import TETML_XML_DIR, PICKLE_DIR
+from config import TETML_XML_DIR, TETML_PICKLE_DIR
 
 DIVIDER = '\n\n-----------------------------------------------\n\n'
 
@@ -33,7 +33,9 @@ if __name__ == '__main__':
     tetml_dir = args.input_dir if args.input_dir else TETML_XML_DIR
 
     # define output files
-    pickle_dir = args.output_dir if args.output_dir else PICKLE_DIR
+    pickle_dir = args.output_dir if args.output_dir else TETML_PICKLE_DIR
+
+    table_extractor = TetmlTableExtractor(target_dir=pickle_dir)
 
     # logs
     logs = {
@@ -55,16 +57,14 @@ if __name__ == '__main__':
         try:
             with open(tetml_path, 'r') as f_tetml:
                 print('Extracting tables from {}...'.format(paper_id))
-                tables = TetmlTableExtractor.extract_tables(
-                    tetml=BeautifulSoup(f_tetml),
+                table_extractor.extract(
                     paper_id=paper_id,
-                    caption_search_window=3)
+                    source_path=tetml_path
+                )
+                with open(pickle_path, 'rb') as f_pickle:
+                    tables = pickle.load(f_pickle)
 
                 print(DIVIDER.join([str(table) for table in tables]))
-
-                print('Pickling extracted tables for {}...'.format(paper_id))
-                with open(pickle_path, 'wb') as f_pickle:
-                    pickle.dump(tables, f_pickle)
 
                 papers.update({paper_id: tables})
 

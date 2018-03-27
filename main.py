@@ -18,11 +18,14 @@ import numpy as np
 # pipeline functions
 from collections import namedtuple
 GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
-from corvid.pipeline.extract_tables_from_paper_id import extract_tables_from_paper_id, POSSIBLE_EXCEPTIONS
+from corvid.pipeline.retrieve_tables_from_paper_id import retrieve_tables_from_paper_id, POSSIBLE_EXCEPTIONS
 
 # resource managers
 from corvid.pipeline.paper_fetcher import ElasticSearchJSONPaperFetcher, S3PDFPaperFetcher
 from corvid.pipeline.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
+
+# table extraction
+from corvid.table_extraction.table_extractor import TableExtractor, TetmlTableExtractor, OmnipageTableExtractor
 
 # table aggregation
 from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
@@ -80,8 +83,11 @@ tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
                                   target_dir=TETML_XML_DIR)
 omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
                                         target_dir=OMNIPAGE_XML_DIR)
+tetml_table_extractor = TetmlTableExtractor(target_dir=TETML_PICKLE_DIR)
+omnipage_table_extractor = OmnipageTableExtractor(target_dir=OMNIPAGE_PICKLE_DIR)
 
-def build_datasets(pdf_parser: PDFParser, target_table_pickle_dir: str) -> List[Dataset]:
+
+def build_datasets(pdf_parser: PDFParser, table_extractor: TableExtractor) -> List[Dataset]:
     with open(DATASETS_JSON, 'r') as f_datasets:
         dataset_records = json.load(f_datasets)
 
@@ -120,11 +126,11 @@ def build_datasets(pdf_parser: PDFParser, target_table_pickle_dir: str) -> List[
 
             try:
                 # note: may return fewer than number indicated in `gold_table_records`
-                candidate_gold_tables = extract_tables_from_paper_id(
+                candidate_gold_tables = retrieve_tables_from_paper_id(
                     paper_id=gold_table_record.paper_id,
                     pdf_fetcher=pdf_fetcher,
                     pdf_parser=pdf_parser,
-                    target_table_dir=target_table_pickle_dir
+                    table_extractor=table_extractor
                 )
 
                 for candidate_gold_table in candidate_gold_tables:
@@ -158,7 +164,7 @@ def build_datasets(pdf_parser: PDFParser, target_table_pickle_dir: str) -> List[
     return datasets
 
 
-def build_aggregates(pdf_parser: PDFParser, target_table_pickle_dir: str) -> Dict:
+def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> Dict:
     with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
         datasets = pickle.load(f_datasets_pickle)
 
@@ -187,11 +193,11 @@ def build_aggregates(pdf_parser: PDFParser, target_table_pickle_dir: str) -> Dic
             source_tables = []
             for source_paper_id in source_paper_ids:
                 try:
-                    source_tables.extend(extract_tables_from_paper_id(
+                    source_tables.extend(retrieve_tables_from_paper_id(
                         paper_id=source_paper_id,
                         pdf_fetcher=pdf_fetcher,
                         pdf_parser=pdf_parser,
-                        target_table_dir=target_table_pickle_dir
+                        table_extractor=table_extractor
                     ))
                     log_sources['num_source_table_success'] += 1
                 except Exception as e:
