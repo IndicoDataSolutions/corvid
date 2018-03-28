@@ -10,7 +10,7 @@ from bs4 import Tag, BeautifulSoup
 
 try:
     import cPickle as pickle
-except:
+except ImportError:
     import pickle
 
 from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
@@ -42,7 +42,8 @@ class TableExtractor(object):
             pickle.dump(tables, f)
         return target_path
 
-    def _extract(self, paper_id: str, source_path: str, target_path: str) -> List[Table]:
+    def _extract(self, paper_id: str, source_path: str, target_path: str,
+                 caption_search_window: int = 3) -> List[Table]:
         raise NotImplementedError
 
     def get_target_path(self, paper_id: str) -> str:
@@ -236,7 +237,6 @@ class OmnipageTableExtractor(TableExtractor):
 
                 try:
                     table = self._create_table_from_omnipage_xml(
-                        table_id=table_id,
                         table_tag=tag,
                         caption=self._select_caption(before, after),
                         paper_id=paper_id
@@ -268,8 +268,6 @@ class OmnipageTableExtractor(TableExtractor):
                                                               List[Tag]]:
         """Returns `before` and `after` caption candidates, ordered from
         closest to furthest proximity to the current table tag"""
-
-        table_tag = all_tags[index_table_tag]
 
         # get candidates seen before `table_tag`
         index_candidate = index_table_tag - 1
@@ -320,7 +318,6 @@ class OmnipageTableExtractor(TableExtractor):
 
 
     def _create_table_from_omnipage_xml(self,
-                                        table_id: int,
                                         table_tag: Tag,
                                         caption: str,
                                         paper_id: str) -> Table:

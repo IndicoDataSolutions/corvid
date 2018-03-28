@@ -4,7 +4,7 @@ The Table class is a physical representation of tables extracted from documents
 
 """
 
-from typing import List, Tuple, Callable, Union, Iterable
+from typing import List, Tuple, Union, Iterable
 
 import numpy as np
 

@@ -4,8 +4,6 @@ Classes that interfaces with external resources and download Paper files locally
 
 """
 
-from typing import List
-
 import os
 
 import requests

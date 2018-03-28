@@ -4,12 +4,11 @@ Compute evaluation metrics between `gold` and `pred` Tables
 
 """
 
-from typing import Dict, List, Callable
+from typing import Dict, List
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from corvid.types.semantic_table import SemanticTable
 from corvid.types.table import Cell, Table
 from corvid.util.lists import compute_similarity
 

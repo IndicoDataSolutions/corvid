@@ -11,7 +11,7 @@ from typing import List
 
 try:
     import cPickle as pickle
-except:
+except ImportError:
     import pickle
 
 

@@ -5,7 +5,7 @@
 """
 
 
-from typing import List, Dict
+from typing import List
 
 from corvid.types.table import Table
 
