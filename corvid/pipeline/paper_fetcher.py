@@ -17,7 +17,11 @@ from botocore.exceptions import ClientError
 
 
 # TODO: remove later; require user to implement own fetchers
-from config import convert_paper_id_to_s3_filename, convert_paper_id_to_es_id
+try:
+    from config import convert_paper_id_to_s3_filename, convert_paper_id_to_es_id
+except ImportError as e:
+    print(e)
+    raise ImportError
 
 
 class PaperFetcherException(Exception):

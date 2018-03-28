@@ -1,8 +1,0 @@
-"""
-
-
-
-"""
-
-class Schema(object):
-    pass
