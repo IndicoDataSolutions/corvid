@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -56,7 +56,12 @@ class SchemaMatcher(object):
                                    table1: Table,
                                    table2: Table) -> PairwiseMapping:
         """
-            Counts cell level match between rows of two tables
+            Counts cell level match between headers rows of two tables
+            Column Value Matcher doesn't naturally allow for mapping and
+            aggregating the schema with the rest of the tables. To
+            enable this we match the schema with the table's headers after
+            optimally mapping pairs of tables. This method is called to
+            do the header match between tables and the schema
         """
 
         cell_similarities = np.zeros(shape=(table1.ncol - 1,
@@ -109,8 +114,7 @@ class ColValueSchemaMatcher(SchemaMatcher):
             List[PairwiseMapping]:
 
         n = len(tables)
-        adj_matrix_pairwise_mappings = [[]]
-        adj_matrix_pairwise_mappings = [[0 for i in range(n)] for j in range(n)]
+        adj_matrix_pairwise_mappings = [[None for i in range(n)] for j in range(n)]
 
         for idx1 in range(n):
             for idx2 in range(idx1 + 1, n):
@@ -129,8 +133,9 @@ class ColValueSchemaMatcher(SchemaMatcher):
             [pairwise_mapping.score if isinstance(
                 pairwise_mapping,PairwiseMapping) else 0
             for pairwise_mapping in row] for row in adj_matrix_pairwise_mappings]
+
         mst = minimum_spanning_tree(
-            csr_matrix(adj_matrix_scores)).toarray().astype(int)
+            csr_matrix(adj_matrix_scores)).toarray().astype(float)
 
         adj_matrix_col_maps = [
                     [pairwise_mapping.column_mappings
