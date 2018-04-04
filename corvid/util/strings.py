@@ -37,8 +37,37 @@ def is_floatable(s: str) -> bool:
 
 
 def is_contains_alpha(s: str) -> bool:
-    return len(re.findall(pattern=r'[a-z,A-Z]', string=s)) > 0
+    return len(re.findall(pattern=r'[a-zA-Z]', string=s)) > 0
 
 
 def remove_non_alphanumeric(s: str) -> str:
     return re.sub('[^A-Za-z0-9]+', '', s)
+
+
+def is_like_citation(s: str) -> bool:
+    s = s.replace(' ', '').lower()
+    if len(s) < 1:
+        return False
+    is_begins_capitalized = s[0].isupper()
+    is_contains_et_al = 'etal' in s
+    is_contains_year_in_parentheses = re.search('\([1-2][0-9]{3}\)', s) is not None
+    is_contains_year_in_brackets = re.search('\[[1-2][0-9]{3}\]', s) is not None
+    is_contains_reference_brackets = re.search('\[[0-9]*\]', s) is not None
+    is_contains_year = re.search('[1-2][0-9]{3}', s) is not None
+    return is_contains_et_al or \
+           (is_begins_capitalized and is_contains_year_in_parentheses) or \
+           (is_begins_capitalized and is_contains_year_in_brackets) or \
+           (is_begins_capitalized and is_contains_reference_brackets) or \
+           (is_begins_capitalized and is_contains_year)
+
+def is_like_result(s: str) -> bool:
+    s = s.strip()
+    is_one_or_zero = s == '1' or s == '0'
+    is_contains_float = re.search('[0-9]*\.[0-9]*', s) is not None
+    is_contains_digit_percentage = re.search('[0-9]\%', s) is not None
+    is_only_number_symbol = not is_contains_alpha(s)
+    return is_one_or_zero or \
+           (is_only_number_symbol and is_contains_float ) or \
+           (is_only_number_symbol and is_contains_digit_percentage)
+
+

@@ -90,6 +90,10 @@ first_cell = table[0]
 5. maybe store all metadata non-specific to table externally from class  
 6. tests for file/tetml utils
 7. `[[cell for cell in row] for row in x]` make possible on Table `x` using `__iter__`; make `.grid` private after this 
+8. table filter in Aggregation step 
+
+## Extraction TODOs
+1. Excel to Gold annotation script + guidelines (think about how to map multcells); start w/ gold/target tables for each dataset
 
 ## Future
 - latex source to table (for training/evaluation)
