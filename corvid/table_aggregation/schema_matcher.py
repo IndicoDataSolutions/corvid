@@ -1,14 +1,12 @@
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import minimum_spanning_tree
 
-from corvid.schema_matcher.pairwise_mapping import PairwiseMapping
-from corvid.types.semantic_table import SemanticTable
+from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 from corvid.types.table import Table, Cell
-from corvid.util.strings import is_floatable
 
 
 class SchemaMatcher(object):

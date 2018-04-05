@@ -4,7 +4,7 @@ Functions for computations related to geometry of the page
 
 """
 
-from typing import List, Tuple
+from typing import List
 from collections import namedtuple
 
 Point = namedtuple('Point', ['x', 'y'])

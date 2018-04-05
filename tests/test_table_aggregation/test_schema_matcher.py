@@ -1,10 +1,9 @@
 import unittest
 
 from corvid.types.table import Token, Cell, Table
-from corvid.schema_matcher.pairwise_mapping import PairwiseMapping
-from corvid.schema_matcher.schema_matcher import SchemaMatcher, \
+from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
+from corvid.table_aggregation.schema_matcher import SchemaMatcher, \
     ColNameSchemaMatcher, ColValueSchemaMatcher
-
 
 class SchemaMatcherTest(unittest.TestCase):
 

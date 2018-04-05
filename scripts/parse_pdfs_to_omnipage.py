@@ -1,14 +1,14 @@
 """
 
-Parse raw PDFs using PDFLib's TET
+Parse raw PDFs using Nuance's OmniPage
 
 """
 
 import argparse
 import os
 
-from config import TET_BIN_PATH, PDF_DIR, TETML_XML_DIR
-from corvid.pipeline.pdf_parser import TetmlPDFParser
+from config import OMNIPAGE_BIN_PATH, PDF_DIR, OMNIPAGE_XML_DIR
+from corvid.pipeline.pdf_parser import OmnipagePDFParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -27,13 +27,13 @@ if __name__ == '__main__':
     pdf_paths = [os.path.join(pdf_dir, path) for path in os.listdir(pdf_dir)]
 
     # define output directory
-    output_dir = args.output_dir if args.output_dir else TETML_XML_DIR
+    output_dir = args.output_dir if args.output_dir else OMNIPAGE_XML_DIR
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     # define parser
-    pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
-                                target_dir=output_dir)
+    pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
+                                   target_dir=output_dir)
 
     num_success = 0
     for pdf_path in pdf_paths:

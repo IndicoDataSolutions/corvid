@@ -17,7 +17,7 @@ class PairwiseMapping(object):
     """
 
     def __init__(self, table1: Table, table2: Table,
-                 column_mappings: List[Tuple[int, int]] = [],
+                 column_mappings: List[Tuple[int, int]],
                  score: float = 0.0):
         self.table1 = table1
         self.table2 = table2

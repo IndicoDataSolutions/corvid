@@ -4,12 +4,11 @@ Compute evaluation metrics between `gold` and `pred` Tables
 
 """
 
-from typing import Dict, List, Callable
+from typing import Dict, List
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from corvid.types.semantic_table import SemanticTable
 from corvid.types.table import Cell, Table
 from corvid.util.lists import compute_similarity
 
@@ -106,13 +105,13 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 
 
 # TODO: link to documentation that describes formulas for each of these
-def compute_metrics(gold_table: Table, pred_table: Table) -> Dict[str, float]:
+def evaluate(gold_table: Table, pred_table: Table) -> Dict[str, float]:
     """Computes all evaluation metrics between a `gold` and `pred` Table pair"""
 
-    for gold_cell in gold_table.grid[0, :]:
-        for pred_cell in pred_table.grid[0, :]:
-            if str(gold_cell) != str(pred_cell):
-                raise Exception('`gold` and `pred` requires identical schema')
+    for gold_cell, pred_cell in zip(gold_table.grid[0, :],
+                                    pred_table.grid[0, :]):
+        if str(gold_cell) != str(pred_cell):
+            raise Exception('`gold` and `pred` requires identical schema')
 
     return {
         'row_level_recall': row_level_recall(gold_table, pred_table),
