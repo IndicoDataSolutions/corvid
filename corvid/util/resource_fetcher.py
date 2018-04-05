@@ -27,11 +27,11 @@ from botocore.exceptions import ClientError
 class FetcherException(Exception):
     pass
 
-class S3PaperPDFFetcherException(FetcherException):
-    pass
-
-class ElasticSearchPaperJSONFetcherException(FetcherException):
-    pass
+# class S3PaperPDFFetcherException(FetcherException):
+#     pass
+#
+# class ElasticSearchPaperJSONFetcherException(FetcherException):
+#     pass
 
 
 class Fetcher(object):
@@ -43,7 +43,6 @@ class Fetcher(object):
     def fetch(self, paper_id: str) -> str:
         """Primary method for fetching a Paper resource given its id.
         Returns the local path of the fetched file.
-
         Raises exception unless user implements `_fetch()`
         """
         target_path = self.get_target_path(paper_id)
@@ -51,9 +50,14 @@ class Fetcher(object):
         return target_path
 
     def _fetch(self, paper_id: str, target_path: str):
+        """User should implement this.  Recommended to catch Exceptions
+        and instead raise custom Exceptions based on FetcherException."""
         raise NotImplementedError
 
     def get_target_path(self, paper_id: str) -> str:
+        """Each fetcher is responsible for constructing output filenames
+        given the paper_id and self.target_dir.  This includes any special
+        nesting directories (e.g. multiple files fetched given paper_id)"""
         raise NotImplementedError
 
 

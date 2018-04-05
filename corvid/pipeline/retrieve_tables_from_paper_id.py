@@ -17,7 +17,7 @@ except ImportError:
 
 from corvid.types.table import Table
 from corvid.pipeline.paper_fetcher import Fetcher, FetcherException
-from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
+from corvid.table_extraction.pdf_parser import PDFParser, PDFParserException
 from corvid.table_extraction.table_extractor import TableExtractor, TableExtractorException
 
 class PipelineFetchPDFsException(Exception):

@@ -2,11 +2,8 @@
 
 """
 
-import os
-
-from typing import List, Dict
-
 import json
+from typing import List, Dict
 
 try:
     import cPickle as pickle
@@ -22,7 +19,7 @@ from corvid.pipeline.retrieve_tables_from_paper_id import retrieve_tables_from_p
 
 # resource managers
 from corvid.pipeline.paper_fetcher import ElasticSearchPaperJSONFetcher, S3PaperPDFFetcher
-from corvid.pipeline.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
+from corvid.table_extraction.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
 
 # table extraction
 from corvid.table_extraction.table_extractor import TableExtractor, TetmlTableExtractor, OmnipageTableExtractor

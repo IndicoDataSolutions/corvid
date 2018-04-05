@@ -8,7 +8,7 @@ import argparse
 import os
 
 from config import TET_BIN_PATH, PDF_DIR, TETML_XML_DIR
-from corvid.pipeline.pdf_parser import TetmlPDFParser
+from corvid.table_extraction.pdf_parser import TetmlPDFParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

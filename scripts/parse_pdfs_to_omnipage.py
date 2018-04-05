@@ -8,7 +8,7 @@ import argparse
 import os
 
 from config import OMNIPAGE_BIN_PATH, PDF_DIR, OMNIPAGE_XML_DIR
-from corvid.pipeline.pdf_parser import OmnipagePDFParser
+from corvid.table_extraction.pdf_parser import OmnipagePDFParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
