@@ -31,10 +31,10 @@ class PairwiseMapping(object):
         return self.score < other.score
 
     def __gt__(self, other: 'PairwiseMapping') -> bool:
-        return self.column_mappings > other.score
+        return self.score > other.score
 
     def __le__(self, other: 'PairwiseMapping') -> bool:
         return self.score <= other.score
 
     def __ge__(self, other: 'PairwiseMapping') -> bool:
-        return self.column_mappings >= other.score
+        return self.score >= other.score
