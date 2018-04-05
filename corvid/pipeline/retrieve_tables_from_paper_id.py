@@ -16,7 +16,7 @@ except ImportError:
 
 
 from corvid.types.table import Table
-from corvid.pipeline.paper_fetcher import PaperFetcher, PaperFetcherException
+from corvid.pipeline.paper_fetcher import Fetcher, FetcherException
 from corvid.pipeline.pdf_parser import PDFParser, PDFParserException
 from corvid.table_extraction.table_extractor import TableExtractor, TableExtractorException
 
@@ -33,7 +33,7 @@ POSSIBLE_EXCEPTIONS = [PipelineFetchPDFsException, PipelineParsePDFsException, P
 
 # TODO: logging mechanism that counts different types of Exceptions
 def retrieve_tables_from_paper_id(paper_id: str,
-                                  pdf_fetcher: PaperFetcher,
+                                  pdf_fetcher: Fetcher,
                                   pdf_parser: PDFParser,
                                   table_extractor: TableExtractor) -> List[Table]:
     """
@@ -47,7 +47,7 @@ def retrieve_tables_from_paper_id(paper_id: str,
     if not os.path.exists(pdf_path):
         try:
             pdf_fetcher.fetch(paper_id)
-        except PaperFetcherException as e:
+        except FetcherException as e:
             print(e)
             raise PipelineFetchPDFsException
 

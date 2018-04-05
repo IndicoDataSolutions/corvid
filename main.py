@@ -21,7 +21,7 @@ GoldTableRecord = namedtuple('GoldTableRecord', ['paper_id', 'caption_id'])
 from corvid.pipeline.retrieve_tables_from_paper_id import retrieve_tables_from_paper_id, POSSIBLE_EXCEPTIONS
 
 # resource managers
-from corvid.pipeline.paper_fetcher import ElasticSearchJSONPaperFetcher, S3PDFPaperFetcher
+from corvid.pipeline.paper_fetcher import ElasticSearchPaperJSONFetcher, S3PaperPDFFetcher
 from corvid.pipeline.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
 
 # table extraction
@@ -74,11 +74,11 @@ def get_source_paper_ids(es_client: Elasticsearch,
 
 # initialize resources
 schema_matcher = ColNameSchemaMatcher()
-json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
+json_fetcher = ElasticSearchPaperJSONFetcher(host_url=ES_PROD_URL,
                                              index=ES_PAPER_INDEX,
                                              doc_type=ES_PAPER_DOC_TYPE,
                                              target_dir=JSON_DIR)
-pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
+pdf_fetcher = S3PaperPDFFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
 tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
                                   target_dir=TETML_XML_DIR)
 omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,

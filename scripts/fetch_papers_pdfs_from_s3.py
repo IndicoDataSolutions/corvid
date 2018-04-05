@@ -7,7 +7,7 @@ Fetches remote Paper PDFs from S3 and saves to a directory
 import os
 import argparse
 
-from corvid.pipeline.paper_fetcher import S3PDFPaperFetcher
+from corvid.pipeline.paper_fetcher import S3PaperPDFFetcher
 from config import PDF_DIR, S3_PDFS_BUCKET
 
 if __name__ == '__main__':
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # TODO: add some endpoint verification
     s3_bucket = args.bucket if args.bucket else S3_PDFS_BUCKET
 
-    pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET,
+    pdf_fetcher = S3PaperPDFFetcher(bucket=S3_PDFS_BUCKET,
                                     target_dir=output_dir)
 
     papers = []
