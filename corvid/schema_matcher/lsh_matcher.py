@@ -5,6 +5,7 @@ from nearpy import Engine
 from nearpy.distances import CosineDistance
 from nearpy.hashes import LSHash, RandomBinaryProjections
 from nltk.util import ngrams
+from collections import Counter
 
 from corvid.schema_matcher.pairwise_mapping import PairwiseMapping
 from corvid.types.semantic_table import SemanticTable
@@ -20,7 +21,7 @@ class LSHMatcher(SchemaMatcher):
 
         rbp = RandomBinaryProjections('rbpt', 20)
         self.engine = Engine(self.vector_dimension, lshashes=[rbp],
-                        distance=CosineDistance())
+                             distance=CosineDistance())
 
     def map_tables(self, tables: List[Table], target_schema: Table) -> List[
         PairwiseMapping]:
@@ -31,10 +32,14 @@ class LSHMatcher(SchemaMatcher):
 
         for idx_c, cell in enumerate(target_schema[0, :]):
             ngram_vector = self._make_char_ngrams(str(cell))
-
+            count = Counter(ngram_vector)
+            ngram_count_vector = count.most_common(self.vector_dimension)
+            ngram_count_vector = [ngram_count_vector[i][1] for i in
+                                  range(len(ngram_count_vector))]
+            ngram_count_vector = self._pad_ngram_vector(ngram_count_vector, 100)
             self.matrix[idx_c, :] = nearpy.utils.utils.unitvec(
-                ngram_vector)
-            self.engine.store_vector(ngram_vector, idx_c)
+                np.asanyarray(ngram_count_vector))
+            self.engine.store_vector(ngram_count_vector, idx_c)
 
         for idx_t, table in enumerate(tables):
             schema = table[0, 1:]
@@ -51,8 +56,8 @@ class LSHMatcher(SchemaMatcher):
                 print(results)
                 column_mappings.append((results[0], cell))
                 exit(0)
-            pairwise_mappings.append(table1 = target_schema,
-                                     table2 = table,
+            pairwise_mappings.append(table1=target_schema,
+                                     table2=table,
                                      column_mappings=column_mappings)
 
     def _pad_ngram_vector(self, ngram_vector: List, dim: int) -> List:
