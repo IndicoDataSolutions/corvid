@@ -20,11 +20,22 @@ from corvid.table_extraction.pdf_to_xml_parser import PDFToXMLParser, \
 from corvid.table_extraction.xml_to_tables_parser import XMLToTablesParser, \
     TetmlXMLToTablesParser, OmnipageXMLToTablesParser
 
+from corvid.util.resource_fetcher import Fetcher
 
 class TableExtractor(object):
     def extract(self, paper_id: str, source_pdf_path: str,
                 *args, **kwargs) -> List[Table]:
         raise NotImplementedError
+
+    def fetch_and_extract(self, paper_id: str, source_pdf_path: str,
+                          fetcher: Fetcher, *args, **kwargs) -> List[Table]:
+        """Extension of `extract` method that allows user to provide a
+        (user-implemented) Fetcher object from which to fetch a remote
+        PDF, if cant find one locally for extraction"""
+        if not os.path.exists(source_pdf_path):
+            fetcher.fetch(paper_id)
+        tables = self.extract(paper_id, source_pdf_path, *args, **kwargs)
+        return tables
 
 
 class XMLTableExtractor(TableExtractor):
