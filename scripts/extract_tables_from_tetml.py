@@ -57,9 +57,9 @@ if __name__ == '__main__':
         try:
             with open(tetml_path, 'r') as f_tetml:
                 print('Extracting tables from {}...'.format(paper_id))
-                table_extractor.extract(
+                table_extractor.parse(
                     paper_id=paper_id,
-                    source_path=tetml_path
+                    source_xml_path=tetml_path
                 )
                 with open(pickle_path, 'rb') as f_pickle:
                     tables = pickle.load(f_pickle)

@@ -19,7 +19,7 @@ from corvid.pipeline.retrieve_tables_from_paper_id import retrieve_tables_from_p
 
 # resource managers
 from corvid.pipeline.paper_fetcher import ElasticSearchPaperJSONFetcher, S3PaperPDFFetcher
-from corvid.table_extraction.pdf_parser import PDFParser, TetmlPDFParser, OmnipagePDFParser
+from corvid.table_extraction.pdf_parser import PDFToXMLParser, TetmlPDFToXMLParser, OmnipagePDFToXMLParser
 
 # table extraction
 from corvid.table_extraction.table_extractor import TableExtractor, TetmlTableExtractor, OmnipageTableExtractor
@@ -76,15 +76,15 @@ json_fetcher = ElasticSearchPaperJSONFetcher(host_url=ES_PROD_URL,
                                              doc_type=ES_PAPER_DOC_TYPE,
                                              target_dir=JSON_DIR)
 pdf_fetcher = S3PaperPDFFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
-tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
-                                  target_dir=TETML_XML_DIR)
-omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
-                                        target_dir=OMNIPAGE_XML_DIR)
+tetml_pdf_parser = TetmlPDFToXMLParser(tet_bin_path=TET_BIN_PATH,
+                                       target_dir=TETML_XML_DIR)
+omnipage_pdf_parser = OmnipagePDFToXMLParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
+                                             target_dir=OMNIPAGE_XML_DIR)
 tetml_table_extractor = TetmlTableExtractor(target_dir=TETML_PICKLE_DIR)
 omnipage_table_extractor = OmnipageTableExtractor(target_dir=OMNIPAGE_PICKLE_DIR)
 
 
-def build_datasets(pdf_parser: PDFParser, table_extractor: TableExtractor) -> List[Dataset]:
+def build_datasets(pdf_parser: PDFToXMLParser, table_extractor: TableExtractor) -> List[Dataset]:
     with open(DATASETS_JSON, 'r') as f_datasets:
         dataset_records = json.load(f_datasets)
 
@@ -161,7 +161,7 @@ def build_datasets(pdf_parser: PDFParser, table_extractor: TableExtractor) -> Li
     return datasets
 
 
-def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> Dict:
+def build_aggregates(pdf_parser: PDFToXMLParser, table_extractor: TableExtractor) -> Dict:
     with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
         datasets = pickle.load(f_datasets_pickle)
 
