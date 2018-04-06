@@ -19,7 +19,7 @@ class LSHMatcher(SchemaMatcher):
         # Dimension of feature space
         self.vector_dimension = 100
 
-        rbp = RandomBinaryProjections('rbpt', 20)
+        rbp = RandomBinaryProjections('rbp', 20)
         self.engine = Engine(self.vector_dimension, lshashes=[rbp],
                              distance=CosineDistance())
 
