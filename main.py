@@ -78,13 +78,13 @@ json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
                                              index=ES_PAPER_INDEX,
                                              doc_type=ES_PAPER_DOC_TYPE,
                                              target_dir=JSON_DIR)
-pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
-tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
-                                  target_dir=TETML_XML_DIR)
-omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
-                                        target_dir=OMNIPAGE_XML_DIR)
-tetml_table_extractor = TetmlTableExtractor(target_dir=TETML_PICKLE_DIR)
-omnipage_table_extractor = OmnipageTableExtractor(target_dir=OMNIPAGE_PICKLE_DIR)
+# pdf_fetcher = S3PDFPaperFetcher(bucket=S3_PDFS_BUCKET, target_dir=PDF_DIR)
+# tetml_pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
+#                                   target_dir=TETML_XML_DIR)
+# omnipage_pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
+#                                         target_dir=OMNIPAGE_XML_DIR)
+# tetml_table_extractor = TetmlTableExtractor(target_dir=TETML_PICKLE_DIR)
+# omnipage_table_extractor = OmnipageTableExtractor(target_dir=OMNIPAGE_PICKLE_DIR)
 
 
 def build_datasets(pdf_parser: PDFParser, table_extractor: TableExtractor) -> List[Dataset]:
@@ -164,9 +164,9 @@ def build_datasets(pdf_parser: PDFParser, table_extractor: TableExtractor) -> Li
     return datasets
 
 
-def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> Dict:
-    with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
-        datasets = pickle.load(f_datasets_pickle)
+def build_aggregates(datasets) -> Dict:
+    # with open(DATASETS_PICKLE, 'rb') as f_datasets_pickle:
+    #     datasets = pickle.load(f_datasets_pickle)
 
     log_sources = {
         'num_missing_source_paper_ids': 0,
@@ -193,12 +193,15 @@ def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> 
             source_tables = []
             for source_paper_id in source_paper_ids:
                 try:
-                    source_tables.extend(retrieve_tables_from_paper_id(
-                        paper_id=source_paper_id,
-                        pdf_fetcher=pdf_fetcher,
-                        pdf_parser=pdf_parser,
-                        table_extractor=table_extractor
-                    ))
+                    # source_tables.extend(retrieve_tables_from_paper_id(
+                    #     paper_id=source_paper_id,
+                    #     pdf_fetcher=pdf_fetcher,
+                    #     pdf_parser=pdf_parser,
+                    #     table_extractor=table_extractor
+                    # ))
+                    with open('data/omnipage/pickle/{}.pickle'.format(source_paper_id), 'rb') as f_source_paper:
+                        source_tables.extend(pickle.load(f_source_paper))
+
                     log_sources['num_source_table_success'] += 1
                 except Exception as e:
                     if type(e) not in POSSIBLE_EXCEPTIONS:
@@ -241,14 +244,17 @@ def build_aggregates(pdf_parser: PDFParser, table_extractor: TableExtractor) -> 
 
 if __name__ == '__main__':
 
-    tetml_datasets = build_datasets(tetml_pdf_parser, tetml_table_extractor)
-    omnipage_datasets = build_datasets(omnipage_pdf_parser, omnipage_table_extractor)
+    # tetml_datasets = build_datasets(tetml_pdf_parser, tetml_table_extractor)
+    # omnipage_datasets = build_datasets(omnipage_pdf_parser, omnipage_table_extractor)
+    with open('data/datasets.pickle', 'rb') as f_datasets:
+        omnipage_datasets = pickle.load(f_datasets)
 
-    tetml_results = build_aggregates(tetml_pdf_parser, tetml_table_extractor)
-    omnipage_results = build_aggregates(omnipage_pdf_parser, omnipage_table_extractor)
+    # tetml_results = build_aggregates(tetml_pdf_parser, tetml_table_extractor)
+    omnipage_results = build_aggregates(datasets=omnipage_datasets)
 
-    print(np.mean([result.get('score').get('cell_level_recall') for results in tetml_results.values() for result in results]))
-    print(np.mean([result.get('score').get('row_level_recall') for results in tetml_results.values() for result in results]))
+
+    #print(np.mean([result.get('score').get('cell_level_recall') for results in tetml_results.values() for result in results]))
+    #print(np.mean([result.get('score').get('row_level_recall') for results in tetml_results.values() for result in results]))
 
     print(np.mean([result.get('score').get('cell_level_recall') for results in omnipage_results.values() for result in results]))
     print(np.mean([result.get('score').get('row_level_recall') for results in omnipage_results.values() for result in results]))
