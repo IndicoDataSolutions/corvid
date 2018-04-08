@@ -1,6 +1,7 @@
 """
 
 Classes that take local XML (output of PDFToXMLParser) and instantiate Tables.
+Also pickles the instantiated Tables for caching.
 Typical usage is within TableExtractor that utilizes external PDF parsing tools.
 
 """
@@ -30,57 +31,35 @@ class OmnipageXMLToTablesParserException(XMLToTablesParserException):
 
 
 class XMLToTablesParser(object):
-    def __init__(self, target_dir: str):
-        if not os.path.exists(target_dir):
-            raise FileNotFoundError('Target directory {} doesnt exist'
-                                    .format(target_dir))
-        self.target_dir = target_dir
+    def parse(self, source_xml_path: str, target_pkl_path: str, paper_id: str,
+              *args, **kwargs) -> List[Table]:
+        with open(source_xml_path, 'r') as f_in:
+            xml = BeautifulSoup(f_in)
+        tables = self._parse(xml, paper_id, *args, **kwargs)
+        with open(target_pkl_path, 'wb') as f_out:
+            pickle.dump(tables, f_out)
+        return tables
 
-    def parse(self, paper_id: str, source_xml_path: str, *args, **kwargs) -> str:
-        """Instantiates Tables from an XML for a given Paper.
-        Returns the local path of the pickled output of the parsing.
-        Raises exception unless user implements `_parse()`
-        """
-        target_pkl_path = self.get_target_path(paper_id)
-        tables = self._parse(paper_id, source_xml_path, *args, **kwargs)
-        with open(target_pkl_path, 'wb') as f:
-            pickle.dump(tables, f)
-        return target_pkl_path
-
-    def _parse(self, paper_id: str, source_xml_path: str,
+    def _parse(self, xml: BeautifulSoup, paper_id: str,
                *args, **kwargs) -> List[Table]:
-        """User should implement this.
-        Recommended to catch Exceptions and then raise custom Exceptions
-        based on XMLToTablesParserException.
-        """
         raise NotImplementedError
-
-    def get_target_path(self, paper_id: str) -> str:
-        """Each XML to Tables parser is responsible for constructing output
-        filenames given the paper_id and self.target_dir.  This includes any
-        special nesting directories (e.g. multiple files output given paper_id)
-        """
-        return '{}.pickle'.format(os.path.join(self.target_dir, paper_id))
 
 
 class TetmlXMLToTablesParser(XMLToTablesParser):
-    def _parse(self, paper_id: str, source_xml_path: str,
+    def _parse(self, xml: BeautifulSoup, paper_id: str,
                caption_search_window: int = 3,
                *args, **kwargs) -> List[Table]:
 
-        with open(source_xml_path, 'r') as f:
-            tetml = BeautifulSoup(f)
-
         tables = []
-        table_id = 0
+        table_counter = 0
         num_success, num_fail = 0, 0
-        tags = tetml.find_all(['table', 'para'])
+        tags = xml.find_all(['table', 'para'])
         for index_tag, tag in enumerate(tags):
 
             if tag.name == 'para':
                 continue
 
-            elif tag.name == 'table':
+            if tag.name == 'table':
                 before, after = self._find_caption_candidates(
                     index_table_tag=index_tag,
                     all_tags=tags,
@@ -88,25 +67,21 @@ class TetmlXMLToTablesParser(XMLToTablesParser):
 
                 try:
                     table = self._create_table_from_tetml(
-                        table_id=table_id,
+                        table_id=table_counter,
                         table_tag=tag,
                         caption=self._select_caption(before, after),
                         paper_id=paper_id
                     )
                     tables.append(table)
-                    print('Parsed Table {}.'.format(table_id))
+                    print('Parsed Table {}.'.format(table_counter))
                     num_success += 1
                 except Exception as e:
                     print(e)
                     print('Failed to parse Table {}. Skipping...'
-                          .format(table_id))
+                          .format(table_counter))
                     num_fail += 1
 
-                table_id += 1
-
-            else:
-                raise TetmlXMLToTablesParserException(
-                    'Should only be seeing `table` and `para` tags')
+                table_counter += 1
 
         print('Successfully parsed {} of {} detected tables'
               .format(num_success, num_success + num_fail))
@@ -230,15 +205,12 @@ class TetmlXMLToTablesParser(XMLToTablesParser):
 
 
 class OmnipageXMLToTablesParser(XMLToTablesParser):
-    def _parse(self, paper_id: str, source_xml_path: str,
+    def _parse(self, xml: BeautifulSoup, paper_id: str,
                caption_search_window: int = 3,
                *args, **kwargs) -> List[Table]:
 
-        with open(source_xml_path, 'rb') as f:
-            xml = BeautifulSoup(f)
-
         tables = []
-        table_id = 0
+        table_counter = 0
         num_success, num_fail = 0, 0
         tags = xml.find_all(['tablezone', 'textzone'])
         for index_tag, tag in enumerate(tags):
@@ -246,7 +218,7 @@ class OmnipageXMLToTablesParser(XMLToTablesParser):
             if tag.name == 'textzone':
                 continue
 
-            elif tag.name == 'tablezone':
+            if tag.name == 'tablezone':
                 before, after = self._find_caption_candidates(
                     index_table_tag=index_tag,
                     all_tags=tags,
@@ -259,19 +231,15 @@ class OmnipageXMLToTablesParser(XMLToTablesParser):
                         paper_id=paper_id
                     )
                     tables.append(table)
-                    print('Parsed Table {}.'.format(table_id))
+                    print('Parsed Table {}.'.format(table_counter))
                     num_success += 1
                 except Exception as e:
                     print(e)
                     print('Failed to parse Table {}. Skipping...'
-                          .format(table_id))
+                          .format(table_counter))
                     num_fail += 1
 
-                table_id += 1
-
-            else:
-                raise OmnipageXMLToTablesParserException(
-                    'Should only be seeing `tablezone` and `textzone` tags')
+                table_counter += 1
 
         print('Successfully parsed {} of {} detected tables'
               .format(num_success, num_success + num_fail))
