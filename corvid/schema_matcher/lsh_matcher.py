@@ -33,11 +33,9 @@ class LSHMatcher(SchemaMatcher):
         self.matrix = np.zeros((target_schema.ncol, self.vector_dimension))
 
         all_ngrams = []
-        ngram_term_weights =[]
-        for idx_t, table in enumerate(tables):
+        for table in tables:
             schema = table[0, 1:]
-            column_mappings = []
-            for idx_c, cell in enumerate(schema[0, :]):
+            for idx_c, cell in enumerate(schema):
                 all_ngrams.append(self._make_char_ngrams(str(cell)))
 
         ngram_term_weights = self._term_weigh_ngrams(all_ngrams)
@@ -73,7 +71,7 @@ class LSHMatcher(SchemaMatcher):
         for idx_t, table in enumerate(tables):
             schema = table[0, 1:]
             column_mappings = []
-            for idx_c, cell in enumerate(schema[0, :]):
+            for idx_c, cell in enumerate(schema):
                 ngram_vector = self._make_char_ngrams(str(cell))
                 padded_ngram_vector = self._pad_ngram_vector(ngram_vector, 100)
                 # Get random query vector
