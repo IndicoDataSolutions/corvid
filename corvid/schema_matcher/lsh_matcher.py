@@ -4,10 +4,10 @@ import nearpy.utils.utils
 from nearpy import Engine
 from nearpy.distances import CosineDistance
 from nearpy.hashes import LSHash, RandomBinaryProjections
+from nearpy.filters.nearestfilter import NearestFilter
+from nearpy.filters.distancethresholdfilter import DistanceThresholdFilter
 from nltk.util import ngrams
-from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
-from google_ngram_downloader import readline_google_store
 
 from corvid.schema_matcher.pairwise_mapping import PairwiseMapping
 from corvid.types.semantic_table import SemanticTable
@@ -23,7 +23,8 @@ class LSHMatcher(SchemaMatcher):
 
         rbp = RandomBinaryProjections('rbp', 20)
         self.engine = Engine(self.vector_dimension, lshashes=[rbp],
-                             distance=CosineDistance())
+                             distance=CosineDistance(),
+                             vector_filters=[NearestFilter(10)])
 
     def map_tables(self, tables: List[Table], target_schema: Table) -> List[
         PairwiseMapping]:
@@ -35,49 +36,56 @@ class LSHMatcher(SchemaMatcher):
         all_ngrams = []
         for table in tables:
             schema = table[0, 1:]
-            for idx_c, cell in enumerate(schema):
+            for cell in schema:
                 all_ngrams.append(self._make_char_ngrams(str(cell)))
 
         ngram_string = [' '.join(ngrams) for ngrams in all_ngrams]
         ngram_term_weights = self._term_weigh_ngrams(ngram_string)
+        # print(ngram_term_weights)
 
         # hash the target schema using random projections method
-        for idx_c, cell in enumerate(target_schema[0, :]):
+        for idx_c, cell in enumerate(target_schema[0, 1:]):
             ngram_vector = self._make_char_ngrams(str(cell))
             ngram_weight_vector = [ngram_term_weights[ngram] for ngram in
-                                   range(len(ngram_vector))]
+                                   ngram_vector]
             ngram_weight_vector = self._pad_ngram_vector(ngram_weight_vector,
-                                                         100)
+                                                         self.vector_dimension)
             self.matrix[idx_c, :] = nearpy.utils.utils.unitvec(
-                np.asanyarray(ngram_weight_vector))
-            self.engine.store_vector(ngram_weight_vector, idx_c)
+                np.asarray(ngram_weight_vector))
+            ngram_weight_vector_np = np.asarray(ngram_weight_vector)
+            self.engine.store_vector(ngram_weight_vector_np, idx_c)
 
-        #query for the nearest neighbour to target schemas
+        # query for the nearest neighbour to target schemas
         for idx_t, table in enumerate(tables):
             schema = table[0, 1:]
             column_mappings = []
             for idx_c, cell in enumerate(schema):
                 ngram_vector = self._make_char_ngrams(str(cell))
                 ngram_weight_vector = [ngram_term_weights[ngram] for ngram in
-                                       range(len(ngram_vector))]
-                ngram_weight_vector = self._pad_ngram_vector(ngram_weight_vector,
-                                                            100)
-                # Get random query vector
+                                       ngram_vector]
+                ngram_weight_vector = self._pad_ngram_vector(
+                    ngram_weight_vector,
+                    self.vector_dimension)
+                ngram_weight_vector_np = np.asarray(ngram_weight_vector)
+                ngram_weight_vector_np = nearpy.utils.utils.unitvec(
+                    ngram_weight_vector_np)
+                print(ngram_weight_vector_np)
                 # query = np.random.randn(self.dim)
                 print('\nNeighbour distances with RandomBinaryProjections:')
                 print('\n Candidate count is %d' % self.engine.candidate_count(
-                    ngram_weight_vector))
-                results = self.engine.neighbours(ngram_weight_vector)
+                    ngram_weight_vector_np))
+                results = self.engine.neighbours(ngram_weight_vector_np)
                 print('  Data \t| Distance')
                 for r in results:
                     data = r[1]
                     dist = r[2]
-                    print('  {} \t| {:.4f}'.format(data, dist))
-                column_mappings.append((results[0], cell))
-                exit(0)
-            pairwise_mappings.append(table1=target_schema,
-                                     table2=table,
-                                     column_mappings=column_mappings)
+                    print('  {} \t| {:.4f} | '.format(data, dist))
+                if results:
+                    column_mappings.append((results[0][1] + 1, idx_c))
+            pairwise_mappings.append(PairwiseMapping(table1=target_schema,
+                                                     table2=table,
+                                                     column_mappings=column_mappings))
+        return pairwise_mappings
 
     def _pad_ngram_vector(self, ngram_vector: List, dim: int) -> List:
         padding = [0 for i in range(dim - len(ngram_vector))]
@@ -108,29 +116,4 @@ class LSHMatcher(SchemaMatcher):
         return char_ngrams
 
 
-class SchemaMatchHash(LSHash):
 
-    def reset(self, dim):
-        """ Resets / Initializes the hash for the specified dimension. """
-        raise NotImplementedError
-
-    def hash_vector(self, v, querying=False):
-        """
-        Hashes the vector and returns a list of bucket keys, that match the
-        vector. Depending on the hash implementation this list can contain
-        one or many bucket keys. Querying is True if this is used for
-        retrieval and not indexing.
-        """
-        raise NotImplementedError
-
-    def get_config(self):
-        """
-        Returns pickle-serializable configuration struct for storage.
-        """
-        raise NotImplementedError
-
-    def apply_config(self, config):
-        """
-        Applies config
-        """
-        raise NotImplementedError
