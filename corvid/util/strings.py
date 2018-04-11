@@ -14,7 +14,7 @@ def format_grid(grid: List[List[str]]) -> str:
     """
     e.g.
     input: [['a', 'b', 'c'], ['d', 'e', 'f']]
-    output: 'a\tb\t\c\nd\te\tf'
+    output: 'a\tb\tc\nd\te\tf'
     printed:
     >    a   b   c
     >    d   e   f
