@@ -29,6 +29,7 @@ from corvid.table_extraction.table_extractor import TableExtractor, TetmlTableEx
 
 # table aggregation
 from corvid.table_aggregation.schema_matcher import ColNameSchemaMatcher
+from corvid.table_aggregation.schema_matcher import ColValueSchemaMatcher
 from corvid.table_aggregation.evaluate import evaluate
 
 # types
@@ -74,6 +75,8 @@ def get_source_paper_ids(es_client: Elasticsearch,
 
 # initialize resources
 schema_matcher = ColNameSchemaMatcher()
+schema_matcher2 = ColValueSchemaMatcher()
+
 json_fetcher = ElasticSearchJSONPaperFetcher(host_url=ES_PROD_URL,
                                              index=ES_PAPER_INDEX,
                                              doc_type=ES_PAPER_DOC_TYPE,
@@ -212,11 +215,11 @@ def build_aggregates(datasets) -> Dict:
                                 log_sources['num_source_table_known_exceptions'][type(e).__name__] += 1
                     continue
 
-            pairwise_mappings = schema_matcher.map_tables(
+            pairwise_mappings = schema_matcher2.map_tables(
                 tables=source_tables,
                 target_schema=gold_table
             )
-            aggregate_table = schema_matcher.aggregate_tables(
+            aggregate_table = schema_matcher2.aggregate_tables(
                 pairwise_mappings=pairwise_mappings,
                 target_schema=gold_table
             )

@@ -163,17 +163,14 @@ class ColValueSchemaMatcher(SchemaMatcher):
                     map_score = 0.0
                     for sidx, schema_cell in enumerate(target_schema[0, 1:]):
                         for tuple in col_map:
-                            if self._compute_cell_similarity(schema_cell,
-                                                             tables[idx_c].
-                                                                     grid[0][
-                                                                 tuple[
-                                                                     0]]) >= 1.0:
-                                col_map_opt.append((sidx + 1, tuple[0]))
-                                map_score +=  self._compute_cell_similarity(schema_cell,
-                                                             tables[idx_c].
-                                                                     grid[0][
-                                                                 tuple[
-                                                                     0]]) >= 1.0
+                            try:
+                                if self._compute_cell_similarity(schema_cell, tables[idx_c].grid[0][tuple[0]]) >= 1.0:
+                                    col_map_opt.append((sidx + 1, tuple[0]))
+                                    map_score +=  self._compute_cell_similarity(schema_cell, tables[idx_c].grid[0][tuple[0]]) >= 1.0
+                            except IndexError:
+                                pass
+                                #print("index out of bounds \n", len(tables), idx_c, tables[-1])
+
                     if idx_c not in tables_merged_to_schema:
                         pairwise_mappings_opt.append(
                             PairwiseMapping(target_schema, tables[idx_c],
@@ -210,11 +207,13 @@ class ColValueSchemaMatcher(SchemaMatcher):
 
                 # fill cells with source table values according to column mappings
                 for index_source_col, index_target_col in pairwise_mapping.column_mappings:
-                    aggregate_table.grid[
-                        index_agg_table_insert, index_target_col] = \
-                        pairwise_mapping.table1[
-                            idx_source_row, index_source_col]
-
+                    try:
+                        aggregate_table.grid[
+                            index_agg_table_insert, index_target_col] = \
+                            pairwise_mapping.table1[
+                                idx_source_row, index_source_col]
+                    except IndexError:
+                        pass
                 index_agg_table_insert += 1
 
         return aggregate_table
@@ -225,11 +224,10 @@ class ColValueSchemaMatcher(SchemaMatcher):
         to indicate the match between two columns of any length"""
 
         try:
-            l1 = [float(str(cell)) for cell in l1]
-            l2 = [float(str(cell)) for cell in l2]
-        except Exception as e:
+            l1 = [float(str(cell).replace(" ", "")) for cell in l1]
+            l2 = [float(str(cell).replace(" ", "")) for cell in l2]
+        except ValueError as e:
             print(e)
-            raise ValueError
 
         if agg == 'mean':
             return np.mean(l1) - np.mean(l2)
@@ -267,33 +265,50 @@ class ColValueSchemaMatcher(SchemaMatcher):
         for table1_col_idx in range(1, table1.ncol):
             for table2_col_idx in range(1, table2.ncol):
                 if agg == 'mean':
-                    column_cell_match[table1_col_idx - 1][
-                        table2_col_idx - 1] = \
-                        self._compute_cell_list_distance(
-                            table1[:, table1_col_idx],
-                            table2[:, table2_col_idx],
-                            agg='mean')
+                    try:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = \
+                            self._compute_cell_list_distance(
+                                table1[:, table1_col_idx],
+                                table2[:, table2_col_idx],
+                                agg='mean')
+                    except ValueError:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = 0
+
                 elif agg == 'max':
-                    column_cell_match[table1_col_idx - 1][
-                        table2_col_idx - 1] = \
-                        self._compute_cell_list_distance(
-                            table1[:, table1_col_idx],
-                            table2[:, table2_col_idx],
-                            agg='max')
+                    try:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = \
+                            self._compute_cell_list_distance(
+                                table1[:, table1_col_idx],
+                                table2[:, table2_col_idx],
+                                agg='max')
+                    except ValueError:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = 0
                 elif agg == 'min':
-                    column_cell_match[table1_col_idx - 1][
-                        table2_col_idx - 1] = \
-                        self._compute_cell_list_distance(
-                            table1[:, table1_col_idx],
-                            table2[:, table2_col_idx],
-                            agg='min')
+                    try:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = \
+                            self._compute_cell_list_distance(
+                                table1[:, table1_col_idx],
+                                table2[:, table2_col_idx],
+                                agg='min')
+                    except:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = 0
                 else:
-                    column_cell_match[table1_col_idx - 1][
-                        table2_col_idx - 1] = \
-                        self._compute_cell_list_distance(
-                            table1[1:, table1_col_idx],
-                            table2[1:, table2_col_idx],
-                            agg='none')
+                    try:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = \
+                            self._compute_cell_list_distance(
+                                table1[1:, table1_col_idx],
+                                table2[1:, table2_col_idx],
+                                agg='none')
+                    except ValueError:
+                        column_cell_match[table1_col_idx - 1][
+                            table2_col_idx - 1] = 0
 
         # negative sign here because scipy implementation minimizes
         # sum of weights
