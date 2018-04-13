@@ -454,9 +454,8 @@ class ColumnValueSchemaMatcher(unittest.TestCase):
             Cell(tokens=[Token(text='5')], rowspan=1, colspan=1)
         ], nrow=4, ncol=3)
 
-        print(pred_aggregate_table)
-        print(gold_aggregate_table)
         self.assertEquals(pred_aggregate_table, gold_aggregate_table)
+
 
 class LSHMatcherTest(unittest.TestCase):
     def setUp(self):
@@ -608,33 +607,40 @@ class LSHMatcherTest(unittest.TestCase):
                                 column_mappings=[(2, 1)])
             ])
 
-        pfail = schema_matcher.map_tables(
-            tables=[self.table_source,
-                    self.table_less_header,
-                    self.table_more_header],
-            target_schema=target_schema_permuted
-        )
+    def test_aggregate_tables(self):
+        schema_matcher = ColValueSchemaMatcher()
 
-        for p in pfail:
-            print(p.column_mappings, p.score)
+        target_schema = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='not_copied')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='not_copied')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='not_copied')], rowspan=1, colspan=1)
+        ], nrow=2, ncol=3)
 
-        self.assertListEqual(schema_matcher.map_tables(
-            tables=[self.table_source,
-                    self.table_less_header,
-                    self.table_more_header],
-            target_schema=target_schema_permuted
-        ),
-            [
-                PairwiseMapping(self.table_source,
-                                target_schema_permuted,
-                                score=0.01,
-                                column_mappings=[(1, 2), (2, 1)]),
-                PairwiseMapping(self.table_less_header,
-                                target_schema_permuted,
-                                score=0.0,
-                                column_mappings=[(1, 1)]),
-                PairwiseMapping(self.table_more_header,
-                                target_schema_permuted,
-                                score=0.06,
-                                column_mappings=[(1, 1), (2, 2)]),
-            ])
+        pred_aggregate_table = schema_matcher.aggregate_tables(
+            pairwise_mappings=[
+                PairwiseMapping(self.table_source, target_schema,
+                                score=-999, column_mappings=[(1, 2), (2, 1)])
+            ],
+            target_schema=target_schema)
+
+        gold_aggregate_table = Table.create_from_cells([
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='3')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='6')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1)
+        ], nrow=4, ncol=3)
+
+        print(pred_aggregate_table)
+        print(gold_aggregate_table)
+        self.assertEquals(pred_aggregate_table, gold_aggregate_table)
