@@ -8,7 +8,7 @@ import argparse
 import os
 
 from config import OMNIPAGE_BIN_PATH, PDF_DIR, OMNIPAGE_XML_DIR
-from corvid.pipeline.pdf_parser import OmnipagePDFParser
+from corvid.table_extraction.pdf_parser import OmnipagePDFToXMLParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -32,8 +32,8 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
     # define parser
-    pdf_parser = OmnipagePDFParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
-                                   target_dir=output_dir)
+    pdf_parser = OmnipagePDFToXMLParser(omnipage_bin_path=OMNIPAGE_BIN_PATH,
+                                        target_dir=output_dir)
 
     num_success = 0
     for pdf_path in pdf_paths:

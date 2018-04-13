@@ -8,7 +8,7 @@ import argparse
 import os
 
 from config import TET_BIN_PATH, PDF_DIR, TETML_XML_DIR
-from corvid.pipeline.pdf_parser import TetmlPDFParser
+from corvid.table_extraction.pdf_parser import TetmlPDFToXMLParser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -32,8 +32,8 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
     # define parser
-    pdf_parser = TetmlPDFParser(tet_bin_path=TET_BIN_PATH,
-                                target_dir=output_dir)
+    pdf_parser = TetmlPDFToXMLParser(tet_bin_path=TET_BIN_PATH,
+                                     target_dir=output_dir)
 
     num_success = 0
     for pdf_path in pdf_paths:

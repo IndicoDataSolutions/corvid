@@ -4,20 +4,66 @@ Extract and aggregate tables of empirical results from computer science papers!
 
 ## Installation
 
-This project requires **Python 3.6**.
+This project requires **Python 3.6**.  We recommend you set up a conda environment:
+ 
+```
+conda create -n corvid python=3.6
+source activate corvid
+```
 
-The dependencies are listed in the `requirements.in` file.
-
-You'll also need **[PDFLib's TET toolkit v5.1](https://www.pdflib.com/download/tet/)** for parsing PDFs.  You'll need to provide the path to the binary executable under `bin/tet` after downloading and extracting.
-
-After installing, you can run all the **tests** via:
+The dependencies are listed in the `requirements.in` file:
 
 ```
-cd corvid
+pip install -r requirements.in
+```
+
+After installing, you can run all the unit tests:
+
+```
 pytest tests/
 ```
 
-## Usage
+#### Other dependencies
+If you're interested in using one of the predefined Table extractors from the `table_extraction` module, you'll also need to install a tool to parse PDFs to XML.  We currently support **[PDFLib's TET toolkit v5.1](https://www.pdflib.com/download/tet/)** and **[Nuance's OmniPage Capture SDK v20.2](https://www.nuance.com/print-capture-and-pdf-solutions/optical-character-recognition/omnipage/omnipage-for-developers.html)**.  For TET, you'll need the path to the `bin/tet` executable after installation.  For OmniPage, you'll need to run `make` to build `corvid.cpp` within the module `omnipage/` in this repo.  
+
+## Project structure
+
+```
+|-- corvid/
+|   |-- table_extraction/
+|   |   |-- table_extractor.py
+|   |   |-- evaluate.py
+|   |-- table_aggregation/
+|   |   |-- schema_matcher.py
+|   |   |-- evaluate.py
+|   |-- types/
+|   |   |-- table.py
+|-- tests/
+|-- config.py
+|-- requirements.in
+```
+
+A few important things:
+- `table.py` contains the `Table` class, which is the data structure used to represent Tables.  It's fine to think of `Table` as a wrapper around a 2D `numpy` array, where each `[i,j]` element represents a cell in the Table.
+
+- `table_extractor.py` contains the `TableExtractor` class.  The `.extract()` method extracts `Table` objects from a PDF input.
+ 
+- `schema_matcher.py` contains the `SchemaMatcher` class.  The `.aggregate_tables()` method takes a list of `Table` objects and finds alignments between columns.  For example, a column "p" in Table 1 could be aligned with another column "precision" in Table 2.  The `.map_tables()` method uses these alignments to build a single aggregate Table.    
+ 
+- `evaluate.py` contains a function `evaluate()` which computes a suite of performance metrics on a given a Gold Table and Predicted Table pair.  The `table_extraction` and `table_aggregation` modules have their own respective evaluation methods.
+
+## Usage / API
+
+The repo contains two modules:
+
+#### `table_extraction`
+
+
+
+
+#### `table_aggregation`
+
+## Example
 
 First, prepare `paper_ids.txt` that looks like:
 
@@ -90,10 +136,14 @@ first_cell = table[0]
 5. maybe store all metadata non-specific to table externally from class  
 6. tests for file/tetml utils
 7. `[[cell for cell in row] for row in x]` make possible on Table `x` using `__iter__`; make `.grid` private after this 
+8. Script for inspecting Table pickles
+9. Naming.  Alignment seems to denote bidirectionality vs Mapping has direction.
 
 ## Future
 - latex source to table (for training/evaluation)
 - parsing heuristics
+
+
 
 
 ## Miscellaneous
