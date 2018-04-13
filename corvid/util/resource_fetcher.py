@@ -18,18 +18,10 @@ class Fetcher(object):
                                     .format(target_dir))
         self.target_dir = target_dir
 
-    def fetch(self, paper_id: str) -> str:
+    def fetch(self, paper_id: str):
         """Primary method for fetching a Paper resource given its id.
         Returns the local path of the fetched file.
-        Raises exception unless user implements `_fetch()`
         """
-        target_path = self.get_target_path(paper_id)
-        self._fetch(paper_id, target_path)
-        return target_path
-
-    def _fetch(self, paper_id: str, target_path: str):
-        """User should implement this.  Recommended to catch Exceptions
-        and instead raise custom Exceptions based on FetcherException."""
         raise NotImplementedError
 
     def get_target_path(self, paper_id: str) -> str:
