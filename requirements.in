@@ -9,6 +9,7 @@ beautifulsoup4==4.6.0
 # scipy
 numpy==1.14.1
 scipy==1.0.0
+nearpy==1.0.0
 
 # misc
 pylint==1.8.1
