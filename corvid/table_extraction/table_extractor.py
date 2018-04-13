@@ -1,176 +1,89 @@
 """
 
-
+Classes that extract as many Tables as possible from a local PDF.
 
 """
 
-from typing import Tuple, List
-from bs4 import Tag, BeautifulSoup
+import os
 
-from corvid.types.table import Token, Cell, Table, Box, EMPTY_CAPTION
+from typing import List
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
+from corvid.types.table import Table
+
+from corvid.table_extraction.pdf_to_xml_parser import PDFToXMLParser, \
+    TetmlPDFToXMLParser, OmnipagePDFToXMLParser
+from corvid.table_extraction.xml_to_tables_parser import XMLToTablesParser, \
+    TetmlXMLToTablesParser, OmnipageXMLToTablesParser
 
 
 class TableExtractor(object):
-    @classmethod
-    def extract_tables(cls, xml: BeautifulSoup) -> List[Table]:
+    def extract(self, paper_id: str, source_pdf_path: str, tables_pkl_path: str,
+                *args, **kwargs) -> List[Table]:
         raise NotImplementedError
 
+    # def fetch_and_extract(self, paper_id: str,
+    #                       source_pdf_path: str,
+    #                       tables_pkl_path: str,
+    #                       fetcher: Fetcher, *args, **kwargs) -> List[Table]:
+    #     """Extension of `extract` method that allows user to provide a
+    #     (user-implemented) Fetcher object from which to fetch a remote
+    #     PDF, if cant find one locally for extraction"""
+    #     if not os.path.exists(source_pdf_path):
+    #         fetcher.fetch(paper_id)
+    #     tables = self.extract(paper_id, source_pdf_path, tables_pkl_path,
+    #                           *args, **kwargs)
+    #     return tables
 
-class TetmlTableExtractor(TableExtractor):
-    @classmethod
-    def extract_tables(cls, tetml: BeautifulSoup,
-                       caption_search_window: int = 3) -> List[Table]:
 
-        tables: List[Table] = []
-        table_id = 0
-        num_success, num_fail = 0, 0
-        tags = tetml.find_all(['table', 'para'])
-        for index_tag, tag in enumerate(tags):
+class XMLTableExtractor(TableExtractor):
+    def __init__(self,
+                 pdf_to_xml_parser: PDFToXMLParser,
+                 xml_to_tables_parser: XMLToTablesParser):
+        self.pdf_to_xml_parser = pdf_to_xml_parser
+        self.xml_to_tables_parser = xml_to_tables_parser
 
-            if tag.name == 'para':
-                continue
+    def extract(self, paper_id: str,
+                source_pdf_path: str,
+                intermediate_xml_path: str,
+                tables_pkl_path: str,
+                is_use_xml_cache: bool = True,
+                is_use_pkl_cache: bool = True,
+                *args, **kwargs) -> List[Table]:
+        """Returns Tables extracted from a PDF while caching intermediate
+        steps like using an external tool to process PDF -> XML.
+        """
+        if is_use_xml_cache and os.path.exists(intermediate_xml_path):
+            pass
+        else:
+            self.pdf_to_xml_parser.parse(source_pdf_path, intermediate_xml_path)
 
-            elif tag.name == 'table':
-                before, after = TetmlTableExtractor._find_caption_candidates(
-                    index_table_tag=index_tag,
-                    all_tags=tags,
-                    search_window=caption_search_window)
-
-                try:
-                    table = TetmlTableExtractor._create_table_from_tetml(
-                        table_id=table_id,
-                        table_tag=tag,
-                        caption=TetmlTableExtractor._select_caption(before,
-                                                                    after))
-                    tables.append(table)
-                    print('Parsed Table {}.'.format(table_id))
-                    num_success += 1
-                except Exception as e:
-                    print(e)
-                    print('Failed to parse Table {}. Skipping...'
-                          .format(table_id))
-                    num_fail += 1
-
-                table_id += 1
-
-            else:
-                raise Exception('Should only be seeing `table` and `para` tags')
-
-        print('Successfully parsed {} of {} detected tables'
-              .format(num_success, num_success + num_fail))
-
+        if is_use_pkl_cache and os.path.exists(tables_pkl_path):
+            with open(tables_pkl_path, 'rb') as f_pkl:
+                tables = pickle.load(f_pkl)
+        else:
+            tables = self.xml_to_tables_parser.parse(intermediate_xml_path,
+                                                     tables_pkl_path,
+                                                     paper_id,
+                                                     *args, **kwargs)
         return tables
 
-    @classmethod
-    def _find_caption_candidates(cls,
-                                 index_table_tag: int,
-                                 all_tags: List[Tag],
-                                 search_window: int) -> Tuple[List[Tag],
-                                                              List[Tag]]:
-        """Returns `before` and `after` caption candidates, ordered from
-        closest to furthest proximity to the current table tag"""
 
-        table_tag = all_tags[index_table_tag]
+class TetmlTableExtractor(XMLTableExtractor):
+    def __init__(self, tet_bin_path: str):
+        pdf_to_xml_parser = TetmlPDFToXMLParser(tet_bin_path)
+        xml_to_tables_parser = TetmlXMLToTablesParser()
+        super(TetmlTableExtractor, self).__init__(pdf_to_xml_parser,
+                                                  xml_to_tables_parser)
 
-        # get candidates seen before `table_tag`
-        index_candidate = index_table_tag - 1
-        before = []
-        while len(before) < search_window and index_candidate >= 0:
 
-            candidate_tag = all_tags[index_candidate]
-
-            is_para_tag = candidate_tag.name == 'para'
-            is_same_parent = candidate_tag.parent == table_tag.parent
-            if is_para_tag and is_same_parent:
-                before.append(candidate_tag)
-
-            index_candidate -= 1
-
-        # get candidates seen after `table_tag`
-        index_candidate = index_table_tag + 1
-        after = []
-        while len(after) < search_window and index_candidate < len(all_tags):
-
-            candidate_tag = all_tags[index_candidate]
-
-            is_para_tag = candidate_tag.name == 'para'
-            is_same_parent = candidate_tag.parent == table_tag.parent
-            if is_para_tag and is_same_parent:
-                after.append(candidate_tag)
-
-            index_candidate += 1
-
-        return before, after
-
-    @classmethod
-    def _select_caption(cls, before: List[Tag], after: List[Tag]) -> str:
-        """Returns closest caption to table given neighboring `para` tags
-        within `before` and `after` (sorted in proximity-to-table-tag order)
-
-        search heuristics:
-        - prioritizes `after` Tags over `before` Tags
-        - prioritizes Tags nearest to Table
-        """
-
-        for para_tag in after + before:
-            para_text = ' '.join([text.get_text(strip=True)
-                                  for text in para_tag.find_all('text')])
-
-            # heuristic for determining whether `para_text` is a caption
-            if para_text.lower().startswith('table'):
-                return para_text
-
-        return EMPTY_CAPTION
-
-    @classmethod
-    def _create_table_from_tetml(cls, table_id: int, table_tag: Tag,
-                                 caption: str) -> Table:
-        cells = []
-        ncol_per_row = []
-        for i, row_tag in enumerate(table_tag.find_all('row')):
-
-            ncol_per_row.append(0)
-            for cell_tag in row_tag.find_all('cell'):
-
-                # BUILD LIST OF TOKENS
-                tokens = []
-                for word_tag in cell_tag.find_all('word'):
-                    word_box_tag = word_tag.find('box')
-                    token = Token(text=word_box_tag.get_text(strip=True),
-                                  # `find_all` gets font per character,
-                                  # but use `find` because assume font
-                                  # is constant within same word
-                                  font=word_box_tag
-                                  .find('glyph').get('font'),
-                                  bounding_box=Box(
-                                      llx=float(word_box_tag.get('llx')),
-                                      lly=float(word_box_tag.get('lly')),
-                                      urx=float(word_box_tag.get('urx')),
-                                      ury=float(word_box_tag.get('ury'))))
-                    tokens.append(token)
-
-                # BUILD CELL FROM LIST OF TOKENS
-                cell = Cell(
-                    tokens=tokens,
-                    rowspan=1,
-                    colspan=int(cell_tag.get('colspan')) \
-                        if cell_tag.get('colspan') else 1
-                )
-                cells.append(cell)
-                ncol_per_row[i] += cell.colspan
-
-        # TODO: add more filters here if necessary
-        if not all([ncol == ncol_per_row[0] for ncol in ncol_per_row]):
-            raise Exception('Table {} has unequal columns per row. Skipping...'
-                            .format(table_id))
-
-        # TODO: `page_num` and `paper_id` fields
-        # BUILD TABLE FROM LIST OF CELLS
-        table = Table.create_from_cells(
-            cells=cells,
-            nrow=len(ncol_per_row),
-            ncol=ncol_per_row[0],
-            paper_id='PAPER_ID',
-            page_num=0,
-            caption=caption)
-        return table
+class OmnipageTableExtractor(XMLTableExtractor):
+    def __init__(self, omnipage_bin_path: str):
+        pdf_to_xml_parser = OmnipagePDFToXMLParser(omnipage_bin_path)
+        xml_to_tables_parser = OmnipageXMLToTablesParser()
+        super(OmnipageTableExtractor, self).__init__(pdf_to_xml_parser,
+                                                     xml_to_tables_parser)
