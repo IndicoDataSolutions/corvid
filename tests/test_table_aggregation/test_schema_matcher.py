@@ -4,6 +4,7 @@ from corvid.types.table import Token, Cell, Table
 from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 from corvid.table_aggregation.schema_matcher import SchemaMatcher, \
     ColNameSchemaMatcher, ColValueSchemaMatcher
+from corvid.table_aggregation.lsh_matcher import LSHMatcher
 
 class SchemaMatcherTest(unittest.TestCase):
 
@@ -456,3 +457,184 @@ class ColumnValueSchemaMatcher(unittest.TestCase):
         print(pred_aggregate_table)
         print(gold_aggregate_table)
         self.assertEquals(pred_aggregate_table, gold_aggregate_table)
+
+class LSHMatcherTest(unittest.TestCase):
+    def setUp(self):
+        self.table_source = Table.create_from_cells([
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='3')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='6')], rowspan=1, colspan=1)
+        ], nrow=4, ncol=3)
+
+        self.table_less_header = Table.create_from_cells([
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1)
+        ], nrow=4, ncol=2)
+
+        self.table_more_header = Table.create_from_cells([
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header3')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1)
+        ], nrow=4, ncol=4)
+
+        self.table_permute_header = Table.create_from_cells([
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='6')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='3')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1)
+        ], nrow=4, ncol=3)
+
+        self.table_no_header = Table.create_from_cells([
+            Cell(tokens=[Token(text='x')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='z')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='5')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='6')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='y')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='3')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='4')], rowspan=1, colspan=1)
+        ], nrow=3, ncol=3)
+
+        self.table_only_header = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=3)
+
+    def test_map_tables(self):
+        target_schema_easy = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=3)
+
+        target_schema_less = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=2)
+
+        target_schema_more = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header0')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=4)
+
+        target_schema_permuted = Table.create_from_cells(cells=[
+            Cell(tokens=[Token(text='subject')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header2')], rowspan=1, colspan=1),
+            Cell(tokens=[Token(text='header1')], rowspan=1, colspan=1)
+        ], nrow=1, ncol=3)
+
+        schema_matcher = LSHMatcher()
+        self.assertListEqual(schema_matcher.map_tables(
+            tables=[self.table_source],
+            target_schema=target_schema_easy
+        ),
+            [
+                PairwiseMapping(self.table_source,
+                                target_schema_easy,
+                                score=0.0,
+                                column_mappings=[(1, 1), (2, 2)])
+            ])
+
+        self.assertListEqual(schema_matcher.map_tables(
+            tables=[self.table_source],
+            target_schema=target_schema_permuted
+        ),
+            [
+                PairwiseMapping(self.table_source,
+                                target_schema_permuted,
+                                score=0.0,
+                                column_mappings=[(1, 2), (2, 1)])
+            ])
+
+        self.assertListEqual(schema_matcher.map_tables(
+            tables=[self.table_source],
+            target_schema=target_schema_more
+        ),
+            [
+                PairwiseMapping(self.table_source,
+                                target_schema_more,
+                                score=0.0,
+                                column_mappings=[(1, 2), (2, 3)])
+            ])
+
+        self.assertListEqual(schema_matcher.map_tables(
+            tables=[self.table_source],
+            target_schema=target_schema_less
+        ),
+            [
+                PairwiseMapping(self.table_source,
+                                target_schema_less,
+                                score=0.0,
+                                column_mappings=[(2, 1)])
+            ])
+
+        pfail = schema_matcher.map_tables(
+            tables=[self.table_source,
+                    self.table_less_header,
+                    self.table_more_header],
+            target_schema=target_schema_permuted
+        )
+
+        for p in pfail:
+            print(p.column_mappings, p.score)
+
+        self.assertListEqual(schema_matcher.map_tables(
+            tables=[self.table_source,
+                    self.table_less_header,
+                    self.table_more_header],
+            target_schema=target_schema_permuted
+        ),
+            [
+                PairwiseMapping(self.table_source,
+                                target_schema_permuted,
+                                score=0.01,
+                                column_mappings=[(1, 2), (2, 1)]),
+                PairwiseMapping(self.table_less_header,
+                                target_schema_permuted,
+                                score=0.0,
+                                column_mappings=[(1, 1)]),
+                PairwiseMapping(self.table_more_header,
+                                target_schema_permuted,
+                                score=0.06,
+                                column_mappings=[(1, 1), (2, 2)]),
+            ])
