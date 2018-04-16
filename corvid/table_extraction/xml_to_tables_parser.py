@@ -33,7 +33,7 @@ class OmnipageXMLToTablesParserException(XMLToTablesParserException):
 class XMLToTablesParser(object):
     def parse(self, source_xml_path: str, target_pkl_path: str, paper_id: str,
               *args, **kwargs) -> List[Table]:
-        with open(source_xml_path, 'r') as f_in:
+        with open(source_xml_path, 'rb') as f_in:
             xml = BeautifulSoup(f_in)
         tables = self._parse(xml, paper_id, *args, **kwargs)
         with open(target_pkl_path, 'wb') as f_out:
