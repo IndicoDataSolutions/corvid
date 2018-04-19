@@ -57,7 +57,7 @@ if __name__ == '__main__':
         try:
             with open(omnipage_path, 'rb') as f_omnipage:
                 print('Extracting tables from {}...'.format(paper_id))
-                table_extractor.extract(
+                table_extractor.parse(
                     paper_id=paper_id,
                     source_path=omnipage_path
                 )

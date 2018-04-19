@@ -7,7 +7,7 @@
 import unittest
 
 from corvid.util.lists import compute_similarity, \
-    compute_best_permutation
+    compute_best_permutation, compute_union, compute_intersection
 
 
 class TestLists(unittest.TestCase):
@@ -55,4 +55,14 @@ class TestLists(unittest.TestCase):
         self.assertEqual(sim, 2.0)
         self.assertTupleEqual(index_y, (1, 0, 2))
 
+    def test_compute_union(self):
+        x = ['a', 'a', 'b', 'c']
+        y = ['a', 'c', 'c', 'd', 'e']
+        self.assertListEqual(sorted(compute_union(x=x, y=y)),
+                             ['a', 'a', 'b', 'c', 'c', 'd', 'e'])
 
+    def test_compute_intersection(self):
+        x = ['a', 'a', 'a', 'b', 'c']
+        y = ['a', 'a', 'c', 'c', 'd', 'e']
+        self.assertListEqual(sorted(compute_intersection(x=x, y=y)),
+                             ['a', 'a', 'c'])

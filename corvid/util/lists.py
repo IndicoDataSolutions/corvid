@@ -4,10 +4,11 @@ Utility functions for comparing lists
 
 """
 
-from typing import List, Callable, Tuple
+from typing import List, Callable, Tuple, Iterable
 
 import numpy as np
 from itertools import permutations
+from collections import Counter
 
 
 def permute_list(x: List, permutation_indices: List[int]) -> List:
@@ -67,3 +68,57 @@ def compute_best_permutation(x: List,
     # note: if there are ties, arbitrarily chooses first one in list
     index_max = np.argmax(agg_sims)
     return agg_sims[index_max], col_index_permutations[index_max]
+
+
+def compute_union(x: Iterable, y: Iterable) -> List:
+    """Returns union of items in `x` and `y`, where `x` and `y` allow for
+    duplicates.  Items must be hashable.  For example:
+
+    x = ['a', 'a', 'b', 'c']
+    y = ['a', 'c', 'c', 'd']
+
+    then their union is ['a', 'a', 'b', 'c', 'c', 'd'].
+
+    **DOES NOT GUARANTEE ORDER OF THE OUTPUT LIST**
+    """
+
+    # 1) count everything in `x` and `y`
+    counter_x = Counter(x)
+    counter_y = Counter(y)
+
+    # 2) fill in `union` with values
+    union = []
+    keys = set.union(set(x), set(y))
+    for key in keys:
+        count_x = counter_x.get(key, 0)
+        count_y = counter_y.get(key, 0)
+        union.extend([key for _ in range(max(count_x, count_y))])
+
+    return union
+
+
+def compute_intersection(x: Iterable, y: Iterable) -> List:
+    """Returns intersection of `x` and `y`, where `x` and `y` allow for
+    duplicates.  Items must be hashable.  For example:
+
+    x = ['a', 'a', 'a', 'b', 'c']
+    y = ['a', 'a', 'c', 'c', 'd']
+
+    then their intersection is ['a', 'a', 'c'].
+
+    **DOES NOT GUARANTEE ORDER OF THE OUTPUT LIST**
+    """
+
+    # 1) count everything in `x` and `y`
+    counter_x = Counter(x)
+    counter_y = Counter(y)
+
+    # 2) fill in `union` with values
+    intersection = []
+    keys = set.intersection(set(x), set(y))
+    for key in keys:
+        count_x = counter_x.get(key)
+        count_y = counter_y.get(key)
+        intersection.extend([key for _ in range(min(count_x, count_y))])
+
+    return intersection
