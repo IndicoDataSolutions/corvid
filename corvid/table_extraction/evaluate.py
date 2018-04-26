@@ -8,10 +8,18 @@ from typing import Dict, Callable
 
 from corvid.types.table import Table
 from corvid.util.strings import remove_non_alphanumeric
+from corvid.util.lists import compute_intersection, compute_union
 
 
 def is_same_dimensions(gold: Table, pred: Table) -> bool:
-    return pred.dim == gold.dim
+    return pred.shape == gold.shape
+
+
+def bag_of_cells_iou(gold: Table, pred: Table) -> float:
+    """Computes Intersection over Union (IOU) between `gold` and `pred`
+    Tables where each Table is treated like a Bag of Cells"""
+
+    pass
 
 
 def cell_level_grid_accuracy(gold: Table, pred: Table,

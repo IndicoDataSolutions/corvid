@@ -27,8 +27,8 @@ class SchemaMatcher(object):
             [None for _ in range(target_schema.ncol)]
             for _ in range(num_rows_agg_table)
         ]))
-        aggregate_table = aggregate_table.insert_row(index=0,
-                                                     row=target_schema[0, :])
+        aggregate_table = aggregate_table.insert_rows(index=0,
+                                                      rows=target_schema[0, :])
 
         index_agg_table_insert = 1
         # TODO: `table1` is always the table that needs to be aggregated to `table2`=target
