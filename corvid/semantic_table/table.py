@@ -226,30 +226,30 @@ class Table(object):
         table = Table.create_from_grid(grid=grid, *args, **kwargs)
         return table
 
-    def to_json(self) -> Dict:
-        """Serialize to JSON dictionary"""
-
-        rows = [[str(self[i, j]) for j in range(self.ncol)]
-                for i in range(self.nrow)]
-
-        # TODO: find way to iterate over each cell to skip doing stuff multiple times on multispan
-        spans = []
-        for i in range(self.nrow):
-            for j in range(self.ncol):
-                cell = self[i, j]
-                if cell.rowspan > 1 or cell.colspan > 1:
-                    spans.append({
-                        'topleft': [
-                            cell.index_topleft_row,
-                            cell.index_topleft_col
-                        ],
-                        'bottomright': [
-                            cell.index_topleft_row + cell.rowspan - 1,
-                            cell.index_topleft_col + cell.colspan - 1
-                        ],
-                    })
-
-        return {'rows': rows, 'spans': spans}
+    # def to_json(self) -> Dict:
+    #     """Serialize to JSON dictionary"""
+    #
+    #     rows = [[str(self[i, j]) for j in range(self.ncol)]
+    #             for i in range(self.nrow)]
+    #
+    #     # TODO: find way to iterate over each cell to skip doing stuff multiple times on multispan
+    #     spans = []
+    #     for i in range(self.nrow):
+    #         for j in range(self.ncol):
+    #             cell = self[i, j]
+    #             if cell.rowspan > 1 or cell.colspan > 1:
+    #                 spans.append({
+    #                     'topleft': [
+    #                         cell.index_topleft_row,
+    #                         cell.index_topleft_col
+    #                     ],
+    #                     'bottomright': [
+    #                         cell.index_topleft_row + cell.rowspan - 1,
+    #                         cell.index_topleft_col + cell.colspan - 1
+    #                     ],
+    #                 })
+    #
+    #     return {'rows': rows, 'spans': spans}
 
     @property
     def nrow(self) -> int:

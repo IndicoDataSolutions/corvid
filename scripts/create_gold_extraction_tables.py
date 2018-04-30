@@ -4,7 +4,7 @@ Dict of gold tables by paper id
 
 """
 
-from corvid.types.table import Token, Cell, Table
+from corvid.semantic_table.table import Token, Cell, Table
 
 
 # TODO: call a tokenizer here to split text into list of tokens

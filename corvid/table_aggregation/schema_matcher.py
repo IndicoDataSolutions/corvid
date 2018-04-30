@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
+from corvid.semantic_table.table import Table, Cell
 from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
-from corvid.types.table import Table, Cell
 
 
 class SchemaMatcher(object):

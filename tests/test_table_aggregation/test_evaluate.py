@@ -5,9 +5,9 @@
 
 import unittest
 
+from corvid.semantic_table.table import Token, Cell, Table
 from corvid.table_aggregation.evaluate import count_matching_cells, \
-    row_level_recall, cell_level_recall, evaluate
-from corvid.types.table import Token, Cell, Table
+    row_level_recall, cell_level_recall
 
 
 class TestComputeMetrics(unittest.TestCase):

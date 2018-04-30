@@ -1,8 +1,7 @@
 import unittest
-import numpy as np
 
+from corvid.semantic_table.table import Table
 from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
-from corvid.types.table import Box, Token, Cell, Table, EMPTY_CAPTION
 
 
 class TestPairwiseMapping(unittest.TestCase):

@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from corvid.types.table import Box, Token, Cell, Table, EMPTY_CAPTION, \
+from corvid.semantic_table.table import Box, Token, Cell, Table, \
     TableCreateException, TableIndexException
 
 

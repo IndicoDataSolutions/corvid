@@ -6,7 +6,8 @@ Functions for performing common diagnostics in Python interactive Console
 
 import numpy as np
 
-from corvid.types.table import Table
+from corvid.semantic_table.table import Table
+
 
 def sample_rows(table: Table, k: int = 10) -> Table:
     # exclude first header row from random sample but add it back after

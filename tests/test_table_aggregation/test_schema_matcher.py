@@ -1,6 +1,6 @@
 import unittest
 
-from corvid.types.table import Token, Cell, Table
+from corvid.semantic_table.table import Token, Cell, Table
 from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 from corvid.table_aggregation.schema_matcher import SchemaMatcher, \
     ColNameSchemaMatcher
