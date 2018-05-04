@@ -13,6 +13,7 @@ def tokenize(s: str) -> List[str]:
     """Standard function for string tokenization used throughout this module"""
     pass
 
+
 # TODO: clean up syntax/style
 def format_grid(grid: List[List[str]]) -> str:
     """
