@@ -25,11 +25,11 @@ class Box(object):
 
     def __repr__(self):
         return 'x: [{},{}]\ny: [{},{}]'.format(self.ll.x, self.ur.x,
-                                              self.ur.y, self.ll.y)
+                                               self.ur.y, self.ll.y)
 
     def __str__(self):
         return 'x: [{},{}]\ny: [{},{}]'.format(self.ll.x, self.ur.x,
-                                              self.ur.y, self.ll.y)
+                                               self.ur.y, self.ll.y)
 
     @classmethod
     def is_x_overlap(cls, box1: 'Box', box2: 'Box') -> float:
@@ -44,6 +44,15 @@ class Box(object):
         is_right_y_within_box2 = box2.ll.y <= box1.ur.y <= box2.ur.y
         is_contains_box2 = box1.ll.y <= box2.ll.y and box1.ur.y >= box2.ur.y
         return is_left_y_within_box2 or is_right_y_within_box2 or is_contains_box2
+
+    @classmethod
+    def is_above(cls, above_box: 'Box', below_box: 'Box') -> bool:
+        if Box.is_y_overlap(above_box, below_box):
+            return False
+        elif not Box.is_x_overlap(above_box, below_box):
+            return False
+        else:
+            return above_box.ll.y > below_box.ur.y
 
     @classmethod
     def min_x_dist(cls, box1: 'Box', box2: 'Box') -> float:
