@@ -50,6 +50,17 @@ class Cell(object):
         return [(self.index_topleft_row + i, self.index_topleft_col + j)
                 for i in range(self.rowspan) for j in range(self.colspan)]
 
+    def to_json(self) -> Dict:
+        """Serialize to JSON dictionary"""
+        json = {
+            'tokens': self.tokens,
+            'index_topleft_row': self.index_topleft_row,
+            'index_topleft_col': self.index_topleft_col,
+            'rowspan': self.rowspan,
+            'colspan': self.colspan
+        }
+        return json
+
 
 # TODO: consider analogous method that returns all indices given a (multispan) cell
 class Table(object):
@@ -188,27 +199,11 @@ class Table(object):
 
         return grid
 
-        # def to_json(self) -> Dict:
-        #     """Serialize to JSON dictionary"""
-        #
-        #     rows = [[str(self[i, j]) for j in range(self.ncol)]
-        #             for i in range(self.nrow)]
-        #
-        #     # TODO: find way to iterate over each cell to skip doing stuff multiple times on multispan
-        #     spans = []
-        #     for i in range(self.nrow):
-        #         for j in range(self.ncol):
-        #             cell = self[i, j]
-        #             if cell.rowspan > 1 or cell.colspan > 1:
-        #                 spans.append({
-        #                     'topleft': [
-        #                         cell.index_topleft_row,
-        #                         cell.index_topleft_col
-        #                     ],
-        #                     'bottomright': [
-        #                         cell.index_topleft_row + cell.rowspan - 1,
-        #                         cell.index_topleft_col + cell.colspan - 1
-        #                     ],
-        #                 })
-        #
-        #     return {'rows': rows, 'spans': spans}
+    def to_json(self) -> Dict:
+        """Serialize to JSON dictionary"""
+        json = {
+            'cells': [c.to_json() for c in self.cells],
+            'nrow': self.nrow,
+            'ncol': self.ncol
+        }
+        return json
