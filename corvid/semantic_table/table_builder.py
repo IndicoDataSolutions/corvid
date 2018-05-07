@@ -1,8 +1,8 @@
 """
 
 Handles building of Tables from inputs other than `grid` or `cells`.
-This constructor logic is kept outside of `Table` because it's easier to
-manage subclassing of Cell and Table classes.
+Builder design chosen because easier to work with when start subclassing Cell
+and Table as opposed to needing to override @classmethods
 
 """
 
