@@ -93,35 +93,6 @@ class TestTable(unittest.TestCase):
                              self.m, self.n], nrow=5, ncol=4)
         assert_array_equal(table.grid, self.full_table.grid)
 
-    def test_create_from_json(self):
-        """
-        this test checks string equivalence because Cells are newly
-        created in `create_from_json()`, making it hard to compare
-        equivalence of `grid` and `cells` in `table` and `self.table`
-        """
-        table = Table.create_from_json(
-            table_dict={'rows': [['', ''],
-                                 ['', '']],
-                        'spans': [{'bottomright': [1, 1], 'topleft': [0, 0]}]},
-            cell_type=Cell,
-            tokenize=lambda s: [s]
-        )
-        self.assertEqual(str(table), str(self.single_cell_table))
-
-        table = Table.create_from_json(
-            table_dict={'rows': [['', '', 'C', 'C'],
-                                 ['', '', 'C:1', 'C:2'],
-                                 ['R', 'R:1', 'a', 'b'],
-                                 ['R', 'R:2', 'c', 'd'],
-                                 ['R', 'R:3', 'e', 'f']],
-                        'spans': [{'bottomright': [1, 1], 'topleft': [0, 0]},
-                                  {'bottomright': [0, 3], 'topleft': [0, 2]},
-                                  {'bottomright': [4, 0], 'topleft': [2, 0]}]},
-            cell_type=Cell,
-            tokenize=lambda s: [s]
-        )
-        self.assertEqual(str(table), str(self.full_table))
-
     def test_improper_table(self):
         # misspecified nrow or ncol raises IndexError
         with self.assertRaises(IndexError):

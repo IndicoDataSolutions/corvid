@@ -104,50 +104,6 @@ class Table(object):
             self.grid = self._grid_from_cells(cells=self.cells,
                                               nrow=nrow, ncol=ncol)
 
-    # TODO: maybe easier API is just to have a List[Cell]
-    @classmethod
-    def create_from_json(cls, table_dict: Dict,
-                         cell_type: Callable[..., Cell],
-                         tokenize: Callable[[str], List[str]]) -> 'Table':
-        """Create a Table using JSON dictionary.  User should provide the
-        Cell class to use in the Table, as well as a string tokenizer."""
-
-        spans = table_dict.get('spans')
-        rows = table_dict.get('rows')
-
-        assert isinstance(tokenize('test'), list)
-        assert isinstance(cell_type, type)
-
-        # initialize grid of Cells
-        grid = [[cell_type(tokens=tokenize(text),
-                           index_topleft_row=i,
-                           index_topleft_col=j,
-                           rowspan=1,
-                           colspan=1)
-                 for j, text in enumerate(row)] for i, row in enumerate(rows)]
-
-        # overwrite any multispan Cells
-        for span in spans:
-            i_topleft_row, i_topleft_col = span.get('topleft')
-            i_bottomright_row, i_bottomright_col = span.get('bottomright')
-            cell = cell_type(
-                tokens=tokenize(rows[i_topleft_row][i_topleft_col]),
-                index_topleft_row=i_topleft_row,
-                index_topleft_col=i_topleft_col,
-                rowspan=i_bottomright_row - i_topleft_row + 1,
-                colspan=i_bottomright_col - i_topleft_col + 1)
-            for i, j in cell.indices:
-                # verify specified cell span contains same text
-                if rows[i][j] != rows[i_topleft_row][i_topleft_col]:
-                    raise TableCreateException(
-                        'Cell values differ within span [{},{}] x [{},{}]'
-                            .format(i_topleft_row, i_topleft_col,
-                                    i_bottomright_row, i_bottomright_col))
-                grid[i][j] = cell
-
-        table = cls(grid=grid)
-        return table
-
     @property
     def nrow(self) -> int:
         return self.grid.shape[0]
@@ -232,27 +188,27 @@ class Table(object):
 
         return grid
 
-    # def to_json(self) -> Dict:
-    #     """Serialize to JSON dictionary"""
-    #
-    #     rows = [[str(self[i, j]) for j in range(self.ncol)]
-    #             for i in range(self.nrow)]
-    #
-    #     # TODO: find way to iterate over each cell to skip doing stuff multiple times on multispan
-    #     spans = []
-    #     for i in range(self.nrow):
-    #         for j in range(self.ncol):
-    #             cell = self[i, j]
-    #             if cell.rowspan > 1 or cell.colspan > 1:
-    #                 spans.append({
-    #                     'topleft': [
-    #                         cell.index_topleft_row,
-    #                         cell.index_topleft_col
-    #                     ],
-    #                     'bottomright': [
-    #                         cell.index_topleft_row + cell.rowspan - 1,
-    #                         cell.index_topleft_col + cell.colspan - 1
-    #                     ],
-    #                 })
-    #
-    #     return {'rows': rows, 'spans': spans}
+        # def to_json(self) -> Dict:
+        #     """Serialize to JSON dictionary"""
+        #
+        #     rows = [[str(self[i, j]) for j in range(self.ncol)]
+        #             for i in range(self.nrow)]
+        #
+        #     # TODO: find way to iterate over each cell to skip doing stuff multiple times on multispan
+        #     spans = []
+        #     for i in range(self.nrow):
+        #         for j in range(self.ncol):
+        #             cell = self[i, j]
+        #             if cell.rowspan > 1 or cell.colspan > 1:
+        #                 spans.append({
+        #                     'topleft': [
+        #                         cell.index_topleft_row,
+        #                         cell.index_topleft_col
+        #                     ],
+        #                     'bottomright': [
+        #                         cell.index_topleft_row + cell.rowspan - 1,
+        #                         cell.index_topleft_col + cell.colspan - 1
+        #                     ],
+        #                 })
+        #
+        #     return {'rows': rows, 'spans': spans}
