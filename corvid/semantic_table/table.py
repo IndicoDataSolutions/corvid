@@ -151,7 +151,7 @@ class Table(object):
             raise TableIndexException('Only integers and slices')
 
     def __repr__(self):
-        return format_grid([[str(cell) for cell in row] for row in self.grid])
+        return str(self)
 
     def __str__(self):
         return format_grid([[str(cell) for cell in row] for row in self.grid])
