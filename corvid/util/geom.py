@@ -33,16 +33,16 @@ class Box(object):
 
     @classmethod
     def is_x_overlap(cls, box1: 'Box', box2: 'Box') -> float:
-        is_left_x_within_box2 = box2.ll.x <= box1.ll.x <= box2.ur.x
-        is_right_x_within_box2 = box2.ll.x <= box1.ur.x <= box2.ur.x
-        is_contains_box2 = box1.ll.x <= box2.ll.x and box1.ur.x >= box2.ur.x
+        is_left_x_within_box2 = box2.ll.x < box1.ll.x < box2.ur.x
+        is_right_x_within_box2 = box2.ll.x < box1.ur.x < box2.ur.x
+        is_contains_box2 = box1.ll.x < box2.ll.x and box1.ur.x > box2.ur.x
         return is_left_x_within_box2 or is_right_x_within_box2 or is_contains_box2
 
     @classmethod
     def is_y_overlap(cls, box1: 'Box', box2: 'Box') -> float:
-        is_left_y_within_box2 = box2.ll.y <= box1.ll.y <= box2.ur.y
-        is_right_y_within_box2 = box2.ll.y <= box1.ur.y <= box2.ur.y
-        is_contains_box2 = box1.ll.y <= box2.ll.y and box1.ur.y >= box2.ur.y
+        is_left_y_within_box2 = box2.ll.y < box1.ll.y < box2.ur.y
+        is_right_y_within_box2 = box2.ll.y < box1.ur.y < box2.ur.y
+        is_contains_box2 = box1.ll.y < box2.ll.y and box1.ur.y > box2.ur.y
         return is_left_y_within_box2 or is_right_y_within_box2 or is_contains_box2
 
     @classmethod
