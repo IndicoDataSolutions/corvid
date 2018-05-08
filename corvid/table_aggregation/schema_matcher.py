@@ -4,6 +4,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 from corvid.semantic_table.table import Table, Cell
+from corvid.semantic_table.semantic_table import SemanticTable
 from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 
 
@@ -17,36 +18,32 @@ class SchemaMatcher(object):
                          pairwise_mappings: List[PairwiseMapping],
                          target_schema: Table) -> Table:
 
-
-
         # initialize empty aggregate table
         num_rows_agg_table = sum([pairwise_mapping.table1.nrow - 1
                                   for pairwise_mapping in pairwise_mappings])
 
-        aggregate_table = Table.create_from_grid(grid=np.array([
+        grid = np.array([
             [None for _ in range(target_schema.ncol)]
             for _ in range(num_rows_agg_table)
-        ]))
-        aggregate_table = aggregate_table.insert_rows(index=0,
-                                                      rows=target_schema[0, :])
+        ])
+        grid = np.insert(arr=grid, obj=0, values=target_schema[0, :], axis=0)
 
         index_agg_table_insert = 1
         # TODO: `table1` is always the table that needs to be aggregated to `table2`=target
         for pairwise_mapping in sorted(pairwise_mappings):
-
             for idx_source_row in range(1, pairwise_mapping.table1.nrow):
                 # copy subject for this row
-                aggregate_table.grid[index_agg_table_insert, 0] = \
+                grid[index_agg_table_insert, 0] = \
                     pairwise_mapping.table1[idx_source_row, 0]
 
                 # fill cells with source table values according to column mappings
                 for index_source_col, index_target_col in pairwise_mapping.column_mappings:
-                    aggregate_table.grid[
-                        index_agg_table_insert, index_target_col] = \
-                        pairwise_mapping.table1[
-                            idx_source_row, index_source_col]
+                    grid[index_agg_table_insert, index_target_col] = \
+                        pairwise_mapping.table1[idx_source_row, index_source_col]
 
                 index_agg_table_insert += 1
+
+        aggregate_table = Table(grid=grid.tolist())
 
         return aggregate_table
 
