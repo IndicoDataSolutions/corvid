@@ -12,13 +12,14 @@ from corvid.semantic_table.table import Cell, Table
 
 
 class CellBuilder(object):
+    REQUIRED_KEYS = ['tokens', 'index_topleft_row', 'index_topleft_col',
+                     'rowspan', 'colspan']
+
     def __init__(self, cell_type: Callable[..., Cell]):
         self.cell_type = cell_type
 
     def from_json(self, json: Dict) -> Cell:
-        required_keys = ['tokens', 'index_topleft_row', 'index_topleft_col',
-                         'rowspan', 'colspan']
-        kwargs = {k: v for k, v in json.items() if k not in required_keys}
+        kwargs = {k: v for k, v in json.items() if k not in self.REQUIRED_KEYS}
         cell = self.cell_type(tokens=json['tokens'],
                               index_topleft_row=json['index_topleft_row'],
                               index_topleft_col=json['index_topleft_col'],
@@ -29,6 +30,8 @@ class CellBuilder(object):
 
 
 class TableBuilder(object):
+    REQUIRED_KEYS = ['cells', 'nrow', 'ncol']
+
     def __init__(self,
                  table_type: Callable[..., Table],
                  cell_builder: CellBuilder):
@@ -36,9 +39,10 @@ class TableBuilder(object):
         self.cell_builder = cell_builder
 
     def from_json(self, json: Dict) -> Table:
-        required_keys = ['cells', 'nrow', 'ncol']
-        kwargs = {k: v for k, v in json.items() if k not in required_keys}
+        kwargs = {k: v for k, v in json.items() if k not in self.REQUIRED_KEYS}
         cells = [self.cell_builder.from_json(d) for d in json['cells']]
-        table = Table(cells=cells, nrow=json['nrow'], ncol=json['ncol'],
-                      **kwargs)
+        table = self.table_type(cells=cells,
+                                nrow=json['nrow'],
+                                ncol=json['ncol'],
+                                **kwargs)
         return table
