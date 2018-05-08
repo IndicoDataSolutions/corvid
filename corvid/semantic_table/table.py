@@ -11,14 +11,6 @@ import numpy as np
 from corvid.util.strings import format_grid
 
 
-class TableCreateException(ValueError):
-    pass
-
-
-class TableIndexException(IndexError):
-    pass
-
-
 class Cell(object):
     """A Cell is a single unit of data in a Table separated from other Cells
     by whitespace and/or lines.  A Cell corresponds to its own row and
@@ -144,11 +136,11 @@ class Table(object):
             elif len(grid.shape) == 1:
                 return grid.tolist()
             else:
-                raise TableIndexException('Not supporting [slice, slice]')
+                raise IndexError('Not supporting [slice, slice]')
         elif isinstance(index, int) or isinstance(index, slice):
             return self.cells[index]
         else:
-            raise TableIndexException('Only integers and slices')
+            raise IndexError('Only integers and slices')
 
     def __repr__(self):
         return str(self)
@@ -173,29 +165,42 @@ class Table(object):
         return cells
 
     # TODO: creation of grid should be based on each cell's indices rather than assumed list order?
-    def _grid_from_cells(self, cells: Iterable[Cell],
+    def _grid_from_cells(self, cells: List[Cell],
                          nrow: int, ncol: int) -> np.ndarray:
         """Create 2D numpy array of Cells from a list of Cells & dimensions"""
         grid = np.array([[None for _ in range(ncol)] for _ in range(nrow)])
 
-        index_row, index_col = 0, 0
         for cell in cells:
-            # insert copies of cell into grid based on its row/colspan
-            for i in range(index_row, index_row + cell.rowspan):
-                for j in range(index_col, index_col + cell.colspan):
+            for i, j in cell.indices:
+                if grid[i, j] is None:
                     grid[i, j] = cell
+                else:
+                    raise ValueError('Multiple cells inserted into grid[{},{}]'
+                                     .format(i, j))
 
-            # update `index_row` and `index_col` by scanning for next empty cell
-            # jump index to next row if reach the right-most column
-            while index_row < nrow and grid[index_row, index_col]:
-                index_col += 1
-                if index_col == ncol:
-                    index_col = 0
-                    index_row += 1
+        for i in range(nrow):
+            for j in range(ncol):
+                if grid[i, j] is None:
+                    raise ValueError('No cell in grid[{},{}]'.format(i, j))
 
-        # check that grid is complete (i.e. fully populated with cells)
-        if not grid[-1, -1]:
-            raise TableCreateException('Cells dont fill out the grid')
+        # index_row, index_col = 0, 0
+        # for cell in cells:
+        #     # insert copies of cell into grid based on its row/colspan
+        #     for i in range(index_row, index_row + cell.rowspan):
+        #         for j in range(index_col, index_col + cell.colspan):
+        #             grid[i, j] = cell
+        #
+        #     # update `index_row` and `index_col` by scanning for next empty cell
+        #     # jump index to next row if reach the right-most column
+        #     while index_row < nrow and grid[index_row, index_col]:
+        #         index_col += 1
+        #         if index_col == ncol:
+        #             index_col = 0
+        #             index_row += 1
+        #
+        # # check that grid is complete (i.e. fully populated with cells)
+        # if not grid[-1, -1]:
+        #     raise ValueError('Cells dont fill out the grid')
 
         return grid
 

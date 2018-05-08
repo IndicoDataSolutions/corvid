@@ -7,8 +7,7 @@ import unittest
 
 from numpy.testing import assert_array_equal
 
-from corvid.semantic_table.table import Cell, Table, \
-    TableCreateException, TableIndexException
+from corvid.semantic_table.table import Cell, Table
 
 
 class TestCell(unittest.TestCase):
@@ -118,7 +117,7 @@ class TestTable(unittest.TestCase):
                   nrow=1, ncol=2)
 
         # not enough cells to fill out table
-        with self.assertRaises(TableCreateException):
+        with self.assertRaises(ValueError):
             Table(cells=[Cell(tokens=['a'], index_topleft_row=0,
                               index_topleft_col=0, rowspan=1, colspan=1),
                          Cell(tokens=['b'], index_topleft_row=0,
@@ -127,7 +126,7 @@ class TestTable(unittest.TestCase):
                               index_topleft_col=0, rowspan=1, colspan=1)],
                   nrow=2, ncol=2)
 
-        with self.assertRaises(TableCreateException):
+        with self.assertRaises(ValueError):
             Table(cells=[Cell(tokens=['a'], index_topleft_row=0,
                               index_topleft_col=0, rowspan=1, colspan=1),
                          Cell(tokens=['b'], index_topleft_row=0,
@@ -162,7 +161,7 @@ class TestTable(unittest.TestCase):
         self.assertListEqual(self.full_table[3:4, -1], [self.l])
 
         # subgrid indexing raises Exception
-        with self.assertRaises(TableIndexException):
+        with self.assertRaises(IndexError):
             self.full_table[1:3, 1:3]
 
     def test_cell_indexing(self):
@@ -179,112 +178,3 @@ class TestTable(unittest.TestCase):
     def test_str(self):
         t = '\t\tC\tC\n\t\tC:1\tC:2\nR\tR:1\ta\tb\nR\tR:2\tc\td\nR\tR:3\te\tf'
         self.assertEqual(str(self.full_table).replace(' ', ''), t)
-
-        # def test_insert_rows(self):
-        #     # valid insertion
-        #     inserted_table = Table.create_from_grid(grid=self.table.grid,
-        #                                             caption='this should disappear')
-        #     output = self.table.insert_rows(index=2, rows=inserted_table)
-        #     assert_array_equal(output.grid, np.array([
-        #         [self.a, self.a, self.b, self.b],
-        #         [self.a, self.a, self.c, self.d],
-        #         [self.a, self.a, self.b, self.b],
-        #         [self.a, self.a, self.c, self.d],
-        #         [self.e, self.f, self.i, self.j],
-        #         [self.e, self.g, self.k, self.l],
-        #         [self.e, self.h, self.m, self.n],
-        #         [self.e, self.f, self.i, self.j],
-        #         [self.e, self.g, self.k, self.l],
-        #         [self.e, self.h, self.m, self.n]
-        #     ]))
-        #
-        #     # kwargs in table are preserved after insertion
-        #     self.assertEqual(output.caption, self.table.caption)
-        #
-        #     # invalid insertion splits a multirow cell
-        #     with self.assertRaises(TableIndexException):
-        #         self.table.insert_rows(index=1, rows=inserted_table)
-
-        # def test_insert_column(self):
-        #     x = Cell(tokens=[Token(text='x')], rowspan=1, colspan=1)
-        #     y = Cell(tokens=[Token(text='y')], rowspan=1, colspan=1)
-        #     self.assertEqual(self.table.insert_column(index=1, column=[x, y]),
-        #                      Table.create_from_grid(grid=[
-        #                          [self.a, x, self.b, self.c],
-        #                          [self.d, y, self.e, self.f]
-        #                      ]))
-        #     with self.assertRaises(Exception):
-        #         self.table.insert_column(index=1, column=[x, y, y])
-        #
-        # def test_delete_row(self):
-        #     self.assertEqual(self.table.delete_row(index=1),
-        #                      Table.create_from_grid(grid=[
-        #                          [self.a, self.b, self.c]
-        #                      ]))
-        #
-        # def test_delete_column(self):
-        #     self.assertEqual(self.table.delete_column(index=1),
-        #                      Table.create_from_grid(grid=[
-        #                          [self.a, self.c],
-        #                          [self.d, self.f]
-        #                      ]))
-        #
-        # def test_append_left(self):
-        #     self.assertEqual(
-        #         self.table.append_left(other=Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a]])),
-        #         Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d, self.a, self.b, self.c],
-        #                   [self.c, self.e, self.a, self.d, self.e, self.f]])
-        #     )
-        #
-        # def test_append_right(self):
-        #     self.assertEqual(
-        #         self.table.append_right(other=Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a]])),
-        #         Table.create_from_grid(
-        #             grid=[[self.a, self.b, self.c, self.f, self.b, self.d],
-        #                   [self.d, self.e, self.f, self.c, self.e, self.a]])
-        #     )
-        #
-        # def test_append_top(self):
-        #     self.assertEqual(
-        #         self.table.append_top(other=Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a]])),
-        #         Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a],
-        #                   [self.a, self.b, self.c],
-        #                   [self.d, self.e, self.f]])
-        #     )
-        #
-        # def test_append_bottom(self):
-        #     self.assertEqual(
-        #         self.table.append_bottom(other=Table.create_from_grid(
-        #             grid=[[self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a]])),
-        #         Table.create_from_grid(
-        #             grid=[[self.a, self.b, self.c],
-        #                   [self.d, self.e, self.f],
-        #                   [self.f, self.b, self.d],
-        #                   [self.c, self.e, self.a]])
-        #     )
-
-        # def test_compute_bounding_box(self):
-        #     table = Table.create_from_cells(
-        #         cells=[
-        #             Cell(tokens=[Token(text='e')], rowspan=1, colspan=1,
-        #                  bounding_box=Box(llx=-1.0, lly=-0.5, urx=1.0, ury=1.0)),
-        #             Cell(tokens=[Token(text='e')], rowspan=1, colspan=1,
-        #                  bounding_box=Box(llx=1.5, lly=-0.5, urx=2.5, ury=1.5))
-        #         ],
-        #         nrow=1, ncol=2, paper_id='abc', page_num=0,
-        #         caption='hi this is caption')
-        #     box = table.bounding_box
-        #     self.assertEqual(box.ll.x, -1.0)
-        #     self.assertEqual(box.ll.y, -0.5)
-        #     self.assertEqual(box.ur.x, 2.5)
-        #     self.assertEqual(box.ur.y, 1.5)
