@@ -8,19 +8,12 @@ from typing import List
 from corvid.semantic_table.table import Table
 
 
-class TableFilter(object):
-    def filter(self, tables: List[Table]) -> List[Table]:
-        raise NotImplementedError
+# TODO
+def predict_table_relevance(table: Table) -> float:
+    return float('inf')
 
 
-class SemanticTableFilter(TableFilter):
-    def __init__(self, threshold: float):
-        self.threshold = threshold
-
-    def filter(self, tables: List[Table]) -> List[Table]:
-        return [table for table in tables
-                if self._predict_relevance(table) > self.threshold]
-
-    # TODO: baseline implementation is to perform a regex over cells for known names
-    def _predict_relevance(self, table: Table) -> float:
-        pass
+# TODO
+def filter_tables(tables: List[Table], min_relevance: float) -> List[Table]:
+    return [table for table in tables
+            if predict_table_relevance(table) > min_relevance]
