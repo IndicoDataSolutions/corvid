@@ -9,7 +9,6 @@ from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 
 
 class SchemaMatcher(object):
-
     def map_tables(self, tables: List[Table], target_schema: Table) -> \
             List[PairwiseMapping]:
         raise NotImplementedError
@@ -22,9 +21,10 @@ class SchemaMatcher(object):
         num_rows_agg_table = sum([pairwise_mapping.table1.nrow - 1
                                   for pairwise_mapping in pairwise_mappings])
 
+        # TODO: hotfix: everything breaks when include None as Cells (specifically, Table(grid) needs to call Cell.index)
         grid = np.array([
-            [None for _ in range(target_schema.ncol)]
-            for _ in range(num_rows_agg_table)
+            [Cell(tokens=[''], index_topleft_row=i, index_topleft_col=j) for j in range(target_schema.ncol)]
+            for i in range(num_rows_agg_table)
         ])
         grid = np.insert(arr=grid, obj=0, values=target_schema[0, :], axis=0)
 
@@ -39,7 +39,8 @@ class SchemaMatcher(object):
                 # fill cells with source table values according to column mappings
                 for index_source_col, index_target_col in pairwise_mapping.column_mappings:
                     grid[index_agg_table_insert, index_target_col] = \
-                        pairwise_mapping.table1[idx_source_row, index_source_col]
+                        pairwise_mapping.table1[
+                            idx_source_row, index_source_col]
 
                 index_agg_table_insert += 1
 
@@ -56,7 +57,6 @@ class SchemaMatcher(object):
 
 
 class ColNameSchemaMatcher(SchemaMatcher):
-
     def map_tables(self, tables: List[Table], target_schema: Table) -> \
             List[PairwiseMapping]:
         pairwise_mappings = []
@@ -94,5 +94,4 @@ class ColNameSchemaMatcher(SchemaMatcher):
                                column_mappings=[
                                    (c1 + 1, c2 + 1)
                                    for c1, c2, in zip(index_table1,
-                                                      index_table2)]
-                               )
+                                                      index_table2)])
