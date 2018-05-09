@@ -7,7 +7,7 @@ import unittest
 
 from numpy.testing import assert_array_equal
 
-from corvid.semantic_table.table import Cell, Table
+from corvid.table.table import Cell, Table
 
 
 class TestCell(unittest.TestCase):

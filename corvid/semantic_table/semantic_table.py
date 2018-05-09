@@ -3,11 +3,11 @@
 
 """
 
-from typing import List, Dict, Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 
-from corvid.semantic_table.table import Table, Cell
+from corvid.table.table import Table, Cell
 
 
 class SemanticTable(object):

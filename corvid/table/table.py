@@ -164,7 +164,6 @@ class Table(object):
                         is_visited[index_row][index_col] = True
         return cells
 
-    # TODO: creation of grid should be based on each cell's indices rather than assumed list order?
     def _grid_from_cells(self, cells: List[Cell],
                          nrow: int, ncol: int) -> np.ndarray:
         """Create 2D numpy array of Cells from a list of Cells & dimensions"""

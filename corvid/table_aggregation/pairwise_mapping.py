@@ -6,7 +6,7 @@
 
 from typing import List, Tuple
 
-from corvid.semantic_table.table import Table
+from corvid.table.table import Table
 
 
 class PairwiseMapping(object):

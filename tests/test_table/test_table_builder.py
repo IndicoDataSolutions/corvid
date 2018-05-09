@@ -6,7 +6,7 @@
 
 import unittest
 
-from corvid.semantic_table.table_builder import Cell, CellBuilder, Table, \
+from corvid.table.table_builder import Cell, CellBuilder, Table, \
     TableBuilder
 
 

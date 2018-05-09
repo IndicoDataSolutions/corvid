@@ -5,7 +5,7 @@
 
 from typing import List
 
-from corvid.semantic_table.table import Table
+from corvid.table.table import Table
 
 
 # TODO

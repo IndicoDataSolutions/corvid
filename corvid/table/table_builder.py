@@ -8,15 +8,7 @@ and Table as opposed to needing to override @classmethods
 
 from typing import Callable, Dict, List
 
-from corvid.semantic_table.table import Cell, Table
-
-
-class CellBuilderException(KeyError):
-    pass
-
-
-class TableBuilderException(KeyError):
-    pass
+from corvid.table.table import Cell, Table
 
 
 class CellBuilder(object):
@@ -29,7 +21,7 @@ class CellBuilder(object):
     def from_json(self, json: Dict) -> Cell:
         for k in self.required_keys:
             if not json.get(k):
-                raise CellBuilderException('Missing key {}'.format(k))
+                raise KeyError('Missing key {}'.format(k))
         cell = self.cell_type(**json)
         return cell
 
@@ -46,7 +38,7 @@ class TableBuilder(object):
     def from_json(self, json: Dict) -> Table:
         for k in self.required_keys:
             if not json.get(k):
-                raise TableBuilderException('Missing key {}'.format(k))
+                raise KeyError('Missing key {}'.format(k))
         cells = [self.cell_builder.from_json(d) for d in json['cells']]
         kwargs = {k: v for k, v in json.items() if k not in 'cells'}
         table = self.table_type(cells=cells, **kwargs)

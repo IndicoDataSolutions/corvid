@@ -9,7 +9,7 @@ from typing import Dict, List
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from corvid.semantic_table.table import Cell, Table
+from corvid.table.table import Cell, Table
 from corvid.util.lists import compute_similarity
 
 

@@ -6,7 +6,7 @@ Functions for performing common diagnostics in Python interactive Console
 
 import numpy as np
 
-from corvid.semantic_table.table import Table
+from corvid.table.table import Table
 
 
 def sample_rows(table: Table, k: int = 10) -> Table:
