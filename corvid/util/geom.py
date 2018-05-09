@@ -4,7 +4,7 @@ Functions for computations related to geometry of the page
 
 """
 
-from typing import List
+from typing import List, Dict
 from collections import namedtuple
 
 Point = namedtuple('Point', ['x', 'y'])
@@ -30,6 +30,23 @@ class Box(object):
     def __str__(self):
         return 'x: [{},{}]\ny: [{},{}]'.format(self.ll.x, self.ur.x,
                                                self.ur.y, self.ll.y)
+
+    @classmethod
+    def from_json(cls, json: Dict) -> 'Box':
+        box = Box(llx=json['llx'],
+                  lly=json['lly'],
+                  urx=json['urx'],
+                  ury=json['ury'])
+        return box
+
+    def to_json(self) -> Dict:
+        json = {
+            'llx': self.ll.x,
+            'lly': self.ll.y,
+            'urx': self.ur.x,
+            'ury': self.ur.y
+        }
+        return json
 
     @classmethod
     def is_x_overlap(cls, box1: 'Box', box2: 'Box') -> float:
