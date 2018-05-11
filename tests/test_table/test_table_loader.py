@@ -6,16 +6,16 @@
 
 import unittest
 
-from corvid.table.table_builder import Cell, CellBuilder, Table, \
-    TableBuilder
+from corvid.table.table_loader import Cell, CellLoader, Table, \
+    TableLoader
 
 
-class TestCellBuilder(unittest.TestCase):
+class TestCellLoader(unittest.TestCase):
     def setUp(self):
-        self.cell_builder = CellBuilder(cell_type=Cell)
+        self.cell_loader = CellLoader(cell_type=Cell)
 
     def test_from_json(self):
-        cell = self.cell_builder.from_json(json={
+        cell = self.cell_loader.from_json(json={
             'tokens': ['a', 'b'],
             'index_topleft_row': 1,
             'index_topleft_col': 2,
@@ -29,14 +29,14 @@ class TestCellBuilder(unittest.TestCase):
         self.assertEqual(cell.colspan, 4)
 
 
-class TestTableBuilder(unittest.TestCase):
+class TestTableLoader(unittest.TestCase):
     def setUp(self):
-        self.cell_builder = CellBuilder(cell_type=Cell)
-        self.table_builder = TableBuilder(table_type=Table,
-                                          cell_builder=self.cell_builder)
+        self.cell_loader = CellLoader(cell_type=Cell)
+        self.table_loader = TableLoader(table_type=Table,
+                                        cell_loader=self.cell_loader)
 
     def test_from_json(self):
-        table = self.table_builder.from_json(json={
+        table = self.table_loader.from_json(json={
             'cells': [
                 {
                     'tokens': ['a'],
