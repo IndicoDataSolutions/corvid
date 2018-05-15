@@ -46,6 +46,10 @@ def is_contains_alpha(s: str) -> bool:
     # return re.search(pattern=r'[a-z,A-Z]', string=s) is not None
 
 
+def count_digits(s: str) -> int:
+    return len(re.findall(pattern=r'\d', string=s))
+
+
 def remove_non_alphanumeric(s: str) -> str:
     return re.sub(r'[^A-Za-z0-9]+', '', s)
 

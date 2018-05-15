@@ -18,9 +18,10 @@ For example, a raw Table
 from typing import List, Tuple, Union
 
 import numpy as np
+import re
 
 from corvid.table.table import Table, Cell
-from corvid.util.strings import format_grid
+from corvid.util.strings import format_grid, count_digits
 
 
 class SemanticTable(object):
@@ -51,10 +52,30 @@ class SemanticTable(object):
     # TODO
     def _classify_cells(self, cells: List[Cell]) -> List[str]:
         pred_cell_labels = []
+
+        # (1) first pass to do easy ones
         for cell in cells:
-            pred_cell_labels.append(
-                np.random.choice(SemanticTable.VALID_LABELS,
-                                 size=1))
+
+            text = str(cell)
+
+            # RULE 0:  EMPTY CELLS ARE IGNORED
+            if str(cell) == '':
+                pred_cell_labels.append('EMPTY')
+
+            # RULE 1:  MULTIROW/COL CELLS ARE PROBABLY LABELS
+            elif cell.rowspan > 1 or cell.colspan > 1:
+                pred_cell_labels.append('LABEL')
+
+            # RULE 2:  A CELL WITH >50% DIGITS IS PROBABLY A VALUE
+            elif count_digits(text) / len(text) > 0.5:
+                pred_cell_labels.append('VALUE')
+
+            else:
+                # pred_cell_labels.append('UNKNOWN')
+                pred_cell_labels.append('LABEL')
+
+        # (2) second pass to use neighborhood info
+
         return pred_cell_labels
 
     @property
