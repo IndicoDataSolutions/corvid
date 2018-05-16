@@ -101,6 +101,7 @@ class Table(object):
         assert grid or (cells and nrow and ncol)
         if grid:
             self.grid = np.array(grid)
+            assert self.nrow > 0 and self.ncol > 0
             self.cells = self._cells_from_grid(grid=self.grid)
         if cells:
             self.cells = list(cells)

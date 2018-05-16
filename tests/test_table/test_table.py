@@ -92,6 +92,17 @@ class TestTable(unittest.TestCase):
                              self.m, self.n], nrow=5, ncol=4)
         assert_array_equal(table.grid, self.full_table.grid)
 
+    def test_empty_table(self):
+
+        with self.assertRaises(AssertionError):
+            Table(cells=[], nrow=0, ncol=0)
+
+        with self.assertRaises(AssertionError):
+            Table()
+
+        with self.assertRaises(AssertionError):
+            Table(grid=[[]])
+
     def test_improper_table(self):
         # misspecified nrow or ncol raises IndexError
         with self.assertRaises(IndexError):
