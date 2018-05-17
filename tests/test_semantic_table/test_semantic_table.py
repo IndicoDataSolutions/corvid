@@ -84,14 +84,8 @@ class TestSemanticTable(unittest.TestCase):
         with self.assertRaises(NormalizationError):
             all_labels_table = Table(cells=[
                 Cell(tokens=['a'], index_topleft_row=0,
-                     index_topleft_col=0, rowspan=1, colspan=1),
-                Cell(tokens=['b'], index_topleft_row=0,
-                     index_topleft_col=1, rowspan=1, colspan=1),
-                Cell(tokens=['c'], index_topleft_row=1,
-                     index_topleft_col=0, rowspan=1, colspan=1),
-                Cell(tokens=['d'], index_topleft_row=1,
-                     index_topleft_col=1, rowspan=1, colspan=1)
-            ], nrow=2, ncol=2)
+                     index_topleft_col=0, rowspan=1, colspan=1)
+            ], nrow=1, ncol=1)
             self.semantic_table._classify_cells(table=all_labels_table)
 
     def test_merge_label_cells(self):
@@ -111,6 +105,55 @@ class TestSemanticTable(unittest.TestCase):
                                                    index_leftmost_value_col=0).cells,
             all_values_table.cells
         )
+
+        merge_header_table = Table(cells=[
+            Cell(tokens=['a'], index_topleft_row=0,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['b'], index_topleft_row=0,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['c'], index_topleft_row=1,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['d'], index_topleft_row=1,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['1'], index_topleft_row=2,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['2'], index_topleft_row=2,
+                 index_topleft_col=1, rowspan=1, colspan=1)
+        ], nrow=3, ncol=2)
+        collapsed_merge_header_table = self.semantic_table._merge_label_cells(
+            table=merge_header_table,
+            index_topmost_value_row=2,
+            index_leftmost_value_col=0)
+        self.assertEqual(collapsed_merge_header_table.nrow, 2)
+        self.assertEqual(collapsed_merge_header_table.ncol, 2)
+        self.assertEqual(str(collapsed_merge_header_table).replace(' ', ''),
+                         'ac\tbd\n1\t2')
+
+        merge_subject_table = Table(cells=[
+            Cell(tokens=['a'], index_topleft_row=0,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['b'], index_topleft_row=0,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['1'], index_topleft_row=0,
+                 index_topleft_col=2, rowspan=1, colspan=1),
+            Cell(tokens=['c'], index_topleft_row=1,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['d'], index_topleft_row=1,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['2'], index_topleft_row=1,
+                 index_topleft_col=2, rowspan=1, colspan=1)
+        ], nrow=2, ncol=3)
+        collapsed_merge_subject_table = self.semantic_table._merge_label_cells(
+            table=merge_subject_table,
+            index_topmost_value_row=0,
+            index_leftmost_value_col=2
+        )
+        self.assertEqual(collapsed_merge_header_table.nrow, 2)
+        self.assertEqual(collapsed_merge_header_table.ncol, 2)
+        self.assertEqual(str(collapsed_merge_subject_table).replace(' ', ''),
+                         'ab\t1\ncd\t2')
+
+
 
         #
         #     # with self.assertRaises(Exception):
