@@ -98,12 +98,12 @@ class Table(object):
                  grid: Iterable[Iterable[Cell]] = None,
                  cells: Iterable[Cell] = None,
                  nrow: int = None, ncol: int = None):
-        assert grid or (cells and nrow and ncol)
-        if grid:
+        assert bool(grid is not None) ^ bool(cells and nrow and ncol)
+        if grid is not None:
             self.grid = np.array(grid)
             assert self.nrow > 0 and self.ncol > 0
             self.cells = self._cells_from_grid(grid=self.grid)
-        if cells:
+        if cells is not None:
             self.cells = list(cells)
             self.grid = self._grid_from_cells(cells=self.cells,
                                               nrow=nrow, ncol=ncol)

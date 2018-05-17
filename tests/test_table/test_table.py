@@ -5,6 +5,7 @@
 
 import unittest
 
+import numpy as np
 from numpy.testing import assert_array_equal
 
 from corvid.table.table import Cell, Table
@@ -75,13 +76,24 @@ class TestTable(unittest.TestCase):
             [self.e, self.h, self.m, self.n]
         ])
 
+    def test_multiple_create_inputs(self):
+        with self.assertRaises(AssertionError):
+            Table(grid=[[]], cells=[])
+
     def test_create_from_grid(self):
-        self.assertListEqual(self.single_cell_table.cells, [self.a])
-        self.assertListEqual(self.full_table.cells,
-                             [self.a, self.b, self.c, self.d,
-                              self.e, self.f, self.i, self.j,
-                              self.g, self.k, self.l, self.h,
-                              self.m, self.n])
+        self.assertListEqual(Table(grid=np.array([[self.a, self.a],
+                                                  [self.a, self.a]])).cells,
+                             [self.a])
+        self.assertListEqual(
+            Table(grid=[[self.a, self.a, self.b, self.b],
+                        [self.a, self.a, self.c, self.d],
+                        [self.e, self.f, self.i, self.j],
+                        [self.e, self.g, self.k, self.l],
+                        [self.e, self.h, self.m, self.n]]).cells,
+            [self.a, self.b, self.c, self.d,
+             self.e, self.f, self.i, self.j,
+             self.g, self.k, self.l, self.h,
+             self.m, self.n])
 
     def test_create_from_cells(self):
         table = Table(cells=[self.a], nrow=2, ncol=2)
@@ -93,7 +105,6 @@ class TestTable(unittest.TestCase):
         assert_array_equal(table.grid, self.full_table.grid)
 
     def test_empty_table(self):
-
         with self.assertRaises(AssertionError):
             Table(cells=[], nrow=0, ncol=0)
 
@@ -102,6 +113,9 @@ class TestTable(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             Table(grid=[[]])
+
+        with self.assertRaises(AssertionError):
+            Table(grid=[])
 
     def test_improper_table(self):
         # misspecified nrow or ncol raises IndexError
