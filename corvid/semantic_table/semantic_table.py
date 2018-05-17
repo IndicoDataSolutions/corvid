@@ -20,9 +20,15 @@ from typing import List, Tuple, Union
 import numpy as np
 import re
 
+from functools import reduce
+
 from corvid.table.table import Table, Cell
 from corvid.util.strings import format_grid, count_digits, \
     remove_non_alphanumeric, is_like_citation
+
+
+class NormalizationError(Exception):
+    pass
 
 
 class SemanticTable(object):
@@ -34,23 +40,23 @@ class SemanticTable(object):
         self.raw_table = raw_table
         self.normalized_table = self.normalize_table(raw_table=self.raw_table)
 
-    # TODO: for now, simply returns the Table as-is (with 1x1 cells)
     def normalize_table(self, raw_table: Table) -> Table:
-        new_cells = []
-        for raw_cell in raw_table.cells:
-            for i, j in raw_cell.indices:
-                new_cells.append(
-                    Cell(tokens=raw_cell.tokens,
-                         index_topleft_row=i,
-                         index_topleft_col=j,
-                         rowspan=1,
-                         colspan=1)
-                )
-        return Table(cells=new_cells,
-                     nrow=raw_table.nrow,
-                     ncol=raw_table.ncol)
 
-    # TODO
+        # (1)
+        index_topmost_value_row, index_leftmost_value_col = \
+            self._classify_cells(table=raw_table)
+
+        # (2)
+        new_table = self._standardize_cell_sizes(table=raw_table)
+
+        # (3)
+        new_table = self._merge_label_cells(
+            table=new_table,
+            index_topmost_value_row=index_topmost_value_row,
+            index_leftmost_value_col=index_leftmost_value_col)
+
+        return new_table
+
     def _classify_cells(self, table: Table) -> Tuple[int, int]:
         """
         Some thoughts:
@@ -111,38 +117,115 @@ class SemanticTable(object):
                 cell.label = 'UNKNOWN'
 
         # (2) second pass to use neighborhood info
-        index_leftmost_value_col = self.ncol - 1
+        index_leftmost_value_col = table.ncol - 1
         while index_leftmost_value_col >= 0:
             if all([table[i, index_leftmost_value_col].label != 'VALUE'
-                    for i in range(self.nrow)]):
+                    for i in range(table.nrow)]):
                 break
             index_leftmost_value_col -= 1
         index_leftmost_value_col += 1
 
-        index_topmost_value_row = self.nrow - 1
+        index_topmost_value_row = table.nrow - 1
         while index_topmost_value_row >= 0:
             if all([table[index_topmost_value_row, j].label != 'VALUE'
-                    for j in range(self.ncol)]):
+                    for j in range(table.ncol)]):
                 break
             index_topmost_value_row -= 1
         index_topmost_value_row += 1
 
-        # re-label bottom-right quadrant
-        for i in range(index_topmost_value_row, self.nrow):
-            for j in range(index_leftmost_value_col, self.ncol):
-                table[i, j].label = 'VALUE'
+        if index_leftmost_value_col == table.ncol and index_topmost_value_row == table.nrow:
+            raise NormalizationError('No values in this table')
+
+        # re-label top-left quadrant
+        for i in range(index_topmost_value_row):
+            for j in range(index_leftmost_value_col):
+                table[i, j].label = 'EMPTY'
 
         # re-label top-right quadrant
         for i in range(index_topmost_value_row):
-            for j in range(index_leftmost_value_col, self.ncol):
+            for j in range(index_leftmost_value_col, table.ncol):
                 table[i, j].label = 'LABEL'
 
         # re-label bottom-left quadrant
-        for i in range(index_topmost_value_row, self.nrow):
+        for i in range(index_topmost_value_row, table.nrow):
             for j in range(index_leftmost_value_col):
                 table[i, j].label = 'LABEL'
 
+        # re-label bottom-right quadrant
+        for i in range(index_topmost_value_row, table.nrow):
+            for j in range(index_leftmost_value_col, table.ncol):
+                table[i, j].label = 'VALUE'
+
         return index_topmost_value_row, index_leftmost_value_col
+
+    def _standardize_cell_sizes(self, table: Table) -> Table:
+        """Creates new cells for multispan cells"""
+        new_cells = []
+        for raw_cell in table.cells:
+            for i, j in raw_cell.indices:
+                new_cell = Cell(tokens=raw_cell.tokens,
+                                index_topleft_row=i,
+                                index_topleft_col=j,
+                                rowspan=1,
+                                colspan=1)
+                new_cell.label = raw_cell.label
+                new_cells.append(new_cell)
+        return Table(cells=new_cells,
+                     nrow=table.nrow,
+                     ncol=table.ncol)
+
+    def _merge_label_cells(self, table: Table,
+                           index_topmost_value_row: int,
+                           index_leftmost_value_col: int) -> Table:
+        """
+        Some thoughts:
+        Typically, the top-left quadrant cells are a super-label to describe
+        the label columns in the bottom-left quadrant.  Hence, when merging
+        'LABEL' cells, we'll prioritize merging rows over merging columns.
+        """
+        new_table = table
+
+        if index_leftmost_value_col > 1:
+            # decrement col indices of all cells to the right of collapsed cols
+            for i in range(new_table.nrow):
+                for j in range(index_leftmost_value_col, new_table.ncol):
+                    new_table[i, j].index_topleft_col -= \
+                        (index_leftmost_value_col - 1)
+
+            # overwrite leftmost col cell tokens
+            for i in range(new_table.nrow):
+                new_table[i, 0].tokens = reduce(
+                    lambda l1, l2: l1 + l2,
+                    [c.tokens for c in new_table[i, :index_leftmost_value_col]]
+                )
+
+            # delete collapsed cols (except for leftmost)
+            new_grid = np.delete(new_table.grid,
+                                 list(range(1, index_leftmost_value_col)),
+                                 axis=1)
+            new_table = Table(grid=new_grid.tolist())
+
+        if index_topmost_value_row > 1:
+            # decrement row indices of all cells below the collapsed rows
+            for i in range(index_topmost_value_row, new_table.nrow):
+                for j in range(new_table.ncol):
+                    new_table[i, j].index_topleft_row -= \
+                        (index_topmost_value_row - 1)
+
+            # overwrite topmost row cell tokens
+            for j in range(new_table.ncol):
+                new_table[0, j].tokens = reduce(
+                    lambda l1, l2: l1 + l2,
+                    [c.tokens for c in new_table[:index_topmost_value_row, j]]
+                )
+
+            # delete collapsed cols (except for leftmost)
+            new_grid = np.delete(new_table.grid,
+                                 list(range(1, index_topmost_value_row)),
+                                 axis=0)
+            new_table = Table(grid=new_grid.tolist())
+
+        return new_table
 
     @property
     def nrow(self) -> int:
