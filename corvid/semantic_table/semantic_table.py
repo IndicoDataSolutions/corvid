@@ -21,7 +21,8 @@ import numpy as np
 import re
 
 from corvid.table.table import Table, Cell
-from corvid.util.strings import format_grid, count_digits
+from corvid.util.strings import format_grid, count_digits, \
+    remove_non_alphanumeric, is_like_citation
 
 
 class SemanticTable(object):
@@ -50,33 +51,98 @@ class SemanticTable(object):
                      ncol=raw_table.ncol)
 
     # TODO
-    def _classify_cells(self, cells: List[Cell]) -> List[str]:
-        pred_cell_labels = []
+    def _classify_cells(self, table: Table) -> Tuple[int, int]:
+        """
+        Some thoughts:
+        Nearly all tables should have bottom-right cell be a VALUE.
+
+        Can perform decently if assume a Table is split into a VALUE rectangle
+        and a LABEL "L" shape.  The problem is thus finding the right-most LABEL
+        column, and the bottom-most LABEL row.  Every cell to the bottom/right
+        of that is a VALUE.
+
+        In this case, there are 4 mistakes we can make:
+        (1) a LABEL column is classified as VALUE
+        (2) a VALUE column is classified as LABEL
+        (3) a LABEL row is classified as VALUE
+        (4) a VALUE row is classified as LABEL
+
+        For a downstream task of aggregating tables based on column matching,
+        (1) is not a big deal:  subject columns don't count towards performance,
+        and worse-case, the column doesn't get matched.
+        (2) is worse because one fewer column can worsen the matching.
+        (3) is sort of bad because losing a header string can worsen the matching,
+        but this can probably be made up via value-based matching.
+        (4) is very bad because losing a row means losing a possible matching
+        when evaluating recall.
+
+        As such, cell classification is incentivized to aggressively classify
+        columns as VALUES.  Unclear, but probably also incentivized to
+        aggressively classify rows as VALUES.
+        """
+
+        index_value_cell_rows = []
+        index_value_cell_cols = []
 
         # (1) first pass to do easy ones
-        for cell in cells:
+        for cell in table.cells:
 
-            text = str(cell)
+            text = remove_non_alphanumeric(str(cell))
 
             # RULE 0:  EMPTY CELLS ARE IGNORED
-            if str(cell) == '':
-                pred_cell_labels.append('EMPTY')
+            if text == '':
+                cell.label = 'EMPTY'
 
             # RULE 1:  MULTIROW/COL CELLS ARE PROBABLY LABELS
             elif cell.rowspan > 1 or cell.colspan > 1:
-                pred_cell_labels.append('LABEL')
+                cell.label = 'LABEL'
 
-            # RULE 2:  A CELL WITH >50% DIGITS IS PROBABLY A VALUE
+            # RULE 2:  A CELL WITH 100% TEXT IS PROBABLY A LABEL
+            elif count_digits(text) == 0:
+                cell.label = 'LABEL'
+
+            # RULE 3:  A CELL WITH >50% DIGITS IS PROBABLY A VALUE
             elif count_digits(text) / len(text) > 0.5:
-                pred_cell_labels.append('VALUE')
+                cell.label = 'VALUE'
+                index_value_cell_rows.append(cell.index_topleft_row)
+                index_value_cell_cols.append(cell.index_topleft_col)
 
             else:
-                # pred_cell_labels.append('UNKNOWN')
-                pred_cell_labels.append('LABEL')
+                cell.label = 'UNKNOWN'
 
         # (2) second pass to use neighborhood info
+        index_leftmost_value_col = self.ncol - 1
+        while index_leftmost_value_col >= 0:
+            if all([table[i, index_leftmost_value_col].label != 'VALUE'
+                    for i in range(self.nrow)]):
+                break
+            index_leftmost_value_col -= 1
+        index_leftmost_value_col += 1
 
-        return pred_cell_labels
+        index_topmost_value_row = self.nrow - 1
+        while index_topmost_value_row >= 0:
+            if all([table[index_topmost_value_row, j].label != 'VALUE'
+                    for j in range(self.ncol)]):
+                break
+            index_topmost_value_row -= 1
+        index_topmost_value_row += 1
+
+        # re-label bottom-right quadrant
+        for i in range(index_topmost_value_row, self.nrow):
+            for j in range(index_leftmost_value_col, self.ncol):
+                table[i, j].label = 'VALUE'
+
+        # re-label top-right quadrant
+        for i in range(index_topmost_value_row):
+            for j in range(index_leftmost_value_col, self.ncol):
+                table[i, j].label = 'LABEL'
+
+        # re-label bottom-left quadrant
+        for i in range(index_topmost_value_row, self.nrow):
+            for j in range(index_leftmost_value_col):
+                table[i, j].label = 'LABEL'
+
+        return index_topmost_value_row, index_leftmost_value_col
 
     @property
     def nrow(self) -> int:
