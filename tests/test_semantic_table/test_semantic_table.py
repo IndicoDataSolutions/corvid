@@ -74,19 +74,21 @@ class TestSemanticTable(unittest.TestCase):
             Cell(tokens=['4'], index_topleft_row=1,
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=2, ncol=2)
-        index_topmost_value_row, index_leftmost_value_col = \
+        labels, index_topmost_value_row, index_leftmost_value_col = \
             self.semantic_table._classify_cells(table=all_values_table)
-        self.assertListEqual([c.label for c in all_values_table.cells],
-                             ['VALUE', 'VALUE', 'VALUE', 'VALUE'])
+        assert_array_equal(labels, [['VALUE', 'VALUE'], ['VALUE', 'VALUE']])
         self.assertEqual(index_topmost_value_row, 0)
         self.assertEqual(index_leftmost_value_col, 0)
 
-        with self.assertRaises(NormalizationError):
-            all_labels_table = Table(cells=[
-                Cell(tokens=['a'], index_topleft_row=0,
-                     index_topleft_col=0, rowspan=1, colspan=1)
-            ], nrow=1, ncol=1)
+        all_labels_table = Table(cells=[
+            Cell(tokens=['a'], index_topleft_row=0,
+                 index_topleft_col=0, rowspan=1, colspan=1)
+        ], nrow=1, ncol=1)
+        labels, index_topmost_value_row, index_leftmost_value_col = \
             self.semantic_table._classify_cells(table=all_labels_table)
+        assert_array_equal(labels, [['EMPTY']])
+        self.assertEqual(index_topmost_value_row, 1)
+        self.assertEqual(index_leftmost_value_col, 1)
 
     def test_merge_label_cells(self):
         all_values_table = Table(cells=[

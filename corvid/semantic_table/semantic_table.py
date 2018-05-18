@@ -21,6 +21,7 @@ import numpy as np
 import re
 
 from functools import reduce
+from copy import deepcopy
 
 from corvid.table.table import Table, Cell
 from corvid.util.strings import format_grid, count_digits, \
@@ -32,32 +33,28 @@ class NormalizationError(Exception):
 
 
 class SemanticTable(object):
-    VALID_LABELS = ['metric', 'method', 'dataset', 'value', 'other', 'empty']
-    ROW_LABELS = ['method']
-    COL_LABELS = ['metric', 'dataset']
-
     def __init__(self, raw_table: Table):
         self.raw_table = raw_table
         self.normalized_table = self.normalize_table(raw_table=self.raw_table)
 
     def normalize_table(self, raw_table: Table) -> Table:
 
-        # (1)
-        index_topmost_value_row, index_leftmost_value_col = \
+        # (1) classify every cell into `LABEL` or `VALUE`
+        labels, index_topmost_value_row, index_leftmost_value_col = \
             self._classify_cells(table=raw_table)
 
-        # (2)
-        new_table = self._standardize_cell_sizes(table=raw_table)
+        if 'VALUE' not in labels:
+            raise NormalizationError('No values in this table')
 
-        # (3)
+        # (2) collapse to form single header & subject column
         new_table = self._merge_label_cells(
-            table=new_table,
+            table=self._standardize_cell_sizes(table=raw_table),
             index_topmost_value_row=index_topmost_value_row,
             index_leftmost_value_col=index_leftmost_value_col)
 
         return new_table
 
-    def _classify_cells(self, table: Table) -> Tuple[int, int]:
+    def _classify_cells(self, table: Table) -> Tuple[np.ndarray, int, int]:
         """
         Some thoughts:
         Nearly all tables should have bottom-right cell be a VALUE.
@@ -87,8 +84,9 @@ class SemanticTable(object):
         aggressively classify rows as VALUES.
         """
 
-        index_value_cell_rows = []
-        index_value_cell_cols = []
+        nrow, ncol = table.nrow, table.ncol
+
+        labels = np.empty((nrow, ncol), dtype='<U10')
 
         # (1) first pass to do easy ones
         for cell in table.cells:
@@ -97,66 +95,62 @@ class SemanticTable(object):
 
             # RULE 0:  EMPTY CELLS ARE IGNORED
             if text == '':
-                cell.label = 'EMPTY'
+                label = 'EMPTY'
 
             # RULE 1:  MULTIROW/COL CELLS ARE PROBABLY LABELS
             elif cell.rowspan > 1 or cell.colspan > 1:
-                cell.label = 'LABEL'
+                label = 'LABEL'
 
             # RULE 2:  A CELL WITH 100% TEXT IS PROBABLY A LABEL
             elif count_digits(text) == 0:
-                cell.label = 'LABEL'
+                label = 'LABEL'
 
             # RULE 3:  A CELL WITH >50% DIGITS IS PROBABLY A VALUE
             elif count_digits(text) / len(text) > 0.5:
-                cell.label = 'VALUE'
-                index_value_cell_rows.append(cell.index_topleft_row)
-                index_value_cell_cols.append(cell.index_topleft_col)
+                label = 'VALUE'
 
             else:
-                cell.label = 'UNKNOWN'
+                label = 'UNKNOWN'
 
-        # (2) second pass to use neighborhood info
-        index_leftmost_value_col = table.ncol - 1
+            for i, j in cell.indices:
+                labels[i, j] = label
+
+        # (2) second pass to form rectangle of 'VALUES'
+        index_leftmost_value_col = ncol - 1
         while index_leftmost_value_col >= 0:
-            if all([table[i, index_leftmost_value_col].label != 'VALUE'
-                    for i in range(table.nrow)]):
+            if all(labels[:, index_leftmost_value_col] != 'VALUE'):
                 break
             index_leftmost_value_col -= 1
         index_leftmost_value_col += 1
 
-        index_topmost_value_row = table.nrow - 1
+        index_topmost_value_row = nrow - 1
         while index_topmost_value_row >= 0:
-            if all([table[index_topmost_value_row, j].label != 'VALUE'
-                    for j in range(table.ncol)]):
+            if all(labels[index_topmost_value_row, :] != 'VALUE'):
                 break
             index_topmost_value_row -= 1
         index_topmost_value_row += 1
 
-        if index_leftmost_value_col == table.ncol and index_topmost_value_row == table.nrow:
-            raise NormalizationError('No values in this table')
-
         # re-label top-left quadrant
         for i in range(index_topmost_value_row):
             for j in range(index_leftmost_value_col):
-                table[i, j].label = 'EMPTY'
+                labels[i, j] = 'EMPTY'
 
         # re-label top-right quadrant
         for i in range(index_topmost_value_row):
             for j in range(index_leftmost_value_col, table.ncol):
-                table[i, j].label = 'LABEL'
+                labels[i, j] = 'LABEL'
 
         # re-label bottom-left quadrant
         for i in range(index_topmost_value_row, table.nrow):
             for j in range(index_leftmost_value_col):
-                table[i, j].label = 'LABEL'
+                labels[i, j] = 'LABEL'
 
         # re-label bottom-right quadrant
         for i in range(index_topmost_value_row, table.nrow):
             for j in range(index_leftmost_value_col, table.ncol):
-                table[i, j].label = 'VALUE'
+                labels[i, j] = 'VALUE'
 
-        return index_topmost_value_row, index_leftmost_value_col
+        return labels, index_topmost_value_row, index_leftmost_value_col
 
     def _standardize_cell_sizes(self, table: Table) -> Table:
         """Creates new cells for multispan cells"""
@@ -166,13 +160,9 @@ class SemanticTable(object):
                 new_cell = Cell(tokens=raw_cell.tokens,
                                 index_topleft_row=i,
                                 index_topleft_col=j,
-                                rowspan=1,
-                                colspan=1)
-                new_cell.label = raw_cell.label
+                                rowspan=1, colspan=1)
                 new_cells.append(new_cell)
-        return Table(cells=new_cells,
-                     nrow=table.nrow,
-                     ncol=table.ncol)
+        return Table(cells=new_cells, nrow=table.nrow, ncol=table.ncol)
 
     def _merge_label_cells(self, table: Table,
                            index_topmost_value_row: int,
