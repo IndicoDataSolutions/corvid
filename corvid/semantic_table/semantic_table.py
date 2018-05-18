@@ -35,22 +35,32 @@ class NormalizationError(Exception):
 class SemanticTable(object):
     def __init__(self, raw_table: Table):
         self.raw_table = raw_table
-        self.normalized_table = self.normalize_table(raw_table=self.raw_table)
+        self.normalized_table = self.normalize_table(table=self.raw_table)
 
-    def normalize_table(self, raw_table: Table) -> Table:
+    def normalize_table(self, table: Table) -> Table:
 
         # (1) classify every cell into `LABEL` or `VALUE`
         labels, index_topmost_value_row, index_leftmost_value_col = \
-            self._classify_cells(table=raw_table)
+            self._classify_cells(table=table)
 
         if 'VALUE' not in labels:
             raise NormalizationError('No values in this table')
 
-        # (2) collapse to form single header & subject column
+        # (2) split multispan cells into copies w/ span = 1
+        new_table = self._standardize_cell_sizes(table=table)
+
+        # (3) collapse label rows/cols to form single header & subject column
         new_table = self._merge_label_cells(
-            table=self._standardize_cell_sizes(table=raw_table),
+            table=new_table,
             index_topmost_value_row=index_topmost_value_row,
             index_leftmost_value_col=index_leftmost_value_col)
+
+        # (4) if missing a header/subject (i.e. all `VALUE` cells), add empty one
+        if index_topmost_value_row == 0:
+            new_table = self._add_empty_header(table=new_table)
+
+        if index_leftmost_value_col == 0:
+            new_table = self._add_empty_subject(table=new_table)
 
         return new_table
 
@@ -215,6 +225,34 @@ class SemanticTable(object):
                                  axis=0)
             new_table = Table(grid=new_grid.tolist())
 
+        return new_table
+
+    def _add_empty_header(self, table: Table) -> Table:
+        for cell in table.cells:
+            cell.index_topleft_row += 1
+        new_grid = np.insert(
+            table.grid, 0, values=[Cell(tokens=[],
+                                        index_topleft_row=0,
+                                        index_topleft_col=j,
+                                        rowspan=1, colspan=1)
+                                   for j in range(table.ncol)],
+            axis=0
+        )
+        new_table = Table(grid=new_grid)
+        return new_table
+
+    def _add_empty_subject(self, table: Table) -> Table:
+        for cell in table.cells:
+            cell.index_topleft_col += 1
+        new_grid = np.insert(
+            table.grid, 0, values=[Cell(tokens=[],
+                                        index_topleft_row=i,
+                                        index_topleft_col=0,
+                                        rowspan=1, colspan=1)
+                                   for i in range(table.nrow)],
+            axis=1
+        )
+        new_table = Table(grid=new_grid)
         return new_table
 
     @property

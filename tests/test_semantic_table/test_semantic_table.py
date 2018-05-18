@@ -155,6 +155,45 @@ class TestSemanticTable(unittest.TestCase):
         self.assertEqual(str(collapsed_merge_subject_table).replace(' ', ''),
                          'ab\t1\ncd\t2')
 
+    def test_add_empty_header(self):
+        table = Table(cells=[
+            Cell(tokens=['1'], index_topleft_row=0,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['2'], index_topleft_row=0,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['3'], index_topleft_row=1,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['4'], index_topleft_row=1,
+                 index_topleft_col=1, rowspan=1, colspan=1)
+        ], nrow=2, ncol=2)
+        new_table = self.semantic_table._add_empty_header(table=table)
+        self.assertEqual(new_table.nrow, 3)
+        self.assertEqual(new_table.ncol, 2)
+        self.assertListEqual(new_table.cells[2:], table.cells)
+        self.assertListEqual(new_table.cells[0].tokens, [])
+        self.assertListEqual(new_table.cells[1].tokens, [])
+
+    def test_add_empty_subject(self):
+        table = Table(cells=[
+            Cell(tokens=['1'], index_topleft_row=0,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['2'], index_topleft_row=0,
+                 index_topleft_col=1, rowspan=1, colspan=1),
+            Cell(tokens=['3'], index_topleft_row=1,
+                 index_topleft_col=0, rowspan=1, colspan=1),
+            Cell(tokens=['4'], index_topleft_row=1,
+                 index_topleft_col=1, rowspan=1, colspan=1)
+        ], nrow=2, ncol=2)
+        new_table = self.semantic_table._add_empty_subject(table=table)
+        self.assertEqual(new_table.nrow, 2)
+        self.assertEqual(new_table.ncol, 3)
+        assert_array_equal(new_table.grid[:, 1], table.grid[:, 0])
+        assert_array_equal(new_table.grid[:, 2], table.grid[:, 1])
+        self.assertListEqual(new_table.grid[0, 0].tokens, [])
+        self.assertListEqual(new_table.grid[1, 0].tokens, [])
+
+
+
 
 
         #
