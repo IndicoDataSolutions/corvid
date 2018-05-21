@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 from corvid.table.table import Cell, Table
-from corvid.util.lists import compute_similarity
+from corvid.util.lists import compute_similarity, compute_best_alignments
 
 
 def count_matching_cells(row1: List[Cell], row2: List[Cell]) -> float:
@@ -89,19 +89,24 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
 
     assert gold_table.nrow > 1
 
-    cell_match_counts = np.array([
-        [
-            count_matching_cells(row1=gold_row[1:], row2=pred_row[1:])
-            for pred_row in pred_table.grid[1:, :]
-        ]
-        for gold_row in gold_table.grid[1:, :]
-    ])
-
+    # cell_match_counts = np.array([
+    #     [
+    #         count_matching_cells(row1=gold_row, row2=pred_row)
+    #         for pred_row in pred_table.grid[1:, 1:]
+    #     ]
+    #     for gold_row in gold_table.grid[1:, 1:]
+    # ])
+    #
     # negative sign here because scipy implementation minimizes sum of weights
-    index_gold, index_pred = linear_sum_assignment(-1.0 * cell_match_counts)
+    # index_gold, index_pred = linear_sum_assignment(-1.0 * cell_match_counts)
+    #
+    # return cell_match_counts[index_gold, index_pred].sum() / \
+    #        ((gold_table.nrow - 1) * (gold_table.ncol - 1))
 
-    return cell_match_counts[index_gold, index_pred].sum() / \
-           ((gold_table.nrow - 1) * (gold_table.ncol - 1))
+    score, row_mappings = compute_best_alignments(x=gold_table.grid[1:, 1:],
+                                                  y=pred_table.grid[1:, 1:],
+                                                  sim=count_matching_cells)
+    return score / (gold_table.nrow - 1) * (gold_table.ncol - 1)
 
 
 # TODO: link to documentation that describes formulas for each of these

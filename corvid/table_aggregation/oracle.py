@@ -119,12 +119,15 @@ def predict_oracle(source_tables: List[Table], gold_table: Table) -> Table:
         #
         gold = np.delete(gold, index_gold_rows, axis=0)
 
-    return pred
+    return Table(grid=[[Cell([cell], i, j, 0, 0)
+                        for j, cell in enumerate(row)]
+                       for i, row in enumerate(pred)])
 
 
 if __name__ == '__main__':
     source_table1 = Table(cells=[
-        Cell([''], 0, 0), Cell(['x'], 0, 1), Cell(['y'], 0, 2), Cell(['z'], 0, 3),
+        Cell([''], 0, 0), Cell(['x'], 0, 1), Cell(['y'], 0, 2),
+        Cell(['z'], 0, 3),
         Cell(['s:m1'], 1, 0), Cell(['a'], 1, 1), Cell(['?'], 1, 2),
         Cell(['2'], 1, 3),
         Cell(['s:m2'], 2, 0), Cell(['b'], 2, 1), Cell(['?'], 2, 2),
@@ -152,4 +155,5 @@ if __name__ == '__main__':
         Cell(['g:m4'], 4, 0), Cell(['4'], 4, 1), Cell(['d'], 4, 2),
     ], nrow=5, ncol=3)
 
-    predict_oracle([source_table3, source_table2, source_table1], gold_table)
+    source_tables = [source_table3, source_table2, source_table1]
+    print(predict_oracle(source_tables, gold_table))
