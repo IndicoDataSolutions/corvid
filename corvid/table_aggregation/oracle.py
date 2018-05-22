@@ -93,12 +93,15 @@ def predict_oracle(source_tables: List[Table], gold_table: Table) -> Table:
         source_rows = [tuple(cell for cell in row) for row in source]
 
         # align rows between gold & source
-        _, row_mappings = compute_best_alignments_with_threshold(
+        # if score is 0, then break because no more matching is possible
+        score, row_mappings = compute_best_alignments_with_threshold(
             x=gold_rows, y=source_rows,
             sim=lambda gold_row, source_row:
             sum([g_i == s_i for g_i, s_i in zip(gold_row, source_row)]),
             threshold=0
         )
+        if score == 0:
+            break
         index_gold_rows = []
         index_source_rows = []
         for index_gold_row, index_source_row in row_mappings:
