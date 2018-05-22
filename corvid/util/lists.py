@@ -75,7 +75,7 @@ def compute_best_permutation(x: List,
 def compute_best_alignments(x: List, y: List,
                             sim: Callable[[Any, Any],
                                           Union[bool, int, float]]) -> \
-        List[Dict[str, Tuple[int, Any]]]:
+        Tuple[float, List[Tuple[int, Any]]]:
     """Uses Hungarian algorithm (Kuhn) to compute globally optimal pairwise
     alignments between items in lists `x` and `y`, where `sim` computes
     the score of a pairing `x_i` and `y_i`.
@@ -91,7 +91,7 @@ def compute_best_alignments(x: List, y: List,
     best_alignment_indices = [(i, j) for i, j in zip(index_x, index_y)]
     score_best_alignment = sim_matrix[index_x, index_y].sum()
 
-    return best_alignment_indices
+    return score_best_alignment, best_alignment_indices
 
 
 def compute_union(x: Iterable, y: Iterable) -> List:
