@@ -106,7 +106,7 @@ def cell_level_recall(gold_table: Table, pred_table: Table) -> float:
     score, row_mappings = compute_best_alignments(x=gold_table.grid[1:, 1:],
                                                   y=pred_table.grid[1:, 1:],
                                                   sim=count_matching_cells)
-    return score / (gold_table.nrow - 1) * (gold_table.ncol - 1)
+    return score / ((gold_table.nrow - 1) * (gold_table.ncol - 1))
 
 
 # TODO: link to documentation that describes formulas for each of these
