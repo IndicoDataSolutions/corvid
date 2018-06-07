@@ -8,7 +8,7 @@ import unittest
 from numpy.testing import assert_array_equal
 
 from corvid.semantic_table.semantic_table import Cell, Table, SemanticTable, \
-    NormalizationError
+    IdentitySemanticTable, LabelCollapseSemanticTable, NormalizationError
 
 
 class TestSemanticTable(unittest.TestCase):
@@ -50,13 +50,14 @@ class TestSemanticTable(unittest.TestCase):
             [self.e, self.h, self.m, self.n]
         ])
 
-        self.semantic_table = SemanticTable(raw_table=self.table)
+        self.i_semantic_table = IdentitySemanticTable(self.table)
+        self.lc_semantic_table = LabelCollapseSemanticTable(self.table)
 
     def test_normalize_table(self):
-        self.assertEqual(self.semantic_table.normalized_table.nrow, 4)
-        self.assertEqual(self.semantic_table.normalized_table.ncol, 3)
+        self.assertEqual(self.lc_semantic_table.normalized_table.nrow, 4)
+        self.assertEqual(self.lc_semantic_table.normalized_table.ncol, 3)
         self.assertEqual(
-            str(self.semantic_table.normalized_table).replace(' ', ''),
+            str(self.lc_semantic_table.normalized_table).replace(' ', ''),
             '\tCC:1\tCC:2\nRR:1\t1\t2\nRR:2\t3\t4\nRR:3\t5\t6'
         )
 
@@ -75,7 +76,7 @@ class TestSemanticTable(unittest.TestCase):
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=2, ncol=2)
         labels, index_topmost_value_row, index_leftmost_value_col = \
-            self.semantic_table._classify_cells(table=all_values_table)
+            self.lc_semantic_table._classify_cells(table=all_values_table)
         assert_array_equal(labels, [['VALUE', 'VALUE'], ['VALUE', 'VALUE']])
         self.assertEqual(index_topmost_value_row, 0)
         self.assertEqual(index_leftmost_value_col, 0)
@@ -85,7 +86,7 @@ class TestSemanticTable(unittest.TestCase):
                  index_topleft_col=0, rowspan=1, colspan=1)
         ], nrow=1, ncol=1)
         labels, index_topmost_value_row, index_leftmost_value_col = \
-            self.semantic_table._classify_cells(table=all_labels_table)
+            self.lc_semantic_table._classify_cells(table=all_labels_table)
         assert_array_equal(labels, [['EMPTY']])
         self.assertEqual(index_topmost_value_row, 1)
         self.assertEqual(index_leftmost_value_col, 1)
@@ -102,7 +103,7 @@ class TestSemanticTable(unittest.TestCase):
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=2, ncol=2)
         self.assertListEqual(
-            self.semantic_table._merge_label_cells(table=all_values_table,
+            self.lc_semantic_table._merge_label_cells(table=all_values_table,
                                                    index_topmost_value_row=0,
                                                    index_leftmost_value_col=0).cells,
             all_values_table.cells
@@ -122,7 +123,7 @@ class TestSemanticTable(unittest.TestCase):
             Cell(tokens=['2'], index_topleft_row=2,
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=3, ncol=2)
-        collapsed_merge_header_table = self.semantic_table._merge_label_cells(
+        collapsed_merge_header_table = self.lc_semantic_table._merge_label_cells(
             table=merge_header_table,
             index_topmost_value_row=2,
             index_leftmost_value_col=0)
@@ -145,7 +146,7 @@ class TestSemanticTable(unittest.TestCase):
             Cell(tokens=['2'], index_topleft_row=1,
                  index_topleft_col=2, rowspan=1, colspan=1)
         ], nrow=2, ncol=3)
-        collapsed_merge_subject_table = self.semantic_table._merge_label_cells(
+        collapsed_merge_subject_table = self.lc_semantic_table._merge_label_cells(
             table=merge_subject_table,
             index_topmost_value_row=0,
             index_leftmost_value_col=2
@@ -166,7 +167,7 @@ class TestSemanticTable(unittest.TestCase):
             Cell(tokens=['4'], index_topleft_row=1,
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=2, ncol=2)
-        new_table = self.semantic_table._add_empty_header(table=table)
+        new_table = self.lc_semantic_table._add_empty_header(table=table)
         self.assertEqual(new_table.nrow, 3)
         self.assertEqual(new_table.ncol, 2)
         self.assertListEqual(new_table.cells[2:], table.cells)
@@ -184,7 +185,7 @@ class TestSemanticTable(unittest.TestCase):
             Cell(tokens=['4'], index_topleft_row=1,
                  index_topleft_col=1, rowspan=1, colspan=1)
         ], nrow=2, ncol=2)
-        new_table = self.semantic_table._add_empty_subject(table=table)
+        new_table = self.lc_semantic_table._add_empty_subject(table=table)
         self.assertEqual(new_table.nrow, 2)
         self.assertEqual(new_table.ncol, 3)
         assert_array_equal(new_table.grid[:, 1], table.grid[:, 0])

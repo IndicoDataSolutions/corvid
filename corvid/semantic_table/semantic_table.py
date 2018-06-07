@@ -38,6 +38,84 @@ class SemanticTable(object):
         self.normalized_table = self.normalize_table(table=self.raw_table)
 
     def normalize_table(self, table: Table) -> Table:
+        raise NotImplementedError
+
+    @property
+    def nrow(self) -> int:
+        return self.normalized_table.nrow
+
+    @property
+    def ncol(self) -> int:
+        return self.normalized_table.ncol
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        return self.normalized_table.shape
+
+    def __getitem__(self, index: Union[int, slice, Tuple]) -> \
+            Union[Cell, List[Cell]]:
+        return self.normalized_table[index]
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return format_grid([[str(cell) for cell in row]
+                            for row in self.normalized_table.grid])
+
+    def insert_row(self, index: int, row: List[Cell]):
+        assert len(row) == self.ncol
+        new_grid = np.insert(arr=self.normalized_table.grid,
+                             obj=index, values=row, axis=0)
+        for i in range(index, self.normalized_table.nrow + 1):
+            for j in range(self.normalized_table.ncol):
+                new_grid[i, j].index_topleft_row += 1
+        self.normalized_table = Table(grid=new_grid.tolist())
+
+    def insert_column(self, index: int, column: List[Cell]):
+        assert len(column) == self.nrow
+        new_grid = np.insert(arr=self.normalized_table.grid,
+                             obj=index, values=column, axis=1)
+        for i in range(self.normalized_table.nrow):
+            for j in range(index, self.normalized_table.ncol + 1):
+                new_grid[i, j].index_topleft_col += 1
+        self.normalized_table = Table(grid=new_grid.tolist())
+
+    def delete_row(self, index: int):
+        new_grid = np.delete(arr=self.normalized_table.grid, obj=index, axis=0)
+        for i in range(index, self.normalized_table.nrow - 1):
+            for j in range(self.normalized_table.ncol):
+                new_grid[i, j].index_topleft_row -= 1
+        self.normalized_table = Table(grid=new_grid.tolist())
+
+    def delete_column(self, index: int):
+        new_grid = np.delete(arr=self.normalized_table.grid, obj=index, axis=1)
+        for i in range(self.normalized_table.nrow):
+            for j in range(index, self.normalized_table.ncol - 1):
+                new_grid[i, j].index_topleft_col -= 1
+        self.normalized_table = Table(grid=new_grid.tolist())
+
+
+class IdentitySemanticTable(SemanticTable):
+    """Normalization that basically returns itself"""
+
+    def normalize_table(self, table: Table) -> Table:
+        new_cells = []
+        for raw_cell in table.cells:
+            for i, j in raw_cell.indices:
+                new_cells.append(
+                    Cell(tokens=raw_cell.tokens,
+                         index_topleft_row=i,
+                         index_topleft_col=j,
+                         rowspan=1,
+                         colspan=1))
+        return Table(cells=new_cells, nrow=table.nrow, ncol=table.ncol)
+
+
+class LabelCollapseSemanticTable(SemanticTable):
+    """Normalization that collapses LABEL cells in rows and columns"""
+
+    def normalize_table(self, table: Table) -> Table:
 
         # (1) classify every cell into `LABEL` or `VALUE`
         labels, index_topmost_value_row, index_leftmost_value_col = \
@@ -250,62 +328,6 @@ class SemanticTable(object):
                                         index_topleft_col=0,
                                         rowspan=1, colspan=1)
                                    for i in range(table.nrow)],
-            axis=1
-        )
+            axis=1)
         new_table = Table(grid=new_grid)
         return new_table
-
-    @property
-    def nrow(self) -> int:
-        return self.normalized_table.nrow
-
-    @property
-    def ncol(self) -> int:
-        return self.normalized_table.ncol
-
-    @property
-    def shape(self) -> Tuple[int, int]:
-        return self.normalized_table.shape
-
-    def __getitem__(self, index: Union[int, slice, Tuple]) -> \
-            Union[Cell, List[Cell]]:
-        return self.normalized_table[index]
-
-    def __repr__(self):
-        return str(self)
-
-    def __str__(self):
-        return format_grid([[str(cell) for cell in row]
-                            for row in self.normalized_table.grid])
-
-    def insert_row(self, index: int, row: List[Cell]):
-        assert len(row) == self.ncol
-        new_grid = np.insert(arr=self.normalized_table.grid,
-                             obj=index, values=row, axis=0)
-        for i in range(index, self.normalized_table.nrow + 1):
-            for j in range(self.normalized_table.ncol):
-                new_grid[i, j].index_topleft_row += 1
-        self.normalized_table = Table(grid=new_grid.tolist())
-
-    def insert_column(self, index: int, column: List[Cell]):
-        assert len(column) == self.nrow
-        new_grid = np.insert(arr=self.normalized_table.grid,
-                             obj=index, values=column, axis=1)
-        for i in range(self.normalized_table.nrow):
-            for j in range(index, self.normalized_table.ncol + 1):
-                new_grid[i, j].index_topleft_col += 1
-        self.normalized_table = Table(grid=new_grid.tolist())
-
-    def delete_row(self, index: int):
-        new_grid = np.delete(arr=self.normalized_table.grid, obj=index, axis=0)
-        for i in range(index, self.normalized_table.nrow - 1):
-            for j in range(self.normalized_table.ncol):
-                new_grid[i, j].index_topleft_row -= 1
-        self.normalized_table = Table(grid=new_grid.tolist())
-
-    def delete_column(self, index: int):
-        new_grid = np.delete(arr=self.normalized_table.grid, obj=index, axis=1)
-        for i in range(self.normalized_table.nrow):
-            for j in range(index, self.normalized_table.ncol - 1):
-                new_grid[i, j].index_topleft_col -= 1
-        self.normalized_table = Table(grid=new_grid.tolist())
