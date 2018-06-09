@@ -1,96 +1,102 @@
-from typing import List
+from typing import List, Callable, Tuple
 
 import numpy as np
-from scipy.optimize import linear_sum_assignment
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import minimum_spanning_tree
+from fuzzywuzzy import fuzz
 
 from corvid.table.table import Table, Cell
-from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
+
+from corvid.util.lists import compute_best_alignments_with_threshold
 
 
 class SchemaMatcher(object):
-    def map_tables(self, tables: List[Table], target_schema: Table) -> \
-            List[PairwiseMapping]:
+    def predict(self, tables: List[Table], target_schema: List[str]) -> Table:
         raise NotImplementedError
-
-    def aggregate_tables(self,
-                         pairwise_mappings: List[PairwiseMapping],
-                         target_schema: Table) -> Table:
-
-        # initialize empty aggregate table
-        num_rows_agg_table = sum([pairwise_mapping.table1.nrow - 1
-                                  for pairwise_mapping in pairwise_mappings])
-
-        # TODO: hotfix: everything breaks when include None as Cells (specifically, Table(grid) needs to call Cell.index)
-        grid = np.array([
-            [Cell(tokens=[''], index_topleft_row=i, index_topleft_col=j) for j in range(target_schema.ncol)]
-            for i in range(num_rows_agg_table)
-        ])
-        grid = np.insert(arr=grid, obj=0, values=target_schema[0, :], axis=0)
-
-        index_agg_table_insert = 1
-        # TODO: `table1` is always the table that needs to be aggregated to `table2`=target
-        for pairwise_mapping in sorted(pairwise_mappings):
-            for idx_source_row in range(1, pairwise_mapping.table1.nrow):
-                # copy subject for this row
-                grid[index_agg_table_insert, 0] = \
-                    pairwise_mapping.table1[idx_source_row, 0]
-
-                # fill cells with source table values according to column mappings
-                for index_source_col, index_target_col in pairwise_mapping.column_mappings:
-                    grid[index_agg_table_insert, index_target_col] = \
-                        pairwise_mapping.table1[
-                            idx_source_row, index_source_col]
-
-                index_agg_table_insert += 1
-
-        aggregate_table = Table(grid=grid.tolist())
-
-        return aggregate_table
-
-    def _compute_cell_similarity(self, cell1: Cell, cell2: Cell) -> float:
-        """
-        Returns similarity between two cells;
-        currently it tests for equality
-        """
-        return float(str(cell1).strip().lower() == str(cell2).strip().lower())
 
 
 class ColNameSchemaMatcher(SchemaMatcher):
-    def map_tables(self, tables: List[Table], target_schema: Table) -> \
-            List[PairwiseMapping]:
-        pairwise_mappings = []
+    def predict(self, tables: List[Table], target_schema: List[str]) -> Table:
+        schema_table = Table(cells=[Cell(tokens=[s],
+                                         index_topleft_row=0,
+                                         index_topleft_col=j,
+                                         rowspan=1, colspan=1)
+                                    for j, s in enumerate(target_schema)],
+                             nrow=1, ncol=len(target_schema))
 
+        # match each table to the schema (order doesnt matter)
         for table in tables:
-            pairwise_mappings.append(
-                self._compute_cell_match(table, target_schema))
+            score, column_alignments = \
+                self.compute_column_alignments_by_column_names(schema_table,
+                                                               table)
+            schema_table = self.merge_two_tables(target=schema_table,
+                                                 source=table,
+                                                 column_alignments=column_alignments)
+        return schema_table
 
-        return pairwise_mappings
+    # TODO: replace `str(cell)` with additional tokenization and processing
+    # TODO: allow for matching to columns containing NONE strings
+    def compute_column_alignments_by_column_names(self, t1: Table,
+                                                  t2: Table) -> \
+            Tuple[float, List[Tuple[int, int]]]:
+        """Computes similarity between t1 and t2 based on their column names
+        (excluding the first column).
 
-    def _compute_cell_match(self,
-                            table1: Table,
-                            table2: Table) -> PairwiseMapping:
+        Table similarity equals the sum of column similarities.
+
+        Column similarity equals the string edit distance between the column names
+        (string is tokenized and distance is token-order-invariant).
+
+        Returns the table similarity score, and a list of tuples (i, j) where i
+        is the column index for t1 and j is the column index for t2.
+
+        Similarity scores are thresholded such that scores 0.0 or below have their
+        alignments removed.
         """
-            Counts cell level match between rows of two tables
-        """
+        t1_cols = [str(t1[0, j]) for j in range(1, t1.ncol)]
+        t2_cols = [str(t2[0, j]) for j in range(1, t2.ncol)]
+        score, column_alignments = compute_best_alignments_with_threshold(
+            x=t1_cols, y=t2_cols,
+            sim=lambda c1, c2: fuzz.token_set_ratio(c1, c2) / 100,
+            threshold=0.0
+        )
+        # matching ignores first column, so indices need to be incremented by 1
+        return score, [(0, 0)] + [(i + 1, j + 1) for i, j in column_alignments]
 
-        cell_similarities = np.zeros(shape=(table1.ncol - 1,
-                                            table2.ncol - 1))
-        for idx1, table1_header_cell in enumerate(table1[0, 1:]):
-            for idx2, table2_header_cell in enumerate(table2[0, 1:]):
-                cell_similarities[idx1, idx2] = \
-                    self._compute_cell_similarity(table1_header_cell,
-                                                  table2_header_cell)
+    def merge_two_tables(self, target: Table, source: Table,
+                         column_alignments: List[Tuple[int, int]],
+                         pad: str = 'NONE') -> Table:
+        """Merge a `source` table into a `target` table based on their
+        `column_alignments`, which is a List of Tuple[int, int] that index
+        the `target` column and the `source` column, respectively.
 
-        # negative sign here because scipy implementation minimizes sum of weights
-        index_table1, index_table2 = linear_sum_assignment(
-            -1.0 * cell_similarities)
+        Unaligned target columns are padded."""
 
-        sum_similarity_score = cell_similarities[index_table1,
-                                                 index_table2].sum()
+        t = np.array([[str(cell) for cell in row] for row in target.grid],
+                     dtype=object)
+        s = np.array([[str(cell) for cell in row] for row in source.grid[1:]],
+                     dtype=object)
+        index_t_cols = [i for i, j in column_alignments]
+        index_s_cols = [j for i, j in column_alignments]
 
-        return PairwiseMapping(table1, table2,
-                               score=sum_similarity_score,
-                               column_mappings=[
-                                   (c1 + 1, c2 + 1)
-                                   for c1, c2, in zip(index_table1,
-                                                      index_table2)])
+        new_rows = np.array([], dtype=object).reshape(source.nrow - 1, 0)
+        for j in range(target.ncol):
+            # target column has a source column alignment
+            if j in index_t_cols:
+                new_col = s[:, index_s_cols[index_t_cols.index(j)]] \
+                    .reshape(source.nrow - 1, 1)
+            # padding if target column doesnt have a source column alignment
+            else:
+                new_col = np.array([[pad]] * (source.nrow - 1), dtype=object)
+
+            new_rows = np.append(new_rows, new_col, axis=1)
+
+        # append rows of permuted source (excluding header) into target
+        t = np.append(t, new_rows, axis=0)
+
+        # convert to a table
+        new_table = Table(grid=[[Cell([cell], i, j)
+                                 for j, cell in enumerate(row)]
+                                for i, row in enumerate(t)])
+        return new_table
+

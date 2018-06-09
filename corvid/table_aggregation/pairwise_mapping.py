@@ -9,6 +9,7 @@ from typing import List, Tuple
 from corvid.table.table import Table
 
 
+# TODO: deprecated
 class PairwiseMapping(object):
     """
     Class stores output from a schema matcher between a pair of
