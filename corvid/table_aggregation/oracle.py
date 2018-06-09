@@ -3,25 +3,9 @@ from typing import List, Callable, Tuple
 import numpy as np
 
 from corvid.table.table import Table, Cell
-from corvid.table_aggregation.pairwise_mapping import PairwiseMapping
 
-from corvid.util.lists import compute_best_alignments, compute_intersection
-
-
-def compute_best_alignments_with_threshold(x: List, y: List, sim: Callable,
-                                           threshold: float) -> \
-        Tuple[float, List[Tuple[int, int]]]:
-    _, raw_alignments = compute_best_alignments(x=x, y=y, sim=sim)
-
-    clean_alignments = []
-    score = 0
-    for i, j in raw_alignments:
-        sim_ij = sim(x[i], y[j])
-        if sim_ij > threshold:
-            score += sim_ij
-            clean_alignments.append((i, j))
-
-    return score, clean_alignments
+from corvid.util.lists import compute_best_alignments, \
+    compute_best_alignments_with_threshold, compute_intersection
 
 
 def predict_oracle(source_tables: List[Table], gold_table: Table) -> Table:

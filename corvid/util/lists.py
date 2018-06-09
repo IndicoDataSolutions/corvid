@@ -94,6 +94,24 @@ def compute_best_alignments(x: List, y: List,
     return score_best_alignment, best_alignment_indices
 
 
+def compute_best_alignments_with_threshold(x: List, y: List, sim: Callable,
+                                           threshold: float) -> \
+        Tuple[float, List[Tuple[int, int]]]:
+    """Wrapper around `compute_best_alignments` that removes any alignment
+    whose similarity score falls below a threshold"""
+    _, raw_alignments = compute_best_alignments(x=x, y=y, sim=sim)
+
+    clean_alignments = []
+    score = 0
+    for i, j in raw_alignments:
+        sim_ij = sim(x[i], y[j])
+        if sim_ij > threshold:
+            score += sim_ij
+            clean_alignments.append((i, j))
+
+    return score, clean_alignments
+
+
 def compute_union(x: Iterable, y: Iterable) -> List:
     """Returns union of items in `x` and `y`, where `x` and `y` allow for
     duplicates.  Items must be hashable.  For example:
