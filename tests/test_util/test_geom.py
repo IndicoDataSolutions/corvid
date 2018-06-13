@@ -16,11 +16,11 @@ class TestBox(unittest.TestCase):
         self.assertEqual(self.box1.width, 2.0)
 
     def test_is_overlap(self):
-        self.assertTrue(Box.is_x_overlap(self.box1, self.box1))
+        self.assertFalse(Box.is_x_overlap(self.box1, self.box1))
         self.assertFalse(Box.is_x_overlap(self.box1, self.box2))
         self.assertTrue(Box.is_x_overlap(self.box1, self.box3))
 
-        self.assertTrue(Box.is_y_overlap(self.box1, self.box1))
+        self.assertFalse(Box.is_y_overlap(self.box1, self.box1))
         self.assertTrue(Box.is_y_overlap(self.box1, self.box2))
         self.assertFalse(Box.is_y_overlap(self.box1, self.box3))
 
