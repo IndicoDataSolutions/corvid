@@ -111,3 +111,6 @@ data/*
 !data/datasets.json
 config.py
 log_summary.json
+
+*.xml
+*.pdf

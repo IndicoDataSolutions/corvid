@@ -1,5 +1,5 @@
-OCRLIBPATH = /usr/local/lib/nuance-omnipage-csdk-lib64-20.2
-OCRINCPATH = /usr/local/include/nuance-omnipage-csdk-20.2
+OCRLIBPATH = /usr/local/lib/nuance-omnipage-csdk-lib64-20.3
+OCRINCPATH = /usr/local/include/nuance-omnipage-csdk-20.3
 
 CXXFLAGS = -O3
 
